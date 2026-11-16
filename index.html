@@ -1,9 +1,9 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Operacional — Ago/Out 2026</title>
+<title>Dashboard Operacional — Frota Atlântico</title>
 <style>
   :root{
     --bg:#0f172a;
@@ -24,7 +24,23 @@
     padding:24px;line-height:1.5;
   }
   h1{font-size:1.6rem;margin-bottom:4px}
-  .sub{color:var(--muted);font-size:.9rem;margin-bottom:24px}
+  .sub{color:var(--muted);font-size:.9rem;margin-bottom:20px}
+
+  /* Sistema de Abas */
+  .tabs{
+    display:flex;gap:8px;margin-bottom:24px;
+    border-bottom:1px solid var(--border);padding-bottom:12px;
+  }
+  .tab-btn{
+    background:var(--card);color:var(--muted);border:1px solid var(--border);
+    padding:10px 20px;border-radius:8px;font-weight:600;
+    cursor:pointer;font-size:.95rem;transition:all 0.2s;
+  }
+  .tab-btn.active{
+    background:var(--accent);color:#0f172a;border-color:var(--accent);
+  }
+  .tab-content{display:none}
+  .tab-content.active{display:block}
 
   /* Filtros */
   .filters{
@@ -47,6 +63,30 @@
     cursor:pointer;font-size:.9rem;
   }
   .btn:hover{opacity:.85}
+  .btn-danger{background:var(--red);color:#fff;margin-left:auto}
+
+  /* Formulário de Inserção */
+  .form-panel{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:12px;padding:24px;max-width:700px;margin:0 auto;
+  }
+  .form-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;
+  }
+  .form-group{display:flex;flex-direction:column;gap:6px}
+  .form-group.full{grid-column:span 2}
+  .form-group label{font-size:.85rem;color:var(--muted);font-weight:600}
+  .form-group input,.form-group select{
+    background:var(--card2);color:var(--txt);
+    border:1px solid var(--border);border-radius:8px;
+    padding:10px 12px;font-size:.95rem;outline:none;
+  }
+  .form-group input:focus,.form-group select:focus{border-color:var(--accent)}
+  .msg-sucesso{
+    background:rgba(34,197,94,.15);color:var(--green);
+    padding:10px;border-radius:8px;margin-bottom:16px;
+    font-size:.9rem;text-align:center;display:none;
+  }
 
   /* KPI Cards */
   .kpis{
@@ -116,6 +156,8 @@
   .scroll{max-height:520px;overflow:auto}
   @media(max-width:600px){
     body{padding:12px}
+    .form-grid{grid-template-columns:1fr}
+    .form-group.full{grid-column:span 1}
     .bar-row .name{width:90px}
     th,td{padding:8px}
   }
@@ -124,81 +166,137 @@
 <body>
 
 <h1>🚌 Dashboard Operacional — Frota Atlântico</h1>
-<p class="sub">Registros de desembarque · Agosto a Outubro de 2026 · Fonte: WhatsApp TI</p>
+<p class="sub">Gestão de Registros e Ocorrências de Desembarque</p>
 
-<!-- FILTROS -->
-<div class="filters">
-  <label for="mes">Mês:</label>
-  <select id="mes">
-    <option value="all">Todos</option>
-    <option value="2026-08">Agosto/2026</option>
-    <option value="2026-09">Setembro/2026</option>
-    <option value="2026-10">Outubro/2026</option>
-  </select>
-
-  <label for="classe">Classe:</label>
-  <select id="classe">
-    <option value="all">Todas</option>
-    <option value="Executivo">Executivo</option>
-    <option value="Urbano">Urbano</option>
-  </select>
-
-  <label for="busca">Buscar:</label>
-  <input id="busca" type="text" placeholder="Carro, motorista ou ocorrência...">
-
-  <button class="btn" id="limpar">Limpar filtros</button>
+<!-- ABAS DE NAVEGAÇÃO -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="mudarAba('dashboard')">📊 Dashboard & Relatórios</button>
+  <button class="tab-btn" onclick="mudarAba('cadastro')">➕ Inserir Novo Dado</button>
 </div>
 
-<!-- KPIs -->
-<div class="kpis" id="kpis"></div>
+<!-- ABA 1: DASHBOARD -->
+<div id="tab-dashboard" class="tab-content active">
+  <!-- FILTROS -->
+  <div class="filters">
+    <label for="mes">Mês:</label>
+    <select id="mes">
+      <option value="all">Todos</option>
+      <option value="2026-08">Agosto/2026</option>
+      <option value="2026-09">Setembro/2026</option>
+      <option value="2026-10">Outubro/2026</option>
+      <option value="2026-11">Novembro/2026</option>
+      <option value="2026-12">Dezembro/2026</option>
+    </select>
 
-<!-- GRÁFICOS -->
-<div class="grid">
-  <div class="panel">
-    <h2>Ocorrências</h2>
-    <div id="chartOcorrencias"></div>
+    <label for="classe">Classe:</label>
+    <select id="classe">
+      <option value="all">Todas</option>
+      <option value="Executivo">Executivo</option>
+      <option value="Urbano">Urbano</option>
+    </select>
+
+    <label for="busca">Buscar:</label>
+    <input id="busca" type="text" placeholder="Carro, motorista ou ocorrência...">
+
+    <button class="btn" id="limpar">Limpar filtros</button>
+    <button class="btn btn-danger" onclick="resetarDadosPadrao()" title="Restaurar dados iniciais">Restaurar Padrão</button>
   </div>
-  <div class="panel">
-    <h2>Distribuição por Classe</h2>
-    <div id="chartClasse"></div>
+
+  <!-- KPIs -->
+  <div class="kpis" id="kpis"></div>
+
+  <!-- GRÁFICOS -->
+  <div class="grid">
+    <div class="panel">
+      <h2>Ocorrências</h2>
+      <div id="chartOcorrencias"></div>
+    </div>
+    <div class="panel">
+      <h2>Distribuição por Classe</h2>
+      <div id="chartClasse"></div>
+    </div>
+    <div class="panel">
+      <h2>Top 10 Motoristas (viagens)</h2>
+      <div id="chartMotoristas"></div>
+    </div>
+    <div class="panel">
+      <h2>Top 10 Veículos (viagens)</h2>
+      <div id="chartVeiculos"></div>
+    </div>
   </div>
-  <div class="panel">
-    <h2>Top 10 Motoristas (viagens)</h2>
-    <div id="chartMotoristas"></div>
-  </div>
-  <div class="panel">
-    <h2>Top 10 Veículos (viagens)</h2>
-    <div id="chartVeiculos"></div>
+
+  <!-- TABELA -->
+  <div class="table-wrap">
+    <div class="table-head">
+      <h2>Registros detalhados</h2>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Carro</th>
+            <th>Classe</th>
+            <th>Motorista</th>
+            <th>Ocorrência</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
-<!-- TABELA -->
-<div class="table-wrap">
-  <div class="table-head">
-    <h2>Registros detalhados</h2>
-    <span class="count" id="count"></span>
-  </div>
-  <div class="scroll">
-    <table>
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Carro</th>
-          <th>Classe</th>
-          <th>Motorista</th>
-          <th>Ocorrência</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
+<!-- ABA 2: INSERÇÃO DE DADOS -->
+<div id="tab-cadastro" class="tab-content">
+  <div class="form-panel">
+    <h2>Cadastrar Novo Registro na Frota</h2>
+    <p class="sub" style="margin-bottom: 16px;">Preencha os campos abaixo para salvar o dado online/armazenado no navegador.</p>
+    
+    <div id="msgSucesso" class="msg-sucesso">Registro adicionado com sucesso! O dashboard foi atualizado.</div>
+
+    <form id="formCadastro" onsubmit="salvarNovoRegistro(event)">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="novoData">Data da Ocorrência *</label>
+          <input type="date" id="novoData" required>
+        </div>
+
+        <div class="form-group">
+          <label for="novoCarro">Número do Carro *</label>
+          <input type="text" id="novoCarro" placeholder="Ex: 882318" required>
+        </div>
+
+        <div class="form-group">
+          <label for="novoClasse">Classe do Veículo *</label>
+          <select id="novoClasse" required>
+            <option value="Executivo">Executivo</option>
+            <option value="Urbano">Urbano</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="novoMotorista">Motorista</label>
+          <input type="text" id="novoMotorista" placeholder="Ex: Lazaro (ou deixe —)">
+        </div>
+
+        <div class="form-group full">
+          <label for="novoOcorrencia">Descrição da Ocorrência *</label>
+          <input type="text" id="novoOcorrencia" placeholder="Ex: Passagem não solicitada, Sem ocorrências..." required>
+        </div>
+      </div>
+
+      <button type="submit" class="btn" style="width: 100%; padding: 12px; font-size: 1rem;">Salvar e Enviar para o Dashboard</button>
+    </form>
   </div>
 </div>
 
 <script>
 /* ============================================================
-   BASE DE DADOS — extraída do arquivo WhatsApp
+   BASE DE DADOS INICIAL + LOCALSTORAGE
    ============================================================ */
-const dados = [
+const dadosIniciais = [
   // ---------- AGOSTO ----------
   {data:"2026-08-03", carro:"8824140", classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem ocorrências"},
   {data:"2026-08-03", carro:"882318",  classe:"Executivo", motorista:"Lazaro",             ocorrencia:"Passagem não solicitada"},
@@ -267,7 +365,7 @@ const dados = [
   // ---------- OUTUBRO ----------
   {data:"2026-10-02", carro:"882311",  classe:"Executivo", motorista:"Gilvan",             ocorrencia:"Passagem não solicitada"},
   {data:"2026-10-02", carro:"882318",  classe:"Executivo", motorista:"Sergio",             ocorrencia:"Passagem não solicitada"},
-  {data:"2026-10-07", carro:"882703",  classe:"—",         motorista:"—",                  ocorrencia:"Sem descrição"},
+  {data:"2026-10-07", carro:"882703",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem descrição"},
   {data:"2026-10-07", carro:"882312",  classe:"Executivo", motorista:"Andre",              ocorrencia:"Passagem não solicitada"},
   {data:"2026-10-09", carro:"882312",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
   {data:"2026-10-10", carro:"882473",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
@@ -278,14 +376,77 @@ const dados = [
   {data:"2026-10-16", carro:"882570",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem ocorrências"},
   {data:"2026-10-16", carro:"882308",  classe:"Executivo", motorista:"Roberto",            ocorrencia:"Passagem não solicitada"},
   {data:"2026-10-16", carro:"882312",  classe:"Executivo", motorista:"Sergio",             ocorrencia:"Passagem não solicitada"},
-  {data:"2026-10-20", carro:"882710",  classe:"—",         motorista:"—",                  ocorrencia:"Sem maiores ocorrências"}
+  {data:"2026-10-20", carro:"882710",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"}
 ];
 
-/* ============================================================
-   HELPERS
-   ============================================================ */
-const mesesLabel = {"2026-08":"Agosto/2026","2026-09":"Setembro/2026","2026-10":"Outubro/2026"};
+// Carregar dados salvos no navegador ou usar os iniciais
+let dados = JSON.parse(localStorage.getItem("dados_frota_atlantico")) || dadosIniciais;
 
+/* ============================================================
+   CONTROLE DE ABAS
+   ============================================================ */
+function mudarAba(abaId) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+  if (abaId === 'dashboard') {
+    document.querySelectorAll('.tab-btn')[0].classList.add('active');
+    document.getElementById('tab-dashboard').classList.add('active');
+    render(); // Atualiza gráficos ao voltar
+  } else {
+    document.querySelectorAll('.tab-btn')[1].classList.add('active');
+    document.getElementById('tab-cadastro').classList.add('active');
+    // Definir data de hoje por padrão no input de data
+    document.getElementById('novoData').value = new Date().toISOString().split('T')[0];
+  }
+}
+
+/* ============================================================
+   FUNÇÃO DE SALVAR NOVO DADO
+   ============================================================ */
+function salvarNovoRegistro(event) {
+  event.preventDefault();
+  
+  const novoItem = {
+    data: document.getElementById('novoData').value,
+    carro: document.getElementById('novoCarro').value.trim(),
+    classe: document.getElementById('novoClasse').value,
+    motorista: document.getElementById('novoMotorista').value.trim() || "—",
+    ocorrencia: document.getElementById('novoOcorrencia').value.trim()
+  };
+
+  // Adiciona ao topo da lista
+  dados.unshift(novoItem);
+
+  // Salva no armazenamento local do navegador
+  localStorage.setItem("dados_frota_atlantico", JSON.stringify(dados));
+
+  // Exibe mensagem de sucesso
+  const msg = document.getElementById('msgSucesso');
+  msg.style.display = 'block';
+  setTimeout(() => { msg.style.display = 'none'; }, 3500);
+
+  // Limpa campos específicos (mantém data e classe)
+  document.getElementById('novoCarro').value = '';
+  document.getElementById('novoMotorista').value = '';
+  document.getElementById('novoOcorrencia').value = '';
+
+  // Opcional: voltar para o dashboard para ver o dado atualizado
+  setTimeout(() => { mudarAba('dashboard'); }, 1000);
+}
+
+function resetarDadosPadrao() {
+  if (confirm("Tem certeza que deseja restaurar os dados originais e apagar os registros adicionados?")) {
+    localStorage.removeItem("dados_frota_atlantico");
+    dados = [...dadosIniciais];
+    render();
+    alert("Dados restaurados com sucesso!");
+  }
+}
+
+/* ============================================================
+   HELPERS DO DASHBOARD
+   ============================================================ */
 function classificarOcorrencia(o){
   if(o.includes("Sem ocorr") || o.includes("Sem maiores")) return "ok";
   if(o.includes("Passagem não solicitada")) return "bad";
@@ -318,7 +479,7 @@ function renderBars(containerId, entries, colorMap){
 }
 
 /* ============================================================
-   RENDER PRINCIPAL
+   RENDER PRINCIPAL DO DASHBOARD
    ============================================================ */
 function render(){
   const mes    = document.getElementById("mes").value;
@@ -383,8 +544,8 @@ function render(){
     .slice()
     .sort((a,b)=> a.data < b.data ? 1 : -1)
     .map(d=>{
-      const [ano,m,dia] = d.data.split("-");
-      const dataFmt = `${dia}/${m}/${ano}`;
+      const parts = d.data.split("-");
+      const dataFmt = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : d.data;
       const cls = classificarOcorrencia(d.ocorrencia);
       return `<tr>
         <td>${dataFmt}</td>
