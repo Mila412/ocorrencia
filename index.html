@@ -29,12 +29,12 @@
   /* Sistema de Abas */
   .tabs{
     display:flex;gap:8px;margin-bottom:24px;
-    border-bottom:1px solid var(--border);padding-bottom:12px;
+    border-bottom:1px solid var(--border);padding-bottom:12px;overflow-x:auto;
   }
   .tab-btn{
     background:var(--card);color:var(--muted);border:1px solid var(--border);
     padding:10px 20px;border-radius:8px;font-weight:600;
-    cursor:pointer;font-size:.95rem;transition:all 0.2s;
+    cursor:pointer;font-size:.95rem;transition:all 0.2s;white-space:nowrap;
   }
   .tab-btn.active{
     background:var(--accent);color:#0f172a;border-color:var(--accent);
@@ -76,12 +76,13 @@
   .form-group{display:flex;flex-direction:column;gap:6px}
   .form-group.full{grid-column:span 2}
   .form-group label{font-size:.85rem;color:var(--muted);font-weight:600}
-  .form-group input,.form-group select{
+  .form-group input,.form-group select,.form-group textarea{
     background:var(--card2);color:var(--txt);
     border:1px solid var(--border);border-radius:8px;
-    padding:10px 12px;font-size:.95rem;outline:none;
+    padding:10px 12px;font-size:.95rem;outline:none;font-family:inherit;
   }
-  .form-group input:focus,.form-group select:focus{border-color:var(--accent)}
+  .form-group textarea{resize:vertical;min-height:90px;}
+  .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent)}
   .msg-sucesso{
     background:rgba(34,197,94,.15);color:var(--green);
     padding:10px;border-radius:8px;margin-bottom:16px;
@@ -142,18 +143,20 @@
     font-weight:600;font-size:.78rem;text-transform:uppercase;
     letter-spacing:.5px;position:sticky;top:0;
   }
-  td{padding:10px 14px;border-top:1px solid var(--border)}
+  td{padding:10px 14px;border-top:1px solid var(--border);vertical-align:top}
   tbody tr:hover{background:var(--card2)}
   .tag{
     display:inline-block;padding:2px 8px;border-radius:6px;
-    font-size:.75rem;font-weight:600;
+    font-size:.75rem;font-weight:600;margin-bottom:4px;
   }
   .tag.ok{background:rgba(34,197,94,.15);color:var(--green)}
   .tag.bad{background:rgba(239,68,68,.15);color:var(--red)}
   .tag.warn{background:rgba(245,158,11,.15);color:var(--yellow)}
   .tag.neutral{background:rgba(148,163,184,.15);color:var(--muted)}
+  .obs-text{font-size:.8rem;color:var(--muted);margin-top:2px;white-space:pre-wrap;}
   .empty{padding:30px;text-align:center;color:var(--muted)}
   .scroll{max-height:520px;overflow:auto}
+
   @media(max-width:600px){
     body{padding:12px}
     .form-grid{grid-template-columns:1fr}
@@ -166,17 +169,17 @@
 <body>
 
 <h1>🚌 Dashboard Operacional — Frota Atlântico</h1>
-<p class="sub">Gestão de Registros e Ocorrências de Desembarque</p>
+<p class="sub">Gestão de Registros, Ocorrências, Agentes e Relatórios Customizados</p>
 
 <!-- ABAS DE NAVEGAÇÃO -->
 <div class="tabs">
   <button class="tab-btn active" onclick="mudarAba('dashboard')">📊 Dashboard & Relatórios</button>
   <button class="tab-btn" onclick="mudarAba('cadastro')">➕ Inserir Novo Dado</button>
+  <button class="tab-btn" onclick="mudarAba('gerador-graficos')">📈 Módulo de Gráficos Customizados</button>
 </div>
 
 <!-- ABA 1: DASHBOARD -->
 <div id="tab-dashboard" class="tab-content active">
-  <!-- FILTROS -->
   <div class="filters">
     <label for="mes">Mês:</label>
     <select id="mes">
@@ -196,16 +199,14 @@
     </select>
 
     <label for="busca">Buscar:</label>
-    <input id="busca" type="text" placeholder="Carro, motorista ou ocorrência...">
+    <input id="busca" type="text" placeholder="Carro, motorista, agente ou ocorrência...">
 
     <button class="btn" id="limpar">Limpar filtros</button>
     <button class="btn btn-danger" onclick="resetarDadosPadrao()" title="Restaurar dados iniciais">Restaurar Padrão</button>
   </div>
 
-  <!-- KPIs -->
   <div class="kpis" id="kpis"></div>
 
-  <!-- GRÁFICOS -->
   <div class="grid">
     <div class="panel">
       <h2>Ocorrências</h2>
@@ -216,16 +217,15 @@
       <div id="chartClasse"></div>
     </div>
     <div class="panel">
-      <h2>Top 10 Motoristas (viagens)</h2>
+      <h2>Top 10 Motoristas</h2>
       <div id="chartMotoristas"></div>
     </div>
     <div class="panel">
-      <h2>Top 10 Veículos (viagens)</h2>
-      <div id="chartVeiculos"></div>
+      <h2>Top Agentes Responsáveis</h2>
+      <div id="chartAgentes"></div>
     </div>
   </div>
 
-  <!-- TABELA -->
   <div class="table-wrap">
     <div class="table-head">
       <h2>Registros detalhados</h2>
@@ -239,7 +239,8 @@
             <th>Carro</th>
             <th>Classe</th>
             <th>Motorista</th>
-            <th>Ocorrência</th>
+            <th>Agente</th>
+            <th>Ocorrência & Observações</th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
@@ -252,7 +253,7 @@
 <div id="tab-cadastro" class="tab-content">
   <div class="form-panel">
     <h2>Cadastrar Novo Registro na Frota</h2>
-    <p class="sub" style="margin-bottom: 16px;">Preencha os campos abaixo para salvar o dado online/armazenado no navegador.</p>
+    <p class="sub" style="margin-bottom: 16px;">Preencha os campos abaixo. Agora é possível incluir múltiplas ocorrências e observações detalhadas.</p>
     
     <div id="msgSucesso" class="msg-sucesso">Registro adicionado com sucesso! O dashboard foi atualizado.</div>
 
@@ -281,9 +282,19 @@
           <input type="text" id="novoMotorista" placeholder="Ex: Lazaro (ou deixe —)">
         </div>
 
+        <div class="form-group">
+          <label for="novoAgente">Agente Responsável *</label>
+          <input type="text" id="novoAgente" placeholder="Ex: Carlos Silva" required>
+        </div>
+
+        <div class="form-group">
+          <label for="novoOcorrencia">Tipo de Ocorrência Principal *</label>
+          <input type="text" id="novoOcorrencia" placeholder="Ex: Passagem não solicitada" required>
+        </div>
+
         <div class="form-group full">
-          <label for="novoOcorrencia">Descrição da Ocorrência *</label>
-          <input type="text" id="novoOcorrencia" placeholder="Ex: Passagem não solicitada, Sem ocorrências..." required>
+          <label for="novoObservacoes">Observações Detalhadas (Sem limite de caracteres)</label>
+          <textarea id="novoObservacoes" placeholder="Descreva aqui todas as observações, detalhes adicionais, múltiplos relatos ou notas operacionais..."></textarea>
         </div>
       </div>
 
@@ -292,99 +303,42 @@
   </div>
 </div>
 
+<!-- ABA 3: MÓDULO DE GRÁFICOS CUSTOMIZADOS -->
+<div id="tab-gerador-graficos" class="tab-content">
+  <div class="form-panel" style="max-width: 900px;">
+    <h2>Módulo de Geração de Gráficos</h2>
+    <p class="sub" style="margin-bottom: 16px;">Selecione o critério desejado para gerar instantaneamente gráficos dinâmicos baseados na base de dados atual.</p>
+    
+    <div class="filters" style="margin-bottom: 16px;">
+      <label for="parametroGrafico">Gerar gráfico por:</label>
+      <select id="parametroGrafico" onchange="gerarGraficoCustomizado()">
+        <option value="ocorrencia">Tipos de Ocorrências</option>
+        <option value="classe">Classes de Veículos</option>
+        <option value="motorista">Motoristas</option>
+        <option value="agente">Agentes Responsáveis</option>
+        <option value="carro">Veículos (Carros)</option>
+      </select>
+    </div>
+
+    <div class="panel">
+      <h2 id="tituloGraficoCustomizado">Gráfico: Tipos de Ocorrências</h2>
+      <div id="chartCustomizado"></div>
+    </div>
+  </div>
+</div>
+
 <script>
-/* ============================================================
-   BASE DE DADOS INICIAL + LOCALSTORAGE
-   ============================================================ */
 const dadosIniciais = [
-  // ---------- AGOSTO ----------
-  {data:"2026-08-03", carro:"8824140", classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem ocorrências"},
-  {data:"2026-08-03", carro:"882318",  classe:"Executivo", motorista:"Lazaro",             ocorrencia:"Passagem não solicitada"},
-  {data:"2026-08-03", carro:"882313",  classe:"Executivo", motorista:"Paulo Sergio",       ocorrencia:"Passagem não solicitada"},
-  {data:"2026-08-04", carro:"8824140", classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem ocorrências"},
-  {data:"2026-08-06", carro:"8824138", classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem ocorrências"},
-  {data:"2026-08-06", carro:"882319",  classe:"Executivo", motorista:"Claudiano",          ocorrencia:"Passagem não solicitada"},
-  {data:"2026-08-06", carro:"8824138", classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
-  {data:"2026-08-07", carro:"882408",  classe:"Urbano",    motorista:"Elmo",               ocorrencia:"Sem maiores ocorrências"},
-  {data:"2026-08-07", carro:"882317",  classe:"Executivo", motorista:"Ailton Lazaro",      ocorrencia:"Passagem não solicitada"},
-  {data:"2026-08-07", carro:"882087",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
-  {data:"2026-08-12", carro:"8824143", classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
-  {data:"2026-08-12", carro:"882324",  classe:"Executivo", motorista:"—",                  ocorrencia:"Passagem não solicitada"},
-  {data:"2026-08-13", carro:"882317",  classe:"Executivo", motorista:"André Luiz",         ocorrencia:"Passagem não solicitada"},
-  {data:"2026-08-13", carro:"882315",  classe:"Executivo", motorista:"Sérgio Sena",        ocorrencia:"Passagem não solicitada"},
-  {data:"2026-08-19", carro:"882313",  classe:"Executivo", motorista:"Paulo Sérgio",       ocorrencia:"Passagem não solicitada"},
-  {data:"2026-08-19", carro:"882408",  classe:"Urbano",    motorista:"Ello/Elmo",          ocorrencia:"Sem ocorrências"},
-  {data:"2026-08-19", carro:"882314",  classe:"Executivo", motorista:"Roberto",            ocorrencia:"Passagem não solicitada"},
-  {data:"2026-08-20", carro:"882314",  classe:"Executivo", motorista:"Clodoaldo",          ocorrencia:"Passagem não solicitada"},
-  {data:"2026-08-20", carro:"882315",  classe:"Executivo", motorista:"Clodoaldo/Alexsandro Guedes", ocorrencia:"Passagem não solicitada"},
-  {data:"2026-08-20", carro:"882315",  classe:"Executivo", motorista:"Alexsandro Guedes",  ocorrencia:"Passagem não solicitada"},
-  {data:"2026-08-21", carro:"882575",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
-  {data:"2026-08-25", carro:"882314",  classe:"Executivo", motorista:"Roberto",            ocorrencia:"Passagem não solicitada"},
-  {data:"2026-08-25", carro:"882303",  classe:"Executivo", motorista:"Lázaro",             ocorrencia:"Passagem não solicitada"},
-  {data:"2026-08-25", carro:"882317",  classe:"Executivo", motorista:"Sérgio Sena",        ocorrencia:"Passagem não solicitada"},
-  {data:"2026-08-26", carro:"8824162", classe:"Executivo", motorista:"Ailton Lazaro",      ocorrencia:"Passagem não solicitada"},
-  {data:"2026-08-26", carro:"882317",  classe:"Executivo", motorista:"Alberico",           ocorrencia:"Passagem não solicitada"},
-
-  // ---------- SETEMBRO ----------
-  {data:"2026-09-02", carro:"882311",  classe:"Executivo", motorista:"Gilvan",             ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-02", carro:"882314",  classe:"Executivo", motorista:"Sérgio Sena",        ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-04", carro:"882572",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem ocorrências"},
-  {data:"2026-09-04", carro:"882303",  classe:"Executivo", motorista:"Lazro",              ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-08", carro:"882311",  classe:"Executivo", motorista:"Gilvan",             ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-10", carro:"882570",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Passou direto do ponto"},
-  {data:"2026-09-10", carro:"882322",  classe:"Executivo", motorista:"Sérgio Sena",        ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-11", carro:"882322",  classe:"Executivo", motorista:"Alexsandro Guedes",  ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-11", carro:"882570",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Discussão com passageiro"},
-  {data:"2026-09-12", carro:"882322",  classe:"Executivo", motorista:"Sérgio Sena",        ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-12", carro:"882312",  classe:"Executivo", motorista:"Paulo Henrique",     ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-12", carro:"882313",  classe:"Executivo", motorista:"Paulo Sergio",       ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-14", carro:"882577",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
-  {data:"2026-09-14", carro:"882317",  classe:"Executivo", motorista:"Antônio Silva",      ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-16", carro:"882572",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
-  {data:"2026-09-16", carro:"882313",  classe:"Executivo", motorista:"Paulo Sergio",       ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-18", carro:"882312",  classe:"Executivo", motorista:"Ailton Lazaro",      ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-18", carro:"882309",  classe:"Executivo", motorista:"Dilson Sousa",       ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-22", carro:"882315",  classe:"Executivo", motorista:"Dilson",             ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-23", carro:"882318",  classe:"Executivo", motorista:"Rogerio",            ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-23", carro:"882574",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
-  {data:"2026-09-24", carro:"882312",  classe:"Executivo", motorista:"Paulo Henrique",     ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-24", carro:"8824206", classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
-  {data:"2026-09-24", carro:"882315",  classe:"Executivo", motorista:"Paulo Sergio",       ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-24", carro:"882321",  classe:"Executivo", motorista:"Roberto",            ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-24", carro:"882572",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
-  {data:"2026-09-24", carro:"882318",  classe:"Executivo", motorista:"Sérgio Sena",        ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-25", carro:"882318",  classe:"Executivo", motorista:"Rogerio",            ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-25", carro:"882322",  classe:"Executivo", motorista:"Inaldo/Ubaldo",      ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-28", carro:"882311",  classe:"Executivo", motorista:"Gilvan",             ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-28", carro:"882308",  classe:"Executivo", motorista:"Antonio",            ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-29", carro:"8824206", classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
-  {data:"2026-09-29", carro:"882318",  classe:"Executivo", motorista:"Rogerio",            ocorrencia:"Passagem não solicitada"},
-  {data:"2026-09-30", carro:"8824207", classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
-  {data:"2026-09-30", carro:"882313",  classe:"Executivo", motorista:"Wellington",         ocorrencia:"Passagem não solicitada"},
-
-  // ---------- OUTUBRO ----------
-  {data:"2026-10-02", carro:"882311",  classe:"Executivo", motorista:"Gilvan",             ocorrencia:"Passagem não solicitada"},
-  {data:"2026-10-02", carro:"882318",  classe:"Executivo", motorista:"Sergio",             ocorrencia:"Passagem não solicitada"},
-  {data:"2026-10-07", carro:"882703",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem descrição"},
-  {data:"2026-10-07", carro:"882312",  classe:"Executivo", motorista:"Andre",              ocorrencia:"Passagem não solicitada"},
-  {data:"2026-10-09", carro:"882312",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
-  {data:"2026-10-10", carro:"882473",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
-  {data:"2026-10-12", carro:"882315",  classe:"Executivo", motorista:"Lazaro",             ocorrencia:"Passagem não solicitada"},
-  {data:"2026-10-13", carro:"882315",  classe:"Executivo", motorista:"Lazaro",             ocorrencia:"Passagem não solicitada"},
-  {data:"2026-10-14", carro:"882315",  classe:"Executivo", motorista:"Lazaro",             ocorrencia:"Passagem não solicitada"},
-  {data:"2026-10-15", carro:"882321",  classe:"Executivo", motorista:"Claudiano",          ocorrencia:"Passagem não solicitada"},
-  {data:"2026-10-16", carro:"882570",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem ocorrências"},
-  {data:"2026-10-16", carro:"882308",  classe:"Executivo", motorista:"Roberto",            ocorrencia:"Passagem não solicitada"},
-  {data:"2026-10-16", carro:"882312",  classe:"Executivo", motorista:"Sergio",             ocorrencia:"Passagem não solicitada"},
-  {data:"2026-10-20", carro:"882710",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"}
+  {data:"2026-08-03", carro:"8824140", classe:"Urbano", motorista:"—", agente:"Ana Paula", ocorrencia:"Sem ocorrências", observacoes:"Viagem realizada dentro da normalidade."},
+  {data:"2026-08-03", carro:"882318", classe:"Executivo", motorista:"Lazaro", agente:"Carlos Silva", ocorrencia:"Passagem não solicitada", observacoes:"Passageiro sinalizou em cima da hora, motorista seguiu viagem regulamentar."},
+  {data:"2026-08-07", carro:"882408", classe:"Urbano", motorista:"Elmo", agente:"Mariana Souza", ocorrencia:"Sem maiores ocorrências", observacoes:"Tráfego intenso na via principal."},
+  {data:"2026-09-10", carro:"882570", classe:"Urbano", motorista:"—", agente:"Carlos Silva", ocorrencia:"Passou direto do ponto", observacoes:"Relato de passageiro de que o ônibus não parou no abrigo sinalizado."},
+  {data:"2026-09-11", carro:"882570", classe:"Urbano", motorista:"—", agente:"Ana Paula", ocorrencia:"Discussão com passageiro", observacoes:"Desentendimento verbal contornado com o auxílio do fiscal de linha."},
+  {data:"2026-10-07", carro:"882703", classe:"Urbano", motorista:"—", agente:"Mariana Souza", ocorrencia:"Sem descrição", observacoes:"Nenhum detalhe adicional reportado pelo agente em campo."}
 ];
 
-// Carregar dados salvos no navegador ou usar os iniciais
-let dados = JSON.parse(localStorage.getItem("dados_frota_atlantico")) || dadosIniciais;
+let dados = JSON.parse(localStorage.getItem("dados_frota_atlantico_v2")) || dadosIniciais;
 
-/* ============================================================
-   CONTROLE DE ABAS
-   ============================================================ */
 function mudarAba(abaId) {
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -392,18 +346,18 @@ function mudarAba(abaId) {
   if (abaId === 'dashboard') {
     document.querySelectorAll('.tab-btn')[0].classList.add('active');
     document.getElementById('tab-dashboard').classList.add('active');
-    render(); // Atualiza gráficos ao voltar
-  } else {
+    render();
+  } else if (abaId === 'cadastro') {
     document.querySelectorAll('.tab-btn')[1].classList.add('active');
     document.getElementById('tab-cadastro').classList.add('active');
-    // Definir data de hoje por padrão no input de data
     document.getElementById('novoData').value = new Date().toISOString().split('T')[0];
+  } else if (abaId === 'gerador-graficos') {
+    document.querySelectorAll('.tab-btn')[2].classList.add('active');
+    document.getElementById('tab-gerador-graficos').classList.add('active');
+    gerarGraficoCustomizado();
   }
 }
 
-/* ============================================================
-   FUNÇÃO DE SALVAR NOVO DADO
-   ============================================================ */
 function salvarNovoRegistro(event) {
   event.preventDefault();
   
@@ -412,41 +366,36 @@ function salvarNovoRegistro(event) {
     carro: document.getElementById('novoCarro').value.trim(),
     classe: document.getElementById('novoClasse').value,
     motorista: document.getElementById('novoMotorista').value.trim() || "—",
-    ocorrencia: document.getElementById('novoOcorrencia').value.trim()
+    agente: document.getElementById('novoAgente').value.trim(),
+    ocorrencia: document.getElementById('novoOcorrencia').value.trim(),
+    observacoes: document.getElementById('novoObservacoes').value.trim()
   };
 
-  // Adiciona ao topo da lista
   dados.unshift(novoItem);
+  localStorage.setItem("dados_frota_atlantico_v2", JSON.stringify(dados));
 
-  // Salva no armazenamento local do navegador
-  localStorage.setItem("dados_frota_atlantico", JSON.stringify(dados));
-
-  // Exibe mensagem de sucesso
   const msg = document.getElementById('msgSucesso');
   msg.style.display = 'block';
   setTimeout(() => { msg.style.display = 'none'; }, 3500);
 
-  // Limpa campos específicos (mantém data e classe)
   document.getElementById('novoCarro').value = '';
   document.getElementById('novoMotorista').value = '';
+  document.getElementById('novoAgente').value = '';
   document.getElementById('novoOcorrencia').value = '';
+  document.getElementById('novoObservacoes').value = '';
 
-  // Opcional: voltar para o dashboard para ver o dado atualizado
   setTimeout(() => { mudarAba('dashboard'); }, 1000);
 }
 
 function resetarDadosPadrao() {
   if (confirm("Tem certeza que deseja restaurar os dados originais e apagar os registros adicionados?")) {
-    localStorage.removeItem("dados_frota_atlantico");
+    localStorage.removeItem("dados_frota_atlantico_v2");
     dados = [...dadosIniciais];
     render();
     alert("Dados restaurados com sucesso!");
   }
 }
 
-/* ============================================================
-   HELPERS DO DASHBOARD
-   ============================================================ */
 function classificarOcorrencia(o){
   if(o.includes("Sem ocorr") || o.includes("Sem maiores")) return "ok";
   if(o.includes("Passagem não solicitada")) return "bad";
@@ -465,7 +414,7 @@ function contar(arr, campo){
 
 function renderBars(containerId, entries, colorMap){
   const el = document.getElementById(containerId);
-  if(!entries.length){ el.innerHTML = '<p class="empty">Sem dados</p>'; return; }
+  if(!entries.length){ el.innerHTML = '<p class="empty">Sem dados disponíveis</p>'; return; }
   const max = Math.max(...entries.map(e=>e[1]));
   el.innerHTML = entries.map(([nome,qtd])=>{
     const pct = (qtd/max)*100;
@@ -478,66 +427,74 @@ function renderBars(containerId, entries, colorMap){
   }).join("");
 }
 
-/* ============================================================
-   RENDER PRINCIPAL DO DASHBOARD
-   ============================================================ */
+function gerarGraficoCustomizado() {
+  const param = document.getElementById("parametroGrafico").value;
+  const selectEl = document.getElementById("parametroGrafico");
+  const nomeParametro = selectEl.options[selectEl.selectedIndex].text;
+  
+  document.getElementById("tituloGraficoCustomizado").textContent = `Gráfico: ${nomeParametro}`;
+  
+  let dadosFiltrados = dados;
+  if(param === 'motorista') {
+    dadosFiltrados = dados.filter(d => d.motorista !== "—");
+  }
+  
+  const contagem = contar(dadosFiltrados, param);
+  renderBars("chartCustomizado", contagem, (nome) => {
+    if(param === 'ocorrencia') {
+      const c = classificarOcorrencia(nome);
+      return c==="ok" ? "#22c55e" : c==="bad" ? "#ef4444" : c==="warn" ? "#f59e0b" : "#64748b";
+    }
+    return "#38bdf8";
+  });
+}
+
 function render(){
   const mes    = document.getElementById("mes").value;
   const classe = document.getElementById("classe").value;
   const busca  = document.getElementById("busca").value.trim().toLowerCase();
 
-  // Filtragem
   let filtrados = dados.filter(d=>{
     if(mes !== "all" && !d.data.startsWith(mes)) return false;
     if(classe !== "all" && d.classe !== classe) return false;
     if(busca){
-      const blob = `${d.carro} ${d.motorista} ${d.ocorrencia}`.toLowerCase();
+      const blob = `${d.carro} ${d.motorista} ${d.agente} ${d.ocorrencia} ${d.observacoes}`.toLowerCase();
       if(!blob.includes(busca)) return false;
     }
     return true;
   });
 
-  // KPIs
   const total = filtrados.length;
   const semOcorr = filtrados.filter(d=>classificarOcorrencia(d.ocorrencia)==="ok").length;
   const passagem = filtrados.filter(d=>classificarOcorrencia(d.ocorrencia)==="bad").length;
   const outras   = total - semOcorr - passagem;
   const veiculos = new Set(filtrados.map(d=>d.carro)).size;
-  const motoristas = new Set(filtrados.filter(d=>d.motorista!=="—").map(d=>d.motorista)).size;
+  const agentes  = new Set(filtrados.map(d=>d.agente)).size;
 
   document.getElementById("kpis").innerHTML = `
-    <div class="kpi"><div class="label">Total de viagens</div><div class="value accent">${total}</div></div>
+    <div class="kpi"><div class="label">Total de registros</div><div class="value accent">${total}</div></div>
     <div class="kpi"><div class="label">Sem ocorrências</div><div class="value green">${semOcorr}</div></div>
     <div class="kpi"><div class="label">Passagem não solicitada</div><div class="value red">${passagem}</div></div>
     <div class="kpi"><div class="label">Outras ocorrências</div><div class="value yellow">${outras}</div></div>
     <div class="kpi"><div class="label">Veículos distintos</div><div class="value">${veiculos}</div></div>
-    <div class="kpi"><div class="label">Motoristas distintos</div><div class="value">${motoristas}</div></div>
+    <div class="kpi"><div class="label">Agentes ativos</div><div class="value">${agentes}</div></div>
   `;
 
-  // Gráfico ocorrências
-  const ocorr = contar(filtrados, "ocorrencia");
-  renderBars("chartOcorrencias", ocorr, (nome)=>{
+  renderBars("chartOcorrencias", contar(filtrados, "ocorrencia"), (nome)=>{
     const c = classificarOcorrencia(nome);
     return c==="ok" ? "#22c55e" : c==="bad" ? "#ef4444" : c==="warn" ? "#f59e0b" : "#64748b";
   });
 
-  // Gráfico classe
-  const classes = contar(filtrados, "classe");
-  renderBars("chartClasse", classes, (nome)=> nome==="Executivo" ? "#38bdf8" : nome==="Urbano" ? "#a78bfa" : "#64748b");
+  renderBars("chartClasse", contar(filtrados, "classe"), (nome)=> nome==="Executivo" ? "#38bdf8" : nome==="Urbano" ? "#a78bfa" : "#64748b");
 
-  // Top motoristas (excluir "—")
-  const mot = contar(filtrados.filter(d=>d.motorista!=="—"), "motorista").slice(0,10);
-  renderBars("chartMotoristas", mot);
+  renderBars("chartMotoristas", contar(filtrados.filter(d=>d.motorista!=="—"), "motorista").slice(0,10));
 
-  // Top veículos
-  const veic = contar(filtrados, "carro").slice(0,10);
-  renderBars("chartVeiculos", veic);
+  renderBars("chartAgentes", contar(filtrados, "agente").slice(0,10), ()=> "#10b981");
 
-  // Tabela
   document.getElementById("count").textContent = `${total} registro(s)`;
   const tbody = document.getElementById("tbody");
   if(!filtrados.length){
-    tbody.innerHTML = `<tr><td colspan="5" class="empty">Nenhum registro encontrado com os filtros atuais.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">Nenhum registro encontrado com os filtros atuais.</td></tr>`;
     return;
   }
   tbody.innerHTML = filtrados
@@ -547,17 +504,21 @@ function render(){
       const parts = d.data.split("-");
       const dataFmt = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : d.data;
       const cls = classificarOcorrencia(d.ocorrencia);
+      const obsHtml = d.observacoes ? `<div class="obs-text">📝 ${d.observacoes}</div>` : '';
       return `<tr>
         <td>${dataFmt}</td>
         <td><strong>${d.carro}</strong></td>
         <td>${d.classe}</td>
         <td>${d.motorista}</td>
-        <td><span class="tag ${cls}">${d.ocorrencia}</span></td>
+        <td>${d.agente || '—'}</td>
+        <td>
+          <span class="tag ${cls}">${d.ocorrencia}</span>
+          ${obsHtml}
+        </td>
       </tr>`;
     }).join("");
 }
 
-/* Eventos */
 document.getElementById("mes").addEventListener("change", render);
 document.getElementById("classe").addEventListener("change", render);
 document.getElementById("busca").addEventListener("input", render);
@@ -568,7 +529,6 @@ document.getElementById("limpar").addEventListener("click", ()=>{
   render();
 });
 
-/* Init */
 render();
 </script>
 </body>
