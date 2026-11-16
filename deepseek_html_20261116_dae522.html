@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Operacional — Ago/Out 2026</title>
+<style>
+  :root{
+    --bg:#0f172a;
+    --card:#1e293b;
+    --card2:#243449;
+    --txt:#e2e8f0;
+    --muted:#94a3b8;
+    --accent:#38bdf8;
+    --green:#22c55e;
+    --red:#ef4444;
+    --yellow:#f59e0b;
+    --border:#334155;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    background:var(--bg);color:var(--txt);
+    padding:24px;line-height:1.5;
+  }
+  h1{font-size:1.6rem;margin-bottom:4px}
+  .sub{color:var(--muted);font-size:.9rem;margin-bottom:24px}
+
+  /* Filtros */
+  .filters{
+    display:flex;flex-wrap:wrap;gap:12px;
+    background:var(--card);padding:16px;border-radius:12px;
+    border:1px solid var(--border);margin-bottom:24px;
+    align-items:center;
+  }
+  .filters label{font-size:.85rem;color:var(--muted);margin-right:4px}
+  .filters select,.filters input{
+    background:var(--card2);color:var(--txt);
+    border:1px solid var(--border);border-radius:8px;
+    padding:8px 12px;font-size:.9rem;outline:none;
+  }
+  .filters select:focus,.filters input:focus{border-color:var(--accent)}
+  .filters input{flex:1;min-width:180px}
+  .btn{
+    background:var(--accent);color:#0f172a;border:none;
+    padding:8px 16px;border-radius:8px;font-weight:600;
+    cursor:pointer;font-size:.9rem;
+  }
+  .btn:hover{opacity:.85}
+
+  /* KPI Cards */
+  .kpis{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:16px;margin-bottom:24px;
+  }
+  .kpi{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:12px;padding:18px;
+  }
+  .kpi .label{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .kpi .value{font-size:1.8rem;font-weight:700;margin-top:6px}
+  .kpi .value.green{color:var(--green)}
+  .kpi .value.red{color:var(--red)}
+  .kpi .value.yellow{color:var(--yellow)}
+  .kpi .value.accent{color:var(--accent)}
+
+  /* Grid de gráficos */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(340px,1fr));
+    gap:16px;margin-bottom:24px;
+  }
+  .panel{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:12px;padding:18px;
+  }
+  .panel h2{font-size:1rem;margin-bottom:14px;color:var(--accent)}
+
+  /* Barras */
+  .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:.85rem}
+  .bar-row .name{width:130px;flex-shrink:0;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .bar-track{flex:1;background:var(--card2);border-radius:6px;height:18px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:6px;transition:width .4s}
+  .bar-row .qty{width:36px;text-align:right;font-weight:600}
+
+  /* Tabela */
+  .table-wrap{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:12px;overflow:hidden;
+  }
+  .table-head{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:16px 18px;border-bottom:1px solid var(--border);
+  }
+  .table-head h2{font-size:1rem;color:var(--accent)}
+  .table-head .count{font-size:.8rem;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:.85rem}
+  thead{background:var(--card2)}
+  th{
+    text-align:left;padding:10px 14px;color:var(--muted);
+    font-weight:600;font-size:.78rem;text-transform:uppercase;
+    letter-spacing:.5px;position:sticky;top:0;
+  }
+  td{padding:10px 14px;border-top:1px solid var(--border)}
+  tbody tr:hover{background:var(--card2)}
+  .tag{
+    display:inline-block;padding:2px 8px;border-radius:6px;
+    font-size:.75rem;font-weight:600;
+  }
+  .tag.ok{background:rgba(34,197,94,.15);color:var(--green)}
+  .tag.bad{background:rgba(239,68,68,.15);color:var(--red)}
+  .tag.warn{background:rgba(245,158,11,.15);color:var(--yellow)}
+  .tag.neutral{background:rgba(148,163,184,.15);color:var(--muted)}
+  .empty{padding:30px;text-align:center;color:var(--muted)}
+  .scroll{max-height:520px;overflow:auto}
+  @media(max-width:600px){
+    body{padding:12px}
+    .bar-row .name{width:90px}
+    th,td{padding:8px}
+  }
+</style>
+</head>
+<body>
+
+<h1>🚌 Dashboard Operacional — Frota Atlântico</h1>
+<p class="sub">Registros de desembarque · Agosto a Outubro de 2026 · Fonte: WhatsApp TI</p>
+
+<!-- FILTROS -->
+<div class="filters">
+  <label for="mes">Mês:</label>
+  <select id="mes">
+    <option value="all">Todos</option>
+    <option value="2026-08">Agosto/2026</option>
+    <option value="2026-09">Setembro/2026</option>
+    <option value="2026-10">Outubro/2026</option>
+  </select>
+
+  <label for="classe">Classe:</label>
+  <select id="classe">
+    <option value="all">Todas</option>
+    <option value="Executivo">Executivo</option>
+    <option value="Urbano">Urbano</option>
+  </select>
+
+  <label for="busca">Buscar:</label>
+  <input id="busca" type="text" placeholder="Carro, motorista ou ocorrência...">
+
+  <button class="btn" id="limpar">Limpar filtros</button>
+</div>
+
+<!-- KPIs -->
+<div class="kpis" id="kpis"></div>
+
+<!-- GRÁFICOS -->
+<div class="grid">
+  <div class="panel">
+    <h2>Ocorrências</h2>
+    <div id="chartOcorrencias"></div>
+  </div>
+  <div class="panel">
+    <h2>Distribuição por Classe</h2>
+    <div id="chartClasse"></div>
+  </div>
+  <div class="panel">
+    <h2>Top 10 Motoristas (viagens)</h2>
+    <div id="chartMotoristas"></div>
+  </div>
+  <div class="panel">
+    <h2>Top 10 Veículos (viagens)</h2>
+    <div id="chartVeiculos"></div>
+  </div>
+</div>
+
+<!-- TABELA -->
+<div class="table-wrap">
+  <div class="table-head">
+    <h2>Registros detalhados</h2>
+    <span class="count" id="count"></span>
+  </div>
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Carro</th>
+          <th>Classe</th>
+          <th>Motorista</th>
+          <th>Ocorrência</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   BASE DE DADOS — extraída do arquivo WhatsApp
+   ============================================================ */
+const dados = [
+  // ---------- AGOSTO ----------
+  {data:"2026-08-03", carro:"8824140", classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem ocorrências"},
+  {data:"2026-08-03", carro:"882318",  classe:"Executivo", motorista:"Lazaro",             ocorrencia:"Passagem não solicitada"},
+  {data:"2026-08-03", carro:"882313",  classe:"Executivo", motorista:"Paulo Sergio",       ocorrencia:"Passagem não solicitada"},
+  {data:"2026-08-04", carro:"8824140", classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem ocorrências"},
+  {data:"2026-08-06", carro:"8824138", classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem ocorrências"},
+  {data:"2026-08-06", carro:"882319",  classe:"Executivo", motorista:"Claudiano",          ocorrencia:"Passagem não solicitada"},
+  {data:"2026-08-06", carro:"8824138", classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
+  {data:"2026-08-07", carro:"882408",  classe:"Urbano",    motorista:"Elmo",               ocorrencia:"Sem maiores ocorrências"},
+  {data:"2026-08-07", carro:"882317",  classe:"Executivo", motorista:"Ailton Lazaro",      ocorrencia:"Passagem não solicitada"},
+  {data:"2026-08-07", carro:"882087",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
+  {data:"2026-08-12", carro:"8824143", classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
+  {data:"2026-08-12", carro:"882324",  classe:"Executivo", motorista:"—",                  ocorrencia:"Passagem não solicitada"},
+  {data:"2026-08-13", carro:"882317",  classe:"Executivo", motorista:"André Luiz",         ocorrencia:"Passagem não solicitada"},
+  {data:"2026-08-13", carro:"882315",  classe:"Executivo", motorista:"Sérgio Sena",        ocorrencia:"Passagem não solicitada"},
+  {data:"2026-08-19", carro:"882313",  classe:"Executivo", motorista:"Paulo Sérgio",       ocorrencia:"Passagem não solicitada"},
+  {data:"2026-08-19", carro:"882408",  classe:"Urbano",    motorista:"Ello/Elmo",          ocorrencia:"Sem ocorrências"},
+  {data:"2026-08-19", carro:"882314",  classe:"Executivo", motorista:"Roberto",            ocorrencia:"Passagem não solicitada"},
+  {data:"2026-08-20", carro:"882314",  classe:"Executivo", motorista:"Clodoaldo",          ocorrencia:"Passagem não solicitada"},
+  {data:"2026-08-20", carro:"882315",  classe:"Executivo", motorista:"Clodoaldo/Alexsandro Guedes", ocorrencia:"Passagem não solicitada"},
+  {data:"2026-08-20", carro:"882315",  classe:"Executivo", motorista:"Alexsandro Guedes",  ocorrencia:"Passagem não solicitada"},
+  {data:"2026-08-21", carro:"882575",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
+  {data:"2026-08-25", carro:"882314",  classe:"Executivo", motorista:"Roberto",            ocorrencia:"Passagem não solicitada"},
+  {data:"2026-08-25", carro:"882303",  classe:"Executivo", motorista:"Lázaro",             ocorrencia:"Passagem não solicitada"},
+  {data:"2026-08-25", carro:"882317",  classe:"Executivo", motorista:"Sérgio Sena",        ocorrencia:"Passagem não solicitada"},
+  {data:"2026-08-26", carro:"8824162", classe:"Executivo", motorista:"Ailton Lazaro",      ocorrencia:"Passagem não solicitada"},
+  {data:"2026-08-26", carro:"882317",  classe:"Executivo", motorista:"Alberico",           ocorrencia:"Passagem não solicitada"},
+
+  // ---------- SETEMBRO ----------
+  {data:"2026-09-02", carro:"882311",  classe:"Executivo", motorista:"Gilvan",             ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-02", carro:"882314",  classe:"Executivo", motorista:"Sérgio Sena",        ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-04", carro:"882572",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem ocorrências"},
+  {data:"2026-09-04", carro:"882303",  classe:"Executivo", motorista:"Lazro",              ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-08", carro:"882311",  classe:"Executivo", motorista:"Gilvan",             ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-10", carro:"882570",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Passou direto do ponto"},
+  {data:"2026-09-10", carro:"882322",  classe:"Executivo", motorista:"Sérgio Sena",        ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-11", carro:"882322",  classe:"Executivo", motorista:"Alexsandro Guedes",  ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-11", carro:"882570",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Discussão com passageiro"},
+  {data:"2026-09-12", carro:"882322",  classe:"Executivo", motorista:"Sérgio Sena",        ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-12", carro:"882312",  classe:"Executivo", motorista:"Paulo Henrique",     ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-12", carro:"882313",  classe:"Executivo", motorista:"Paulo Sergio",       ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-14", carro:"882577",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
+  {data:"2026-09-14", carro:"882317",  classe:"Executivo", motorista:"Antônio Silva",      ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-16", carro:"882572",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
+  {data:"2026-09-16", carro:"882313",  classe:"Executivo", motorista:"Paulo Sergio",       ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-18", carro:"882312",  classe:"Executivo", motorista:"Ailton Lazaro",      ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-18", carro:"882309",  classe:"Executivo", motorista:"Dilson Sousa",       ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-22", carro:"882315",  classe:"Executivo", motorista:"Dilson",             ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-23", carro:"882318",  classe:"Executivo", motorista:"Rogerio",            ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-23", carro:"882574",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
+  {data:"2026-09-24", carro:"882312",  classe:"Executivo", motorista:"Paulo Henrique",     ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-24", carro:"8824206", classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
+  {data:"2026-09-24", carro:"882315",  classe:"Executivo", motorista:"Paulo Sergio",       ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-24", carro:"882321",  classe:"Executivo", motorista:"Roberto",            ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-24", carro:"882572",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
+  {data:"2026-09-24", carro:"882318",  classe:"Executivo", motorista:"Sérgio Sena",        ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-25", carro:"882318",  classe:"Executivo", motorista:"Rogerio",            ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-25", carro:"882322",  classe:"Executivo", motorista:"Inaldo/Ubaldo",      ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-28", carro:"882311",  classe:"Executivo", motorista:"Gilvan",             ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-28", carro:"882308",  classe:"Executivo", motorista:"Antonio",            ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-29", carro:"8824206", classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
+  {data:"2026-09-29", carro:"882318",  classe:"Executivo", motorista:"Rogerio",            ocorrencia:"Passagem não solicitada"},
+  {data:"2026-09-30", carro:"8824207", classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
+  {data:"2026-09-30", carro:"882313",  classe:"Executivo", motorista:"Wellington",         ocorrencia:"Passagem não solicitada"},
+
+  // ---------- OUTUBRO ----------
+  {data:"2026-10-02", carro:"882311",  classe:"Executivo", motorista:"Gilvan",             ocorrencia:"Passagem não solicitada"},
+  {data:"2026-10-02", carro:"882318",  classe:"Executivo", motorista:"Sergio",             ocorrencia:"Passagem não solicitada"},
+  {data:"2026-10-07", carro:"882703",  classe:"—",         motorista:"—",                  ocorrencia:"Sem descrição"},
+  {data:"2026-10-07", carro:"882312",  classe:"Executivo", motorista:"Andre",              ocorrencia:"Passagem não solicitada"},
+  {data:"2026-10-09", carro:"882312",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
+  {data:"2026-10-10", carro:"882473",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem maiores ocorrências"},
+  {data:"2026-10-12", carro:"882315",  classe:"Executivo", motorista:"Lazaro",             ocorrencia:"Passagem não solicitada"},
+  {data:"2026-10-13", carro:"882315",  classe:"Executivo", motorista:"Lazaro",             ocorrencia:"Passagem não solicitada"},
+  {data:"2026-10-14", carro:"882315",  classe:"Executivo", motorista:"Lazaro",             ocorrencia:"Passagem não solicitada"},
+  {data:"2026-10-15", carro:"882321",  classe:"Executivo", motorista:"Claudiano",          ocorrencia:"Passagem não solicitada"},
+  {data:"2026-10-16", carro:"882570",  classe:"Urbano",    motorista:"—",                  ocorrencia:"Sem ocorrências"},
+  {data:"2026-10-16", carro:"882308",  classe:"Executivo", motorista:"Roberto",            ocorrencia:"Passagem não solicitada"},
+  {data:"2026-10-16", carro:"882312",  classe:"Executivo", motorista:"Sergio",             ocorrencia:"Passagem não solicitada"},
+  {data:"2026-10-20", carro:"882710",  classe:"—",         motorista:"—",                  ocorrencia:"Sem maiores ocorrências"}
+];
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+const mesesLabel = {"2026-08":"Agosto/2026","2026-09":"Setembro/2026","2026-10":"Outubro/2026"};
+
+function classificarOcorrencia(o){
+  if(o.includes("Sem ocorr") || o.includes("Sem maiores")) return "ok";
+  if(o.includes("Passagem não solicitada")) return "bad";
+  if(o.includes("Passou direto") || o.includes("Discussão")) return "warn";
+  return "neutral";
+}
+
+function contar(arr, campo){
+  const map = {};
+  arr.forEach(item => {
+    const k = item[campo] || "—";
+    map[k] = (map[k] || 0) + 1;
+  });
+  return Object.entries(map).sort((a,b)=>b[1]-a[1]);
+}
+
+function renderBars(containerId, entries, colorMap){
+  const el = document.getElementById(containerId);
+  if(!entries.length){ el.innerHTML = '<p class="empty">Sem dados</p>'; return; }
+  const max = Math.max(...entries.map(e=>e[1]));
+  el.innerHTML = entries.map(([nome,qtd])=>{
+    const pct = (qtd/max)*100;
+    const cor = colorMap ? (colorMap(nome)||"#38bdf8") : "#38bdf8";
+    return `<div class="bar-row">
+      <span class="name" title="${nome}">${nome}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${cor}"></div></div>
+      <span class="qty">${qtd}</span>
+    </div>`;
+  }).join("");
+}
+
+/* ============================================================
+   RENDER PRINCIPAL
+   ============================================================ */
+function render(){
+  const mes    = document.getElementById("mes").value;
+  const classe = document.getElementById("classe").value;
+  const busca  = document.getElementById("busca").value.trim().toLowerCase();
+
+  // Filtragem
+  let filtrados = dados.filter(d=>{
+    if(mes !== "all" && !d.data.startsWith(mes)) return false;
+    if(classe !== "all" && d.classe !== classe) return false;
+    if(busca){
+      const blob = `${d.carro} ${d.motorista} ${d.ocorrencia}`.toLowerCase();
+      if(!blob.includes(busca)) return false;
+    }
+    return true;
+  });
+
+  // KPIs
+  const total = filtrados.length;
+  const semOcorr = filtrados.filter(d=>classificarOcorrencia(d.ocorrencia)==="ok").length;
+  const passagem = filtrados.filter(d=>classificarOcorrencia(d.ocorrencia)==="bad").length;
+  const outras   = total - semOcorr - passagem;
+  const veiculos = new Set(filtrados.map(d=>d.carro)).size;
+  const motoristas = new Set(filtrados.filter(d=>d.motorista!=="—").map(d=>d.motorista)).size;
+
+  document.getElementById("kpis").innerHTML = `
+    <div class="kpi"><div class="label">Total de viagens</div><div class="value accent">${total}</div></div>
+    <div class="kpi"><div class="label">Sem ocorrências</div><div class="value green">${semOcorr}</div></div>
+    <div class="kpi"><div class="label">Passagem não solicitada</div><div class="value red">${passagem}</div></div>
+    <div class="kpi"><div class="label">Outras ocorrências</div><div class="value yellow">${outras}</div></div>
+    <div class="kpi"><div class="label">Veículos distintos</div><div class="value">${veiculos}</div></div>
+    <div class="kpi"><div class="label">Motoristas distintos</div><div class="value">${motoristas}</div></div>
+  `;
+
+  // Gráfico ocorrências
+  const ocorr = contar(filtrados, "ocorrencia");
+  renderBars("chartOcorrencias", ocorr, (nome)=>{
+    const c = classificarOcorrencia(nome);
+    return c==="ok" ? "#22c55e" : c==="bad" ? "#ef4444" : c==="warn" ? "#f59e0b" : "#64748b";
+  });
+
+  // Gráfico classe
+  const classes = contar(filtrados, "classe");
+  renderBars("chartClasse", classes, (nome)=> nome==="Executivo" ? "#38bdf8" : nome==="Urbano" ? "#a78bfa" : "#64748b");
+
+  // Top motoristas (excluir "—")
+  const mot = contar(filtrados.filter(d=>d.motorista!=="—"), "motorista").slice(0,10);
+  renderBars("chartMotoristas", mot);
+
+  // Top veículos
+  const veic = contar(filtrados, "carro").slice(0,10);
+  renderBars("chartVeiculos", veic);
+
+  // Tabela
+  document.getElementById("count").textContent = `${total} registro(s)`;
+  const tbody = document.getElementById("tbody");
+  if(!filtrados.length){
+    tbody.innerHTML = `<tr><td colspan="5" class="empty">Nenhum registro encontrado com os filtros atuais.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filtrados
+    .slice()
+    .sort((a,b)=> a.data < b.data ? 1 : -1)
+    .map(d=>{
+      const [ano,m,dia] = d.data.split("-");
+      const dataFmt = `${dia}/${m}/${ano}`;
+      const cls = classificarOcorrencia(d.ocorrencia);
+      return `<tr>
+        <td>${dataFmt}</td>
+        <td><strong>${d.carro}</strong></td>
+        <td>${d.classe}</td>
+        <td>${d.motorista}</td>
+        <td><span class="tag ${cls}">${d.ocorrencia}</span></td>
+      </tr>`;
+    }).join("");
+}
+
+/* Eventos */
+document.getElementById("mes").addEventListener("change", render);
+document.getElementById("classe").addEventListener("change", render);
+document.getElementById("busca").addEventListener("input", render);
+document.getElementById("limpar").addEventListener("click", ()=>{
+  document.getElementById("mes").value = "all";
+  document.getElementById("classe").value = "all";
+  document.getElementById("busca").value = "";
+  render();
+});
+
+/* Init */
+render();
+</script>
+</body>
+</html>
