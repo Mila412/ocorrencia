@@ -64,6 +64,8 @@
   }
   .btn:hover{opacity:.85}
   .btn-danger{background:var(--red);color:#fff;margin-left:auto}
+  .btn-secondary{background:var(--card2);color:var(--txt);border:1px solid var(--border)}
+  .btn-small{padding:5px 10px;font-size:.78rem;border-radius:6px}
 
   /* Formulário de Inserção */
   .form-panel{
@@ -85,6 +87,11 @@
   .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent)}
   .msg-sucesso{
     background:rgba(34,197,94,.15);color:var(--green);
+    padding:10px;border-radius:8px;margin-bottom:16px;
+    font-size:.9rem;text-align:center;display:none;
+  }
+  .form-aviso-edicao{
+    background:rgba(245,158,11,.15);color:var(--yellow);
     padding:10px;border-radius:8px;margin-bottom:16px;
     font-size:.9rem;text-align:center;display:none;
   }
@@ -157,6 +164,10 @@
   .obs-text{font-size:.8rem;color:var(--muted);margin-top:4px;white-space:pre-wrap;}
   .empty{padding:30px;text-align:center;color:var(--muted)}
   .scroll{max-height:520px;overflow:auto}
+  .actions{display:flex;gap:6px;flex-wrap:wrap}
+  .actions .btn{padding:5px 10px;font-size:.78rem}
+  .btn-edit{background:var(--yellow);color:#0f172a;}
+  .btn-delete{background:var(--red);color:#fff;}
 
   @media(max-width:600px){
     body{padding:12px}
@@ -243,6 +254,7 @@
             <th>Agente</th>
             <th>Horários</th>
             <th>Ocorrência & Observações</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
@@ -251,15 +263,18 @@
   </div>
 </div>
 
-<!-- ABA 2: INSERÇÃO DE DADOS -->
+<!-- ABA 2: INSERÇÃO / EDIÇÃO DE DADOS -->
 <div id="tab-cadastro" class="tab-content">
   <div class="form-panel">
-    <h2>Cadastrar Novo Registro na Frota</h2>
-    <p class="sub" style="margin-bottom: 16px;">Preencha os campos abaixo com os dados operacionais, horários e observações.</p>
-    
+    <h2 id="tituloFormulario">Cadastrar Novo Registro na Frota</h2>
+    <p class="sub" style="margin-bottom: 16px;" id="subtituloFormulario">Preencha os campos abaixo com os dados operacionais, horários e observações.</p>
+
     <div id="msgSucesso" class="msg-sucesso">Registro adicionado com sucesso! O dashboard foi atualizado.</div>
+    <div id="msgEdicao" class="form-aviso-edicao">✏️ Você está editando um registro existente. Altere os campos e clique em "Salvar Alterações".</div>
 
     <form id="formCadastro" onsubmit="salvarNovoRegistro(event)">
+      <input type="hidden" id="editandoId" value="">
+
       <div class="form-grid">
         <div class="form-group">
           <label for="novoData">Data da Ocorrência *</label>
@@ -315,7 +330,10 @@
         </div>
       </div>
 
-      <button type="submit" class="btn" style="width: 100%; padding: 12px; font-size: 1rem;">Salvar e Enviar para o Dashboard</button>
+      <div style="display:flex; gap:12px;">
+        <button type="submit" class="btn" style="flex:1; padding: 12px; font-size: 1rem;" id="btnSalvar">Salvar e Enviar para o Dashboard</button>
+        <button type="button" class="btn btn-secondary" style="padding: 12px; font-size: 1rem; display:none;" id="btnCancelarEdicao" onclick="cancelarEdicao()">Cancelar Edição</button>
+      </div>
     </form>
   </div>
 </div>
@@ -325,7 +343,7 @@
   <div class="form-panel" style="max-width: 900px;">
     <h2>Módulo de Geração de Gráficos</h2>
     <p class="sub" style="margin-bottom: 16px;">Selecione o critério desejado para gerar instantaneamente gráficos dinâmicos baseados na base de dados atual.</p>
-    
+
     <div class="filters" style="margin-bottom: 16px;">
       <label for="parametroGrafico">Gerar gráfico por:</label>
       <select id="parametroGrafico" onchange="gerarGraficoCustomizado()">
@@ -347,15 +365,27 @@
 
 <script>
 const dadosIniciais = [
-  {data:"2026-08-03", carro:"8824140", rota:"101 - Circular Norte", classe:"Urbano", horaSaida:"06:00", horaOcorrencia:"07:15", motorista:"—", agente:"Ana Paula", ocorrencia:"Sem ocorrências", observacoes:"Viagem realizada dentro da normalidade."},
-  {data:"2026-08-03", carro:"882318", rota:"204 - Expressópolis", classe:"Executivo", horaSaida:"08:30", horaOcorrencia:"09:10", motorista:"Lazaro", agente:"Carlos Silva", ocorrencia:"Passagem não solicitada", observacoes:"Passageiro sinalizou em cima da hora, motorista seguiu viagem regulamentar."},
-  {data:"2026-08-07", carro:"882408", rota:"105 - Vila Central", classe:"Urbano", horaSaida:"13:00", horaOcorrencia:"14:20", motorista:"Elmo", agente:"Mariana Souza", ocorrencia:"Sem maiores ocorrências", observacoes:"Tráfego intenso na via principal."},
-  {data:"2026-09-10", carro:"882570", rota:"301 - Aeroporto Expresso", classe:"Urbano", horaSaida:"10:15", horaOcorrencia:"11:05", motorista:"—", agente:"Carlos Silva", ocorrencia:"Passou direto do ponto", observacoes:"Relato de passageiro de que o ônibus não parou no abrigo sinalizado."},
-  {data:"2026-09-11", carro:"882570", rota:"301 - Aeroporto Expresso", classe:"Urbano", horaSaida:"14:00", horaOcorrencia:"15:30", motorista:"—", agente:"Ana Paula", ocorrencia:"Discussão com passageiro", observacoes:"Desentendimento verbal contornado com o auxílio do fiscal de linha."},
-  {data:"2026-10-07", carro:"882703", rota:"402 - Beira Mar", classe:"Urbano", horaSaida:"16:00", horaOcorrencia:"16:45", motorista:"—", agente:"Mariana Souza", ocorrencia:"Sem descrição", observacoes:"Nenhum detalhe adicional reportado pelo agente em campo."}
+  {id:"r1", data:"2026-08-03", carro:"8824140", rota:"101 - Circular Norte", classe:"Urbano", horaSaida:"06:00", horaOcorrencia:"07:15", motorista:"—", agente:"Ana Paula", ocorrencia:"Sem ocorrências", observacoes:"Viagem realizada dentro da normalidade."},
+  {id:"r2", data:"2026-08-03", carro:"882318", rota:"204 - Expressópolis", classe:"Executivo", horaSaida:"08:30", horaOcorrencia:"09:10", motorista:"Lazaro", agente:"Carlos Silva", ocorrencia:"Passagem não solicitada", observacoes:"Passageiro sinalizou em cima da hora, motorista seguiu viagem regulamentar."},
+  {id:"r3", data:"2026-08-07", carro:"882408", rota:"105 - Vila Central", classe:"Urbano", horaSaida:"13:00", horaOcorrencia:"14:20", motorista:"Elmo", agente:"Mariana Souza", ocorrencia:"Sem maiores ocorrências", observacoes:"Tráfego intenso na via principal."},
+  {id:"r4", data:"2026-09-10", carro:"882570", rota:"301 - Aeroporto Expresso", classe:"Urbano", horaSaida:"10:15", horaOcorrencia:"11:05", motorista:"—", agente:"Carlos Silva", ocorrencia:"Passou direto do ponto", observacoes:"Relato de passageiro de que o ônibus não parou no abrigo sinalizado."},
+  {id:"r5", data:"2026-09-11", carro:"882570", rota:"301 - Aeroporto Expresso", classe:"Urbano", horaSaida:"14:00", horaOcorrencia:"15:30", motorista:"—", agente:"Ana Paula", ocorrencia:"Discussão com passageiro", observacoes:"Desentendimento verbal contornado com o auxílio do fiscal de linha."},
+  {id:"r6", data:"2026-10-07", carro:"882703", rota:"402 - Beira Mar", classe:"Urbano", horaSaida:"16:00", horaOcorrencia:"16:45", motorista:"—", agente:"Mariana Souza", ocorrencia:"Sem descrição", observacoes:"Nenhum detalhe adicional reportado pelo agente em campo."}
 ];
 
 let dados = JSON.parse(localStorage.getItem("dados_frota_atlantico_v3")) || dadosIniciais;
+
+// Garante que todos os registros possuam id (compatibilidade com versões anteriores)
+dados = dados.map((d, i) => ({ ...d, id: d.id || ("old-" + i + "-" + Date.now()) }));
+salvarDados();
+
+function salvarDados() {
+  localStorage.setItem("dados_frota_atlantico_v3", JSON.stringify(dados));
+}
+
+function gerarId() {
+  return "reg-" + Date.now() + "-" + Math.floor(Math.random() * 10000);
+}
 
 function mudarAba(abaId) {
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -368,7 +398,15 @@ function mudarAba(abaId) {
   } else if (abaId === 'cadastro') {
     document.querySelectorAll('.tab-btn')[1].classList.add('active');
     document.getElementById('tab-cadastro').classList.add('active');
-    document.getElementById('novoData').value = new Date().toISOString().split('T')[0];
+    // Se não estiver editando, preenche data com hoje
+    if (!document.getElementById('editandoId').value) {
+      document.getElementById('novoData').value = new Date().toISOString().split('T')[0];
+      document.getElementById('tituloFormulario').textContent = "Cadastrar Novo Registro na Frota";
+      document.getElementById('subtituloFormulario').textContent = "Preencha os campos abaixo com os dados operacionais, horários e observações.";
+      document.getElementById('btnSalvar').textContent = "Salvar e Enviar para o Dashboard";
+      document.getElementById('btnCancelarEdicao').style.display = "none";
+      document.getElementById('msgEdicao').style.display = "none";
+    }
   } else if (abaId === 'gerador-graficos') {
     document.querySelectorAll('.tab-btn')[2].classList.add('active');
     document.getElementById('tab-gerador-graficos').classList.add('active');
@@ -378,8 +416,11 @@ function mudarAba(abaId) {
 
 function salvarNovoRegistro(event) {
   event.preventDefault();
-  
-  const novoItem = {
+
+  const editandoId = document.getElementById('editandoId').value;
+
+  const item = {
+    id: editandoId || gerarId(),
     data: document.getElementById('novoData').value,
     carro: document.getElementById('novoCarro').value.trim(),
     rota: document.getElementById('novoRota').value.trim(),
@@ -392,13 +433,32 @@ function salvarNovoRegistro(event) {
     observacoes: document.getElementById('novoObservacoes').value.trim()
   };
 
-  dados.unshift(novoItem);
-  localStorage.setItem("dados_frota_atlantico_v3", JSON.stringify(dados));
+  if (editandoId) {
+    // Atualiza registro existente
+    const idx = dados.findIndex(d => d.id === editandoId);
+    if (idx !== -1) dados[idx] = item;
+    salvarDados();
 
-  const msg = document.getElementById('msgSucesso');
-  msg.style.display = 'block';
-  setTimeout(() => { msg.style.display = 'none'; }, 3500);
+    const msgEd = document.getElementById('msgEdicao');
+    msgEd.style.display = 'block';
+    setTimeout(() => { msgEd.style.display = 'none'; }, 2500);
+  } else {
+    // Insere novo registro
+    dados.unshift(item);
+    salvarDados();
 
+    const msg = document.getElementById('msgSucesso');
+    msg.style.display = 'block';
+    setTimeout(() => { msg.style.display = 'none'; }, 3500);
+  }
+
+  // Limpa e volta ao modo cadastro
+  limparFormulario();
+  setTimeout(() => { mudarAba('dashboard'); }, 900);
+}
+
+function limparFormulario() {
+  document.getElementById('editandoId').value = '';
   document.getElementById('novoCarro').value = '';
   document.getElementById('novoRota').value = '';
   document.getElementById('novoHoraSaida').value = '';
@@ -407,14 +467,57 @@ function salvarNovoRegistro(event) {
   document.getElementById('novoAgente').value = '';
   document.getElementById('novoOcorrencia').value = '';
   document.getElementById('novoObservacoes').value = '';
+  document.getElementById('novoData').value = new Date().toISOString().split('T')[0];
+  document.getElementById('tituloFormulario').textContent = "Cadastrar Novo Registro na Frota";
+  document.getElementById('subtituloFormulario').textContent = "Preencha os campos abaixo com os dados operacionais, horários e observações.";
+  document.getElementById('btnSalvar').textContent = "Salvar e Enviar para o Dashboard";
+  document.getElementById('btnCancelarEdicao').style.display = "none";
+  document.getElementById('msgEdicao').style.display = "none";
+}
 
-  setTimeout(() => { mudarAba('dashboard'); }, 1000);
+function editarRegistro(id) {
+  const reg = dados.find(d => d.id === id);
+  if (!reg) return;
+
+  document.getElementById('editandoId').value = id;
+  document.getElementById('novoData').value = reg.data;
+  document.getElementById('novoCarro').value = reg.carro;
+  document.getElementById('novoRota').value = reg.rota;
+  document.getElementById('novoClasse').value = reg.classe;
+  document.getElementById('novoHoraSaida').value = reg.horaSaida;
+  document.getElementById('novoHoraOcorrencia').value = reg.horaOcorrencia;
+  document.getElementById('novoMotorista').value = reg.motorista === "—" ? "" : reg.motorista;
+  document.getElementById('novoAgente').value = reg.agente;
+  document.getElementById('novoOcorrencia').value = reg.ocorrencia;
+  document.getElementById('novoObservacoes').value = reg.observacoes || '';
+
+  document.getElementById('tituloFormulario').textContent = "✏️ Editar Registro Existente";
+  document.getElementById('subtituloFormulario').textContent = "Altere os campos abaixo e salve para atualizar o registro selecionado.";
+  document.getElementById('btnSalvar').textContent = "Salvar Alterações";
+  document.getElementById('btnCancelarEdicao').style.display = "inline-block";
+  document.getElementById('msgEdicao').style.display = "block";
+
+  mudarAba('cadastro');
+}
+
+function cancelarEdicao() {
+  limparFormulario();
+  mudarAba('dashboard');
+}
+
+function excluirRegistro(id) {
+  if (!confirm("Tem certeza que deseja excluir este registro? Esta ação não pode ser desfeita.")) return;
+  dados = dados.filter(d => d.id !== id);
+  salvarDados();
+  render();
 }
 
 function resetarDadosPadrao() {
   if (confirm("Tem certeza que deseja restaurar os dados originais e apagar os registros adicionados?")) {
     localStorage.removeItem("dados_frota_atlantico_v3");
-    dados = [...dadosIniciais];
+    // Reinicializa os dados iniciais mantendo ids únicos
+    dados = dadosIniciais.map((d, i) => ({ ...d, id: d.id || ("r-" + i) }));
+    salvarDados();
     render();
     alert("Dados restaurados com sucesso!");
   }
@@ -455,14 +558,14 @@ function gerarGraficoCustomizado() {
   const param = document.getElementById("parametroGrafico").value;
   const selectEl = document.getElementById("parametroGrafico");
   const nomeParametro = selectEl.options[selectEl.selectedIndex].text;
-  
+
   document.getElementById("tituloGraficoCustomizado").textContent = `Gráfico: ${nomeParametro}`;
-  
+
   let dadosFiltrados = dados;
   if(param === 'motorista') {
     dadosFiltrados = dados.filter(d => d.motorista !== "—");
   }
-  
+
   const contagem = contar(dadosFiltrados, param);
   renderBars("chartCustomizado", contagem, (nome) => {
     if(param === 'ocorrencia') {
@@ -518,7 +621,7 @@ function render(){
   document.getElementById("count").textContent = `${total} registro(s)`;
   const tbody = document.getElementById("tbody");
   if(!filtrados.length){
-    tbody.innerHTML = `<tr><td colspan="7" class="empty">Nenhum registro encontrado com os filtros atuais.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" class="empty">Nenhum registro encontrado com os filtros atuais.</td></tr>`;
     return;
   }
   tbody.innerHTML = filtrados
@@ -542,6 +645,12 @@ function render(){
         <td>
           <span class="tag ${cls}">${d.ocorrencia}</span>
           ${obsHtml}
+        </td>
+        <td>
+          <div class="actions">
+            <button class="btn btn-edit btn-small" onclick="editarRegistro('${d.id}')" title="Editar este registro">✏️ Editar</button>
+            <button class="btn btn-delete btn-small" onclick="excluirRegistro('${d.id}')" title="Excluir este registro">🗑️ Excluir</button>
+          </div>
         </td>
       </tr>`;
     }).join("");
