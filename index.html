@@ -85,6 +85,7 @@
   }
   .form-group textarea{resize:vertical;min-height:90px;}
   .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent)}
+  .form-group input:disabled{opacity:.6;cursor:not-allowed}
   .msg-sucesso{
     background:rgba(34,197,94,.15);color:var(--green);
     padding:10px;border-radius:8px;margin-bottom:16px;
@@ -208,6 +209,7 @@
       <option value="all">Todas</option>
       <option value="Executivo">Executivo</option>
       <option value="Urbano">Urbano</option>
+      <option value="Micro">Micro</option>
     </select>
 
     <label for="busca">Buscar:</label>
@@ -293,9 +295,10 @@
 
         <div class="form-group">
           <label for="novoClasse">Classe do Veículo *</label>
-          <select id="novoClasse" required>
+          <select id="novoClasse" required onchange="ajustarAgentePorClasse()">
             <option value="Executivo">Executivo</option>
             <option value="Urbano">Urbano</option>
+            <option value="Micro">Micro</option>
           </select>
         </div>
 
@@ -365,22 +368,22 @@
 
 <script>
 const dadosIniciais = [
-  {id:"r1", data:"2026-08-03", carro:"8824140", rota:"101 - Circular Norte", classe:"Urbano", horaSaida:"06:00", horaOcorrencia:"07:15", motorista:"—", agente:"Ana Paula", ocorrencia:"Sem ocorrências", observacoes:"Viagem realizada dentro da normalidade."},
+  {id:"r1", data:"2026-08-03", carro:"8824140", rota:"101 - Circular Norte", classe:"Urbano", horaSaida:"06:00", horaOcorrencia:"07:15", motorista:"—", agente:"Não há", ocorrencia:"Sem ocorrências", observacoes:"Viagem realizada dentro da normalidade."},
   {id:"r2", data:"2026-08-03", carro:"882318", rota:"204 - Expressópolis", classe:"Executivo", horaSaida:"08:30", horaOcorrencia:"09:10", motorista:"Lazaro", agente:"Carlos Silva", ocorrencia:"Passagem não solicitada", observacoes:"Passageiro sinalizou em cima da hora, motorista seguiu viagem regulamentar."},
-  {id:"r3", data:"2026-08-07", carro:"882408", rota:"105 - Vila Central", classe:"Urbano", horaSaida:"13:00", horaOcorrencia:"14:20", motorista:"Elmo", agente:"Mariana Souza", ocorrencia:"Sem maiores ocorrências", observacoes:"Tráfego intenso na via principal."},
-  {id:"r4", data:"2026-09-10", carro:"882570", rota:"301 - Aeroporto Expresso", classe:"Urbano", horaSaida:"10:15", horaOcorrencia:"11:05", motorista:"—", agente:"Carlos Silva", ocorrencia:"Passou direto do ponto", observacoes:"Relato de passageiro de que o ônibus não parou no abrigo sinalizado."},
-  {id:"r5", data:"2026-09-11", carro:"882570", rota:"301 - Aeroporto Expresso", classe:"Urbano", horaSaida:"14:00", horaOcorrencia:"15:30", motorista:"—", agente:"Ana Paula", ocorrencia:"Discussão com passageiro", observacoes:"Desentendimento verbal contornado com o auxílio do fiscal de linha."},
-  {id:"r6", data:"2026-10-07", carro:"882703", rota:"402 - Beira Mar", classe:"Urbano", horaSaida:"16:00", horaOcorrencia:"16:45", motorista:"—", agente:"Mariana Souza", ocorrencia:"Sem descrição", observacoes:"Nenhum detalhe adicional reportado pelo agente em campo."}
+  {id:"r3", data:"2026-08-07", carro:"882408", rota:"105 - Vila Central", classe:"Urbano", horaSaida:"13:00", horaOcorrencia:"14:20", motorista:"Elmo", agente:"Não há", ocorrencia:"Sem maiores ocorrências", observacoes:"Tráfego intenso na via principal."},
+  {id:"r4", data:"2026-09-10", carro:"882570", rota:"301 - Aeroporto Expresso", classe:"Urbano", horaSaida:"10:15", horaOcorrencia:"11:05", motorista:"—", agente:"Não há", ocorrencia:"Passou direto do ponto", observacoes:"Relato de passageiro de que o ônibus não parou no abrigo sinalizado."},
+  {id:"r5", data:"2026-09-11", carro:"882570", rota:"301 - Aeroporto Expresso", classe:"Urbano", horaSaida:"14:00", horaOcorrencia:"15:30", motorista:"—", agente:"Não há", ocorrencia:"Discussão com passageiro", observacoes:"Desentendimento verbal contornado com o auxílio do fiscal de linha."},
+  {id:"r6", data:"2026-10-07", carro:"882703", rota:"402 - Beira Mar", classe:"Micro", horaSaida:"16:00", horaOcorrencia:"16:45", motorista:"—", agente:"Não há", ocorrencia:"Sem descrição", observacoes:"Nenhum detalhe adicional reportado pelo agente em campo."}
 ];
 
-let dados = JSON.parse(localStorage.getItem("dados_frota_atlantico_v3")) || dadosIniciais;
+let dados = JSON.parse(localStorage.getItem("dados_frota_atlantico_v4")) || dadosIniciais;
 
 // Garante que todos os registros possuam id (compatibilidade com versões anteriores)
 dados = dados.map((d, i) => ({ ...d, id: d.id || ("old-" + i + "-" + Date.now()) }));
 salvarDados();
 
 function salvarDados() {
-  localStorage.setItem("dados_frota_atlantico_v3", JSON.stringify(dados));
+  localStorage.setItem("dados_frota_atlantico_v4", JSON.stringify(dados));
 }
 
 function gerarId() {
@@ -398,7 +401,6 @@ function mudarAba(abaId) {
   } else if (abaId === 'cadastro') {
     document.querySelectorAll('.tab-btn')[1].classList.add('active');
     document.getElementById('tab-cadastro').classList.add('active');
-    // Se não estiver editando, preenche data com hoje
     if (!document.getElementById('editandoId').value) {
       document.getElementById('novoData').value = new Date().toISOString().split('T')[0];
       document.getElementById('tituloFormulario').textContent = "Cadastrar Novo Registro na Frota";
@@ -406,6 +408,7 @@ function mudarAba(abaId) {
       document.getElementById('btnSalvar').textContent = "Salvar e Enviar para o Dashboard";
       document.getElementById('btnCancelarEdicao').style.display = "none";
       document.getElementById('msgEdicao').style.display = "none";
+      ajustarAgentePorClasse();
     }
   } else if (abaId === 'gerador-graficos') {
     document.querySelectorAll('.tab-btn')[2].classList.add('active');
@@ -414,27 +417,63 @@ function mudarAba(abaId) {
   }
 }
 
+/**
+ * Regra de negócio: se a classe for "Micro" ou "Urbano",
+ * o campo Agente Responsável é preenchido automaticamente com "Não há"
+ * e fica desabilitado para edição manual.
+ * Para "Executivo", o campo é liberado para preenchimento normal.
+ */
+function ajustarAgentePorClasse() {
+  const classe = document.getElementById('novoClasse').value;
+  const campoAgente = document.getElementById('novoAgente');
+
+  if (classe === 'Micro' || classe === 'Urbano') {
+    campoAgente.value = 'Não há';
+    campoAgente.disabled = true;
+    campoAgente.required = false;
+    campoAgente.placeholder = 'Preenchido automaticamente para ' + classe;
+  } else {
+    campoAgente.disabled = false;
+    campoAgente.required = true;
+    campoAgente.placeholder = 'Ex: Carlos Silva';
+    // Se o valor atual for "Não há", limpa para o usuário digitar
+    if (campoAgente.value === 'Não há') {
+      campoAgente.value = '';
+    }
+  }
+}
+
 function salvarNovoRegistro(event) {
   event.preventDefault();
 
   const editandoId = document.getElementById('editandoId').value;
+  const classeSelecionada = document.getElementById('novoClasse').value;
+
+  // Regra: classes Micro e Urbano sempre têm agente "Não há"
+  let agenteFinal = document.getElementById('novoAgente').value.trim();
+  if (classeSelecionada === 'Micro' || classeSelecionada === 'Urbano') {
+    agenteFinal = 'Não há';
+  }
+  if (!agenteFinal) {
+    alert('Informe o Agente Responsável.');
+    return;
+  }
 
   const item = {
     id: editandoId || gerarId(),
     data: document.getElementById('novoData').value,
     carro: document.getElementById('novoCarro').value.trim(),
     rota: document.getElementById('novoRota').value.trim(),
-    classe: document.getElementById('novoClasse').value,
+    classe: classeSelecionada,
     horaSaida: document.getElementById('novoHoraSaida').value,
     horaOcorrencia: document.getElementById('novoHoraOcorrencia').value,
     motorista: document.getElementById('novoMotorista').value.trim() || "—",
-    agente: document.getElementById('novoAgente').value.trim(),
+    agente: agenteFinal,
     ocorrencia: document.getElementById('novoOcorrencia').value.trim(),
     observacoes: document.getElementById('novoObservacoes').value.trim()
   };
 
   if (editandoId) {
-    // Atualiza registro existente
     const idx = dados.findIndex(d => d.id === editandoId);
     if (idx !== -1) dados[idx] = item;
     salvarDados();
@@ -443,7 +482,6 @@ function salvarNovoRegistro(event) {
     msgEd.style.display = 'block';
     setTimeout(() => { msgEd.style.display = 'none'; }, 2500);
   } else {
-    // Insere novo registro
     dados.unshift(item);
     salvarDados();
 
@@ -452,7 +490,6 @@ function salvarNovoRegistro(event) {
     setTimeout(() => { msg.style.display = 'none'; }, 3500);
   }
 
-  // Limpa e volta ao modo cadastro
   limparFormulario();
   setTimeout(() => { mudarAba('dashboard'); }, 900);
 }
@@ -468,6 +505,8 @@ function limparFormulario() {
   document.getElementById('novoOcorrencia').value = '';
   document.getElementById('novoObservacoes').value = '';
   document.getElementById('novoData').value = new Date().toISOString().split('T')[0];
+  document.getElementById('novoClasse').value = 'Executivo';
+  ajustarAgentePorClasse();
   document.getElementById('tituloFormulario').textContent = "Cadastrar Novo Registro na Frota";
   document.getElementById('subtituloFormulario').textContent = "Preencha os campos abaixo com os dados operacionais, horários e observações.";
   document.getElementById('btnSalvar').textContent = "Salvar e Enviar para o Dashboard";
@@ -490,6 +529,9 @@ function editarRegistro(id) {
   document.getElementById('novoAgente').value = reg.agente;
   document.getElementById('novoOcorrencia').value = reg.ocorrencia;
   document.getElementById('novoObservacoes').value = reg.observacoes || '';
+
+  // Reaplica a regra da classe após preencher os campos
+  ajustarAgentePorClasse();
 
   document.getElementById('tituloFormulario').textContent = "✏️ Editar Registro Existente";
   document.getElementById('subtituloFormulario').textContent = "Altere os campos abaixo e salve para atualizar o registro selecionado.";
@@ -514,8 +556,7 @@ function excluirRegistro(id) {
 
 function resetarDadosPadrao() {
   if (confirm("Tem certeza que deseja restaurar os dados originais e apagar os registros adicionados?")) {
-    localStorage.removeItem("dados_frota_atlantico_v3");
-    // Reinicializa os dados iniciais mantendo ids únicos
+    localStorage.removeItem("dados_frota_atlantico_v4");
     dados = dadosIniciais.map((d, i) => ({ ...d, id: d.id || ("r-" + i) }));
     salvarDados();
     render();
@@ -596,7 +637,8 @@ function render(){
   const passagem = filtrados.filter(d=>classificarOcorrencia(d.ocorrencia)==="bad").length;
   const outras   = total - semOcorr - passagem;
   const veiculos = new Set(filtrados.map(d=>d.carro)).size;
-  const agentes  = new Set(filtrados.map(d=>d.agente)).size;
+  // Agentes ativos: ignora "Não há" para contagem
+  const agentes  = new Set(filtrados.map(d=>d.agente).filter(a => a && a !== "Não há")).size;
 
   document.getElementById("kpis").innerHTML = `
     <div class="kpi"><div class="label">Total de registros</div><div class="value accent">${total}</div></div>
@@ -612,13 +654,72 @@ function render(){
     return c==="ok" ? "#22c55e" : c==="bad" ? "#ef4444" : c==="warn" ? "#f59e0b" : "#64748b";
   });
 
-  renderBars("chartClasse", contar(filtrados, "classe"), (nome)=> nome==="Executivo" ? "#38bdf8" : nome==="Urbano" ? "#a78bfa" : "#64748b");
+  renderBars("chartClasse", contar(filtrados, "classe"), (nome)=> {
+    if (nome === "Executivo") return "#38bdf8";
+    if (nome === "Urbano") return "#a78bfa";
+    if (nome === "Micro") return "#f59e0b";
+    return "#64748b";
+  });
 
   renderBars("chartMotoristas", contar(filtrados.filter(d=>d.motorista!=="—"), "motorista").slice(0,10));
 
-  renderBars("chartAgentes", contar(filtrados, "agente").slice(0,10), ()=> "#10b981");
+  renderBars("chartAgentes", contar(filtrados.filter(d=>d.agente !== "Não há"), "agente").slice(0,10), ()=> "#10b981");
 
   document.getElementById("count").textContent = `${total} registro(s)`;
   const tbody = document.getElementById("tbody");
+
   if(!filtrados.length){
-    tbody.innerHTML = `<tr><td
+    tbody.innerHTML = `<tr><td colspan="8" class="empty">Nenhum registro encontrado com os filtros atuais.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtrados.map(d => {
+    const cls = classificarOcorrencia(d.ocorrencia);
+    const tagClass = cls === "ok" ? "ok" : cls === "bad" ? "bad" : cls === "warn" ? "warn" : "neutral";
+    const tagLabel = cls === "ok" ? "OK" : cls === "bad" ? "Crítico" : cls === "warn" ? "Atenção" : "Neutro";
+
+    return `<tr>
+      <td>${formatarData(d.data)}</td>
+      <td><strong>${d.carro}</strong><div class="meta-sub">${d.rota}</div></td>
+      <td><span class="tag neutral">${d.classe}</span></td>
+      <td>${d.motorista}</td>
+      <td>${d.agente}</td>
+      <td><div class="meta-sub">Saída: ${d.horaSaida}</div><div class="meta-sub">Ocorr.: ${d.horaOcorrencia}</div></td>
+      <td>
+        <span class="tag ${tagClass}">${tagLabel}</span>
+        <div>${d.ocorrencia}</div>
+        ${d.observacoes ? `<div class="obs-text">${d.observacoes}</div>` : ''}
+      </td>
+      <td>
+        <div class="actions">
+          <button class="btn btn-edit" onclick="editarRegistro('${d.id}')">✏️ Editar</button>
+          <button class="btn btn-delete" onclick="excluirRegistro('${d.id}')">🗑️ Excluir</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join("");
+}
+
+function formatarData(iso) {
+  if (!iso) return "—";
+  const [ano, mes, dia] = iso.split("-");
+  return `${dia}/${mes}/${ano}`;
+}
+
+// Filtros reativos
+document.getElementById("mes").addEventListener("change", render);
+document.getElementById("classe").addEventListener("change", render);
+document.getElementById("busca").addEventListener("input", render);
+document.getElementById("limpar").addEventListener("click", () => {
+  document.getElementById("mes").value = "all";
+  document.getElementById("classe").value = "all";
+  document.getElementById("busca").value = "";
+  render();
+});
+
+// Inicialização
+ajustarAgentePorClasse();
+render();
+</script>
+</body>
+</html>
