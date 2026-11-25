@@ -15,6 +15,8 @@
     --green:#22c55e;
     --red:#ef4444;
     --yellow:#f59e0b;
+    --purple:#a78bfa;
+    --teal:#10b981;
     --border:#334155;
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -66,6 +68,7 @@
   .btn-danger{background:var(--red);color:#fff;margin-left:auto}
   .btn-secondary{background:var(--card2);color:var(--txt);border:1px solid var(--border)}
   .btn-small{padding:5px 10px;font-size:.78rem;border-radius:6px}
+  .btn-green{background:var(--green);color:#0f172a}
 
   /* Formulário de Inserção */
   .form-panel{
@@ -132,6 +135,19 @@
   .bar-fill{height:100%;border-radius:6px;transition:width .4s}
   .bar-row .qty{width:36px;text-align:right;font-weight:600}
 
+  /* Barras verticais (SVG) */
+  .vbars-wrap{width:100%;overflow-x:auto}
+  .vbars-svg{display:block;width:100%;height:auto}
+
+  /* Pizza / Donut */
+  .pie-wrap{display:flex;gap:20px;flex-wrap:wrap;align-items:center;justify-content:center}
+  .pie-svg{flex-shrink:0}
+  .pie-legend{display:flex;flex-direction:column;gap:6px;font-size:.82rem;min-width:140px}
+  .pie-legend .item{display:flex;align-items:center;gap:8px}
+  .pie-legend .dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+  .pie-legend .lbl{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}
+  .pie-legend .val{font-weight:600;margin-left:auto}
+
   /* Tabela */
   .table-wrap{
     background:var(--card);border:1px solid var(--border);
@@ -169,6 +185,20 @@
   .btn-edit{background:var(--yellow);color:#0f172a;}
   .btn-delete{background:var(--red);color:#fff;}
 
+  /* Relatórios */
+  .report-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:16px;margin-bottom:16px;
+  }
+  .check-list{display:flex;flex-wrap:wrap;gap:8px}
+  .check-list label{
+    display:flex;align-items:center;gap:6px;
+    background:var(--card2);border:1px solid var(--border);
+    padding:6px 10px;border-radius:8px;font-size:.85rem;cursor:pointer;
+  }
+  .check-list input{accent-color:var(--accent)}
+  .report-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+
   @media(max-width:600px){
     body{padding:12px}
     .form-grid{grid-template-columns:1fr}
@@ -188,6 +218,7 @@
   <button class="tab-btn active" onclick="mudarAba('dashboard')">📊 Dashboard & Relatórios</button>
   <button class="tab-btn" onclick="mudarAba('cadastro')">➕ Inserir Novo Dado</button>
   <button class="tab-btn" onclick="mudarAba('gerador-graficos')">📈 Módulo de Gráficos Customizados</button>
+  <button class="tab-btn" onclick="mudarAba('relatorios')">📄 Relatórios Personalizados</button>
 </div>
 
 <!-- ABA 1: DASHBOARD -->
@@ -221,20 +252,28 @@
 
   <div class="grid">
     <div class="panel">
-      <h2>Ocorrências</h2>
+      <h2>Ocorrências (barras)</h2>
       <div id="chartOcorrencias"></div>
     </div>
     <div class="panel">
-      <h2>Distribuição por Classe</h2>
-      <div id="chartClasse"></div>
+      <h2>Ocorrências (pizza)</h2>
+      <div id="chartOcorrenciasPie"></div>
+    </div>
+    <div class="panel">
+      <h2>Distribuição por Classe (pizza)</h2>
+      <div id="chartClassePie"></div>
+    </div>
+    <div class="panel">
+      <h2>Classes (barras verticais)</h2>
+      <div id="chartClasseVBars"></div>
     </div>
     <div class="panel">
       <h2>Motoristas</h2>
       <div id="chartMotoristas"></div>
     </div>
     <div class="panel">
-      <h2>Agente Cobrador</h2>
-      <div id="chartAgentes"></div>
+      <h2>Agente Cobrador (barras verticais)</h2>
+      <div id="chartAgentesVBars"></div>
     </div>
   </div>
 
@@ -342,7 +381,7 @@
 <div id="tab-gerador-graficos" class="tab-content">
   <div class="form-panel" style="max-width: 900px;">
     <h2>Módulo de Geração de Gráficos</h2>
-    <p class="sub" style="margin-bottom: 16px;">Selecione o critério desejado para gerar instantaneamente gráficos dinâmicos baseados na base de dados atual.</p>
+    <p class="sub" style="margin-bottom: 16px;">Selecione o critério e o tipo de gráfico desejado para gerar instantaneamente visualizações dinâmicas com base na base de dados atual.</p>
 
     <div class="filters" style="margin-bottom: 16px;">
       <label for="parametroGrafico">Gerar gráfico por:</label>
@@ -353,12 +392,117 @@
         <option value="motorista">Motoristas</option>
         <option value="agente">Agentes Responsáveis</option>
         <option value="carro">Veículos (Carros)</option>
+        <option value="data">Datas</option>
+      </select>
+
+      <label for="tipoGrafico">Tipo de gráfico:</label>
+      <select id="tipoGrafico" onchange="gerarGraficoCustomizado()">
+        <option value="hbars">Barras horizontais</option>
+        <option value="vbars">Barras verticais</option>
+        <option value="pie">Pizza (Donut)</option>
+      </select>
+
+      <label for="topN">Top N:</label>
+      <select id="topN" onchange="gerarGraficoCustomizado()">
+        <option value="5">5</option>
+        <option value="10" selected>10</option>
+        <option value="20">20</option>
+        <option value="all">Todos</option>
       </select>
     </div>
 
     <div class="panel">
       <h2 id="tituloGraficoCustomizado">Gráfico: Tipos de Ocorrências</h2>
       <div id="chartCustomizado"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ABA 4: RELATÓRIOS PERSONALIZADOS -->
+<div id="tab-relatorios" class="tab-content">
+  <div class="form-panel" style="max-width:1100px;">
+    <h2>📄 Gerador de Relatórios Personalizados</h2>
+    <p class="sub" style="margin-bottom: 16px;">Monte seu relatório escolhendo colunas, filtros e ordenação. Visualize na tela, exporte em CSV ou imprima em PDF.</p>
+
+    <div class="report-grid">
+      <div class="form-group">
+        <label for="relMes">Mês</label>
+        <select id="relMes">
+          <option value="all">Todos</option>
+          <option value="2026-08">Agosto/2026</option>
+          <option value="2026-09">Setembro/2026</option>
+          <option value="2026-10">Outubro/2026</option>
+          <option value="2026-11">Novembro/2026</option>
+          <option value="2026-12">Dezembro/2026</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="relClasse">Classe</label>
+        <select id="relClasse">
+          <option value="all">Todas</option>
+          <option value="Executivo">Executivo</option>
+          <option value="Urbano">Urbano</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="relAgente">Agente</label>
+        <select id="relAgente"><option value="all">Todos</option></select>
+      </div>
+      <div class="form-group">
+        <label for="relOcorrencia">Ocorrência</label>
+        <select id="relOcorrencia"><option value="all">Todas</option></select>
+      </div>
+      <div class="form-group">
+        <label for="relBusca">Busca livre</label>
+        <input id="relBusca" type="text" placeholder="carro, rota, motorista...">
+      </div>
+      <div class="form-group">
+        <label for="relOrdem">Ordenar por</label>
+        <select id="relOrdem">
+          <option value="data_desc">Data (mais recente)</option>
+          <option value="data_asc">Data (mais antiga)</option>
+          <option value="carro">Carro</option>
+          <option value="classe">Classe</option>
+          <option value="agente">Agente</option>
+          <option value="ocorrencia">Ocorrência</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group full" style="margin-top:8px;">
+      <label>Colunas do relatório</label>
+      <div class="check-list" id="colsList"></div>
+    </div>
+
+    <div class="form-group full" style="margin-top:12px;">
+      <label>Agrupar por (opcional)</label>
+      <select id="relAgrupar">
+        <option value="">Sem agrupamento</option>
+        <option value="classe">Classe</option>
+        <option value="agente">Agente</option>
+        <option value="ocorrencia">Ocorrência</option>
+        <option value="carro">Carro</option>
+      </select>
+    </div>
+
+    <div class="report-actions">
+      <button class="btn" onclick="gerarRelatorio()">🔄 Gerar relatório</button>
+      <button class="btn btn-green" onclick="exportarCSV()">⬇️ Exportar CSV</button>
+      <button class="btn btn-secondary" onclick="imprimirRelatorio()">🖨️ Imprimir / PDF</button>
+      <button class="btn btn-danger" style="margin-left:auto;" onclick="limparRelatorioFiltros()">Limpar</button>
+    </div>
+
+    <div class="table-wrap" style="margin-top:20px;">
+      <div class="table-head">
+        <h2>Pré-visualização do relatório</h2>
+        <span class="count" id="relCount">0 registro(s)</span>
+      </div>
+      <div class="scroll">
+        <table id="relTable">
+          <thead id="relThead"></thead>
+          <tbody id="relTbody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
@@ -374,8 +518,6 @@ const dadosIniciais = [
 ];
 
 let dados = JSON.parse(localStorage.getItem("dados_frota_atlantico_v3")) || dadosIniciais;
-
-// Garante que todos os registros possuam id (compatibilidade com versões anteriores)
 dados = dados.map((d, i) => ({ ...d, id: d.id || ("old-" + i + "-" + Date.now()) }));
 salvarDados();
 
@@ -391,14 +533,14 @@ function mudarAba(abaId) {
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
+  const idxMap = { dashboard:0, cadastro:1, 'gerador-graficos':2, relatorios:3 };
+  const idx = idxMap[abaId];
+  if (idx !== undefined) document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+  document.getElementById('tab-' + abaId).classList.add('active');
+
   if (abaId === 'dashboard') {
-    document.querySelectorAll('.tab-btn')[0].classList.add('active');
-    document.getElementById('tab-dashboard').classList.add('active');
     render();
   } else if (abaId === 'cadastro') {
-    document.querySelectorAll('.tab-btn')[1].classList.add('active');
-    document.getElementById('tab-cadastro').classList.add('active');
-    // Se não estiver editando, preenche data com hoje
     if (!document.getElementById('editandoId').value) {
       document.getElementById('novoData').value = new Date().toISOString().split('T')[0];
       document.getElementById('tituloFormulario').textContent = "Cadastrar Novo Registro na Frota";
@@ -408,15 +550,15 @@ function mudarAba(abaId) {
       document.getElementById('msgEdicao').style.display = "none";
     }
   } else if (abaId === 'gerador-graficos') {
-    document.querySelectorAll('.tab-btn')[2].classList.add('active');
-    document.getElementById('tab-gerador-graficos').classList.add('active');
     gerarGraficoCustomizado();
+  } else if (abaId === 'relatorios') {
+    popularSelectsRelatorio();
+    gerarRelatorio();
   }
 }
 
 function salvarNovoRegistro(event) {
   event.preventDefault();
-
   const editandoId = document.getElementById('editandoId').value;
 
   const item = {
@@ -434,25 +576,20 @@ function salvarNovoRegistro(event) {
   };
 
   if (editandoId) {
-    // Atualiza registro existente
     const idx = dados.findIndex(d => d.id === editandoId);
     if (idx !== -1) dados[idx] = item;
     salvarDados();
-
     const msgEd = document.getElementById('msgEdicao');
     msgEd.style.display = 'block';
     setTimeout(() => { msgEd.style.display = 'none'; }, 2500);
   } else {
-    // Insere novo registro
     dados.unshift(item);
     salvarDados();
-
     const msg = document.getElementById('msgSucesso');
     msg.style.display = 'block';
     setTimeout(() => { msg.style.display = 'none'; }, 3500);
   }
 
-  // Limpa e volta ao modo cadastro
   limparFormulario();
   setTimeout(() => { mudarAba('dashboard'); }, 900);
 }
@@ -515,7 +652,6 @@ function excluirRegistro(id) {
 function resetarDadosPadrao() {
   if (confirm("Tem certeza que deseja restaurar os dados originais e apagar os registros adicionados?")) {
     localStorage.removeItem("dados_frota_atlantico_v3");
-    // Reinicializa os dados iniciais mantendo ids únicos
     dados = dadosIniciais.map((d, i) => ({ ...d, id: d.id || ("r-" + i) }));
     salvarDados();
     render();
@@ -539,6 +675,8 @@ function contar(arr, campo){
   return Object.entries(map).sort((a,b)=>b[1]-a[1]);
 }
 
+/* ===== RENDERIZADORES ===== */
+
 function renderBars(containerId, entries, colorMap){
   const el = document.getElementById(containerId);
   if(!entries.length){ el.innerHTML = '<p class="empty">Sem dados disponíveis</p>'; return; }
@@ -554,27 +692,64 @@ function renderBars(containerId, entries, colorMap){
   }).join("");
 }
 
-function gerarGraficoCustomizado() {
-  const param = document.getElementById("parametroGrafico").value;
-  const selectEl = document.getElementById("parametroGrafico");
-  const nomeParametro = selectEl.options[selectEl.selectedIndex].text;
-
-  document.getElementById("tituloGraficoCustomizado").textContent = `Gráfico: ${nomeParametro}`;
-
-  let dadosFiltrados = dados;
-  if(param === 'motorista') {
-    dadosFiltrados = dados.filter(d => d.motorista !== "—");
-  }
-
-  const contagem = contar(dadosFiltrados, param);
-  renderBars("chartCustomizado", contagem, (nome) => {
-    if(param === 'ocorrencia') {
-      const c = classificarOcorrencia(nome);
-      return c==="ok" ? "#22c55e" : c==="bad" ? "#ef4444" : c==="warn" ? "#f59e0b" : "#64748b";
-    }
-    return "#38bdf8";
+function renderVBars(containerId, entries, colorMap){
+  const el = document.getElementById(containerId);
+  if(!entries.length){ el.innerHTML = '<p class="empty">Sem dados disponíveis</p>'; return; }
+  const max = Math.max(...entries.map(e=>e[1]));
+  const barW = 42, gap = 18, labelH = 46, chartH = 200, padT = 16;
+  const W = Math.max(320, entries.length * (barW + gap) + gap);
+  const H = chartH + labelH + padT;
+  let bars = '';
+  entries.forEach(([nome, qtd], i) => {
+    const h = max ? (qtd / max) * chartH : 0;
+    const x = gap + i * (barW + gap);
+    const y = padT + (chartH - h);
+    const cor = colorMap ? (colorMap(nome) || "#38bdf8") : "#38bdf8";
+    const label = nome.length > 12 ? nome.slice(0, 11) + '…' : nome;
+    bars += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="4" fill="${cor}"></rect>`;
+    bars += `<text x="${x + barW/2}" y="${y - 6}" text-anchor="middle" font-size="11" fill="#e2e8f0">${qtd}</text>`;
+    bars += `<text x="${x + barW/2}" y="${padT + chartH + 16}" text-anchor="middle" font-size="10" fill="#94a3b8">${label}</text>`;
   });
+  el.innerHTML = `<div class="vbars-wrap"><svg class="vbars-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+    <line x1="0" y1="${padT + chartH}" x2="${W}" y2="${padT + chartH}" stroke="#334155" stroke-width="1"></line>
+    ${bars}
+  </svg></div>`;
 }
+
+function renderPie(containerId, entries, colorMap){
+  const el = document.getElementById(containerId);
+  if(!entries.length){ el.innerHTML = '<p class="empty">Sem dados disponíveis</p>'; return; }
+  const total = entries.reduce((s, e) => s + e[1], 0);
+  const size = 180, r = 80, cx = size/2, cy = size/2, inner = 48;
+  let start = -Math.PI / 2;
+  let slices = '';
+  const cores = [];
+  entries.forEach(([nome, qtd], i) => {
+    const ang = total ? (qtd / total) * Math.PI * 2 : 0;
+    const end = start + ang;
+    const cor = colorMap ? (colorMap(nome) || "#38bdf8") : "#38bdf8";
+    cores.push({nome, qtd, cor});
+    const x1 = cx + r * Math.cos(start), y1 = cy + r * Math.sin(start);
+    const x2 = cx + r * Math.cos(end),   y2 = cy + r * Math.sin(end);
+    const ix1 = cx + inner * Math.cos(end),   iy1 = cy + inner * Math.sin(end);
+    const ix2 = cx + inner * Math.cos(start), iy2 = cy + inner * Math.sin(start);
+    const large = ang > Math.PI ? 1 : 0;
+    slices += `<path d="M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} L ${ix1} ${iy1} A ${inner} ${inner} 0 ${large} 0 ${ix2} ${iy2} Z" fill="${cor}" stroke="#1e293b" stroke-width="1.5"></path>`;
+    start = end;
+  });
+  const legend = cores.map(c => `
+    <div class="item">
+      <span class="dot" style="background:${c.cor}"></span>
+      <span class="lbl" title="${c.nome}">${c.nome}</span>
+      <span class="val">${c.qtd} (${total ? ((c.qtd/total)*100).toFixed(0) : 0}%)</span>
+    </div>`).join('');
+  el.innerHTML = `<div class="pie-wrap">
+    <svg class="pie-svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${slices}</svg>
+    <div class="pie-legend">${legend}</div>
+  </div>`;
+}
+
+/* ===== DASHBOARD ===== */
 
 function render(){
   const mes    = document.getElementById("mes").value;
@@ -607,16 +782,23 @@ function render(){
     <div class="kpi"><div class="label">Agentes ativos</div><div class="value">${agentes}</div></div>
   `;
 
-  renderBars("chartOcorrencias", contar(filtrados, "ocorrencia"), (nome)=>{
+  const ocorrColor = (nome) => {
     const c = classificarOcorrencia(nome);
     return c==="ok" ? "#22c55e" : c==="bad" ? "#ef4444" : c==="warn" ? "#f59e0b" : "#64748b";
-  });
+  };
+  const ocorrEntries = contar(filtrados, "ocorrencia");
+  renderBars("chartOcorrencias", ocorrEntries, ocorrColor);
+  renderPie("chartOcorrenciasPie", ocorrEntries, ocorrColor);
 
-  renderBars("chartClasse", contar(filtrados, "classe"), (nome)=> nome==="Executivo" ? "#38bdf8" : nome==="Urbano" ? "#a78bfa" : "#64748b");
+  const classeColor = (nome) => nome==="Executivo" ? "#38bdf8" : nome==="Urbano" ? "#a78bfa" : "#64748b";
+  const classeEntries = contar(filtrados, "classe");
+  renderPie("chartClassePie", classeEntries, classeColor);
+  renderVBars("chartClasseVBars", classeEntries, classeColor);
 
   renderBars("chartMotoristas", contar(filtrados.filter(d=>d.motorista!=="—"), "motorista").slice(0,10));
 
-  renderBars("chartAgentes", contar(filtrados, "agente").slice(0,10), ()=> "#10b981");
+  const agenteEntries = contar(filtrados, "agente").slice(0,10);
+  renderVBars("chartAgentesVBars", agenteEntries, () => "#10b981");
 
   document.getElementById("count").textContent = `${total} registro(s)`;
   const tbody = document.getElementById("tbody");
@@ -655,6 +837,252 @@ function render(){
       </tr>`;
     }).join("");
 }
+
+/* ===== GRÁFICOS CUSTOMIZADOS ===== */
+
+function gerarGraficoCustomizado() {
+  const param = document.getElementById("parametroGrafico").value;
+  const tipo  = document.getElementById("tipoGrafico").value;
+  const topN  = document.getElementById("topN").value;
+
+  const selectParam = document.getElementById("parametroGrafico");
+  const nomeParam = selectParam.options[selectParam.selectedIndex].text;
+  const selectTipo = document.getElementById("tipoGrafico");
+  const nomeTipo = selectTipo.options[selectTipo.selectedIndex].text;
+
+  document.getElementById("tituloGraficoCustomizado").textContent = `Gráfico: ${nomeParam} (${nomeTipo})`;
+
+  let dadosFiltrados = dados;
+  if (param === 'motorista') {
+    dadosFiltrados = dados.filter(d => d.motorista !== "—");
+  }
+
+  let entries = contar(dadosFiltrados, param);
+  if (topN !== "all") {
+    entries = entries.slice(0, parseInt(topN, 10));
+  }
+
+  const colorMap = (nome) => {
+    if (param === 'ocorrencia') {
+      const c = classificarOcorrencia(nome);
+      return c==="ok" ? "#22c55e" : c==="bad" ? "#ef4444" : c==="warn" ? "#f59e0b" : "#64748b";
+    }
+    return "#38bdf8";
+  };
+
+  if (tipo === 'pie') {
+    renderPie("chartCustomizado", entries, colorMap);
+  } else if (tipo === 'vbars') {
+    renderVBars("chartCustomizado", entries, colorMap);
+  } else {
+    renderBars("chartCustomizado", entries, colorMap);
+  }
+}
+
+/* ===== RELATÓRIOS PERSONALIZADOS ===== */
+
+const CAMPOS_RELATORIO = [
+  { key:'data', label:'Data' },
+  { key:'carro', label:'Carro' },
+  { key:'rota', label:'Rota' },
+  { key:'classe', label:'Classe' },
+  { key:'motorista', label:'Motorista' },
+  { key:'agente', label:'Agente' },
+  { key:'horaSaida', label:'Hora Saída' },
+  { key:'horaOcorrencia', label:'Hora Ocorrência' },
+  { key:'ocorrencia', label:'Ocorrência' },
+  { key:'observacoes', label:'Observações' }
+];
+
+let relatorioAtual = { registros: [], colunas: [] };
+
+function popularSelectsRelatorio() {
+  const agentes = [...new Set(dados.map(d => d.agente).filter(Boolean))].sort();
+  const ocorrencias = [...new Set(dados.map(d => d.ocorrencia).filter(Boolean))].sort();
+
+  preencherSelect('relAgente', 'Todos', agentes);
+  preencherSelect('relOcorrencia', 'Todas', ocorrencias);
+
+  const colsList = document.getElementById('colsList');
+  if (!colsList.dataset.pronto) {
+    colsList.innerHTML = CAMPOS_RELATORIO.map(c => `
+      <label><input type="checkbox" value="${c.key}" checked> ${c.label}</label>
+    `).join('');
+    colsList.dataset.pronto = '1';
+  }
+}
+
+function preencherSelect(id, labelTodos, valores) {
+  const sel = document.getElementById(id);
+  const atual = sel.value;
+  sel.innerHTML = `<option value="all">${labelTodos}</option>` +
+    valores.map(v => `<option value="${v}">${v}</option>`).join('');
+  if ([...sel.options].some(o => o.value === atual)) sel.value = atual;
+}
+
+function formatarData(d) {
+  if (!d) return '—';
+  const p = d.split('-');
+  return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : d;
+}
+
+function gerarRelatorio() {
+  const mes = document.getElementById('relMes').value;
+  const classe = document.getElementById('relClasse').value;
+  const agente = document.getElementById('relAgente').value;
+  const ocorrencia = document.getElementById('relOcorrencia').value;
+  const busca = document.getElementById('relBusca').value.trim().toLowerCase();
+  const ordem = document.getElementById('relOrdem').value;
+  const agrupar = document.getElementById('relAgrupar').value;
+
+  const colunas = [...document.querySelectorAll('#colsList input[type=checkbox]:checked')].map(c => c.value);
+  if (!colunas.length) {
+    document.getElementById('relThead').innerHTML = '';
+    document.getElementById('relTbody').innerHTML = `<tr><td class="empty">Selecione pelo menos uma coluna.</td></tr>`;
+    document.getElementById('relCount').textContent = '0 registro(s)';
+    relatorioAtual = { registros: [], colunas: [] };
+    return;
+  }
+
+  let filtrados = dados.filter(d => {
+    if (mes !== 'all' && !d.data.startsWith(mes)) return false;
+    if (classe !== 'all' && d.classe !== classe) return false;
+    if (agente !== 'all' && d.agente !== agente) return false;
+    if (ocorrencia !== 'all' && d.ocorrencia !== ocorrencia) return false;
+    if (busca) {
+      const blob = `${d.carro} ${d.rota} ${d.motorista} ${d.agente} ${d.ocorrencia} ${d.observacoes}`.toLowerCase();
+      if (!blob.includes(busca)) return false;
+    }
+    return true;
+  });
+
+  filtrados = filtrados.slice().sort((a, b) => {
+    switch (ordem) {
+      case 'data_asc': return a.data < b.data ? -1 : 1;
+      case 'data_desc': return a.data < b.data ? 1 : -1;
+      case 'carro': return String(a.carro).localeCompare(String(b.carro));
+      case 'classe': return String(a.classe).localeCompare(String(b.classe));
+      case 'agente': return String(a.agente).localeCompare(String(b.agente));
+      case 'ocorrencia': return String(a.ocorrencia).localeCompare(String(b.ocorrencia));
+      default: return 0;
+    }
+  });
+
+  relatorioAtual = { registros: filtrados, colunas };
+
+  renderTabelaRelatorio(filtrados, colunas, agrupar);
+  document.getElementById('relCount').textContent = `${filtrados.length} registro(s)`;
+}
+
+function renderTabelaRelatorio(registros, colunas, agrupar) {
+  const thead = document.getElementById('relThead');
+  const tbody = document.getElementById('relTbody');
+  const cabecalho = colunas.map(k => `<th>${CAMPOS_RELATORIO.find(c => c.key === k)?.label || k}</th>`).join('');
+  thead.innerHTML = `<tr>${cabecalho}</tr>`;
+
+  if (!registros.length) {
+    tbody.innerHTML = `<tr><td colspan="${colunas.length}" class="empty">Nenhum registro encontrado.</td></tr>`;
+    return;
+  }
+
+  const linhaHtml = (d) => `<tr>${colunas.map(k => {
+    let val = d[k] ?? '—';
+    if (k === 'data') val = formatarData(val);
+    if (k === 'ocorrencia') {
+      const cls = classificarOcorrencia(val);
+      return `<td><span class="tag ${cls}">${val}</span></td>`;
+    }
+    return `<td>${val}</td>`;
+  }).join('')}</tr>`;
+
+  if (agrupar) {
+    const grupos = {};
+    registros.forEach(d => {
+      const k = d[agrupar] || '—';
+      (grupos[k] = grupos[k] || []).push(d);
+    });
+    tbody.innerHTML = Object.entries(grupos).sort((a,b)=>a[0].localeCompare(b[0])).map(([k, itens]) => {
+      const linhaGrupo = `<tr style="background:var(--card2)">
+        <td colspan="${colunas.length}" style="font-weight:700;color:var(--accent);">
+          📁 ${k} — ${itens.length} registro(s)
+        </td>
+      </tr>`;
+      return linhaGrupo + itens.map(linhaHtml).join('');
+    }).join('');
+  } else {
+    tbody.innerHTML = registros.map(linhaHtml).join('');
+  }
+}
+
+function exportarCSV() {
+  const { registros, colunas } = relatorioAtual;
+  if (!registros.length) { alert('Gere um relatório com registros antes de exportar.'); return; }
+
+  const header = colunas.map(k => CAMPOS_RELATORIO.find(c => c.key === k)?.label || k);
+  const linhas = registros.map(d => colunas.map(k => {
+    let val = d[k] ?? '';
+    if (k === 'data') val = formatarData(val);
+    return `"${String(val).replace(/"/g, '""')}"`;
+  }));
+
+  const csv = [header.join(';'), ...linhas.map(l => l.join(';'))].join('\r\n');
+  const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `relatorio_frota_atlantico_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function imprimirRelatorio() {
+  if (!relatorioAtual.registros.length) { alert('Gere um relatório com registros antes de imprimir.'); return; }
+  const { registros, colunas } = relatorioAtual;
+  const header = colunas.map(k => CAMPOS_RELATORIO.find(c => c.key === k)?.label || k);
+  const corpo = registros.map(d => colunas.map(k => {
+    let val = d[k] ?? '—';
+    if (k === 'data') val = formatarData(val);
+    return val;
+  }));
+
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Relatório Frota Atlântico</title>
+  <style>
+    body{font-family:Segoe UI,sans-serif;padding:24px;color:#111}
+    h1{font-size:1.3rem;margin-bottom:4px}
+    p{color:#555;font-size:.85rem;margin-bottom:16px}
+    table{width:100%;border-collapse:collapse;font-size:.8rem}
+    th,td{border:1px solid #999;padding:6px 8px;text-align:left;vertical-align:top}
+    th{background:#eee}
+    @media print{ body{padding:0} }
+  </style></head><body>
+  <h1>Relatório Personalizado — Frota Atlântico</h1>
+  <p>Gerado em ${new Date().toLocaleString('pt-BR')} — ${registros.length} registro(s)</p>
+  <table>
+    <thead><tr>${header.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+    <tbody>${corpo.map(l => `<tr>${l.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
+  </table>
+  </body></html>`);
+  win.document.close();
+  win.focus();
+  setTimeout(() => { win.print(); }, 400);
+}
+
+function limparRelatorioFiltros() {
+  document.getElementById('relMes').value = 'all';
+  document.getElementById('relClasse').value = 'all';
+  document.getElementById('relAgente').value = 'all';
+  document.getElementById('relOcorrencia').value = 'all';
+  document.getElementById('relBusca').value = '';
+  document.getElementById('relOrdem').value = 'data_desc';
+  document.getElementById('relAgrupar').value = '';
+  document.querySelectorAll('#colsList input[type=checkbox]').forEach(c => c.checked = true);
+  gerarRelatorio();
+}
+
+/* ===== EVENTOS GLOBAIS ===== */
 
 document.getElementById("mes").addEventListener("change", render);
 document.getElementById("classe").addEventListener("change", render);
