@@ -85,6 +85,7 @@
   .form-group textarea{resize:vertical;min-height:90px;}
   .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent)}
   .form-group input:disabled{opacity:.6;cursor:not-allowed}
+  .form-group select{width:100%}
   .msg-sucesso{
     background:rgba(34,197,94,.15);color:var(--green);
     padding:10px;border-radius:8px;margin-bottom:16px;
@@ -165,7 +166,6 @@
   .btn-edit{background:var(--yellow);color:#0f172a;}
   .btn-delete{background:var(--red);color:#fff;}
 
-  /* Canvas de gráficos customizados */
   .chart-area{
     background:var(--card2);border-radius:12px;
     padding:16px;display:flex;justify-content:center;align-items:center;
@@ -183,7 +183,6 @@
     padding:8px 12px;font-size:.9rem;outline:none;
   }
 
-  /* Relatório PDF */
   .report-config .form-grid{grid-template-columns:1fr 1fr}
   .checkbox-grid{
     display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
@@ -321,7 +320,25 @@
 
         <div class="form-group">
           <label for="novoRota">Rota *</label>
-          <input type="text" id="novoRota" placeholder="Ex: 102 - Centro / Terminal" required>
+          <select id="novoRota" required>
+            <option value="">— Selecione a rota —</option>
+            <option value="138.MIC - Salvador X Praia do Forte">138.MIC - Salvador X Praia do Forte</option>
+            <option value="18A.MIC - Salvador X Imbassaí">18A.MIC - Salvador X Imbassaí</option>
+            <option value="138ROD - Calçada X Praia do Forte">138ROD - Calçada X Praia do Forte</option>
+            <option value="415 - Calçada X Porto de Sauipe">415 - Calçada X Porto de Sauipe</option>
+            <option value="415.MIC - Salvador X Porto de Sauipe">415.MIC - Salvador X Porto de Sauipe</option>
+            <option value="415E - Camaçari X Porto de Sauipe">415E - Camaçari X Porto de Sauipe</option>
+            <option value="625A2 - Salvador X Rio Real">625A2 - Salvador X Rio Real</option>
+            <option value="624A - Salvador X Sítio do Conde">624A - Salvador X Sítio do Conde</option>
+            <option value="626 - Salvador X Itanhi">626 - Salvador X Itanhi</option>
+            <option value="629 - Salvador X Subauma">629 - Salvador X Subauma</option>
+            <option value="802 - Salvador X S.F. do Conde">802 - Salvador X S.F. do Conde</option>
+            <option value="138 - Praia do Forte X Term. Aeroporto">138 - Praia do Forte X Term. Aeroporto</option>
+            <option value="857I - Arembepe X Term. Aeroporto">857I - Arembepe X Term. Aeroporto</option>
+            <option value="857A - Cto.dos Passaros X Term. Aeroporto">857A - Cto.dos Passaros X Term. Aeroporto</option>
+            <option value="048 - S.Sebastião X Term. Águas Claras">048 - S.Sebastião X Term. Águas Claras</option>
+            <option value="807 - Monte Gordo X Term. Aeroporto">807 - Monte Gordo X Term. Aeroporto</option>
+          </select>
         </div>
 
         <div class="form-group">
@@ -493,21 +510,43 @@
 </div>
 
 <script>
-const dadosIniciais = [
-  {id:"r1", data:"2026-08-03", carro:"8824140", rota:"101 - Circular Norte", classe:"Urbano", horaSaida:"06:00", horaOcorrencia:"07:15", motorista:"—", agente:"Não há", ocorrencia:"Sem ocorrências", observacoes:"Viagem realizada dentro da normalidade."},
-  {id:"r2", data:"2026-08-03", carro:"882318", rota:"204 - Expressópolis", classe:"Executivo", horaSaida:"08:30", horaOcorrencia:"09:10", motorista:"Lazaro", agente:"Carlos Silva", ocorrencia:"Passagem não solicitada", observacoes:"Passageiro sinalizou em cima da hora, motorista seguiu viagem regulamentar."},
-  {id:"r3", data:"2026-08-07", carro:"882408", rota:"105 - Vila Central", classe:"Urbano", horaSaida:"13:00", horaOcorrencia:"14:20", motorista:"Elmo", agente:"Não há", ocorrencia:"Sem maiores ocorrências", observacoes:"Tráfego intenso na via principal."},
-  {id:"r4", data:"2026-09-10", carro:"882570", rota:"301 - Aeroporto Expresso", classe:"Urbano", horaSaida:"10:15", horaOcorrencia:"11:05", motorista:"—", agente:"Não há", ocorrencia:"Passou direto do ponto", observacoes:"Relato de passageiro de que o ônibus não parou no abrigo sinalizado."},
-  {id:"r5", data:"2026-09-11", carro:"882570", rota:"301 - Aeroporto Expresso", classe:"Urbano", horaSaida:"14:00", horaOcorrencia:"15:30", motorista:"—", agente:"Não há", ocorrencia:"Discussão com passageiro", observacoes:"Desentendimento verbal contornado com o auxílio do fiscal de linha."},
-  {id:"r6", data:"2026-10-07", carro:"882703", rota:"402 - Beira Mar", classe:"Micro", horaSaida:"16:00", horaOcorrencia:"16:45", motorista:"—", agente:"Não há", ocorrencia:"Sem descrição", observacoes:"Nenhum detalhe adicional reportado pelo agente em campo."}
+/* ============================================================
+   ROTAS PRÉ-ESTABELECIDAS
+   ============================================================ */
+const ROTAS = [
+  "138.MIC - Salvador X Praia do Forte",
+  "18A.MIC - Salvador X Imbassaí",
+  "138ROD - Calçada X Praia do Forte",
+  "415 - Calçada X Porto de Sauipe",
+  "415.MIC - Salvador X Porto de Sauipe",
+  "415E - Camaçari X Porto de Sauipe",
+  "625A2 - Salvador X Rio Real",
+  "624A - Salvador X Sítio do Conde",
+  "626 - Salvador X Itanhi",
+  "629 - Salvador X Subauma",
+  "802 - Salvador X S.F. do Conde",
+  "138 - Praia do Forte X Term. Aeroporto",
+  "857I - Arembepe X Term. Aeroporto",
+  "857A - Cto.dos Passaros X Term. Aeroporto",
+  "048 - S.Sebastião X Term. Águas Claras",
+  "807 - Monte Gordo X Term. Aeroporto"
 ];
 
-let dados = JSON.parse(localStorage.getItem("dados_frota_atlantico_v4")) || dadosIniciais;
+const dadosIniciais = [
+  {id:"r1", data:"2026-08-03", carro:"8824140", rota:"048 - S.Sebastião X Term. Águas Claras", classe:"Urbano", horaSaida:"06:00", horaOcorrencia:"07:15", motorista:"—", agente:"Não há", ocorrencia:"Sem ocorrências", observacoes:"Viagem realizada dentro da normalidade."},
+  {id:"r2", data:"2026-08-03", carro:"882318", rota:"415 - Calçada X Porto de Sauipe", classe:"Executivo", horaSaida:"08:30", horaOcorrencia:"09:10", motorista:"Lazaro", agente:"Carlos Silva", ocorrencia:"Passagem não solicitada", observacoes:"Passageiro sinalizou em cima da hora, motorista seguiu viagem regulamentar."},
+  {id:"r3", data:"2026-08-07", carro:"882408", rota:"138.MIC - Salvador X Praia do Forte", classe:"Urbano", horaSaida:"13:00", horaOcorrencia:"14:20", motorista:"Elmo", agente:"Não há", ocorrencia:"Sem maiores ocorrências", observacoes:"Tráfego intenso na via principal."},
+  {id:"r4", data:"2026-09-10", carro:"882570", rota:"807 - Monte Gordo X Term. Aeroporto", classe:"Urbano", horaSaida:"10:15", horaOcorrencia:"11:05", motorista:"—", agente:"Não há", ocorrencia:"Passou direto do ponto", observacoes:"Relato de passageiro de que o ônibus não parou no abrigo sinalizado."},
+  {id:"r5", data:"2026-09-11", carro:"882570", rota:"857I - Arembepe X Term. Aeroporto", classe:"Urbano", horaSaida:"14:00", horaOcorrencia:"15:30", motorista:"—", agente:"Não há", ocorrencia:"Discussão com passageiro", observacoes:"Desentendimento verbal contornado com o auxílio do fiscal de linha."},
+  {id:"r6", data:"2026-10-07", carro:"882703", rota:"415E - Camaçari X Porto de Sauipe", classe:"Micro", horaSaida:"16:00", horaOcorrencia:"16:45", motorista:"—", agente:"Não há", ocorrencia:"Sem descrição", observacoes:"Nenhum detalhe adicional reportado pelo agente em campo."}
+];
+
+let dados = JSON.parse(localStorage.getItem("dados_frota_atlantico_v5")) || dadosIniciais;
 dados = dados.map((d, i) => ({ ...d, id: d.id || ("old-" + i + "-" + Date.now()) }));
 salvarDados();
 
 function salvarDados() {
-  localStorage.setItem("dados_frota_atlantico_v4", JSON.stringify(dados));
+  localStorage.setItem("dados_frota_atlantico_v5", JSON.stringify(dados));
 }
 
 function gerarId() {
@@ -570,11 +609,14 @@ function salvarNovoRegistro(event) {
   if (classeSelecionada === 'Micro' || classeSelecionada === 'Urbano') agenteFinal = 'Não há';
   if (!agenteFinal) { alert('Informe o Agente Responsável.'); return; }
 
+  const rotaSelecionada = document.getElementById('novoRota').value;
+  if (!rotaSelecionada) { alert('Selecione uma rota válida.'); return; }
+
   const item = {
     id: editandoId || gerarId(),
     data: document.getElementById('novoData').value,
     carro: document.getElementById('novoCarro').value.trim(),
-    rota: document.getElementById('novoRota').value.trim(),
+    rota: rotaSelecionada,
     classe: classeSelecionada,
     horaSaida: document.getElementById('novoHoraSaida').value,
     horaOcorrencia: document.getElementById('novoHoraOcorrencia').value,
@@ -630,7 +672,18 @@ function editarRegistro(id) {
   document.getElementById('editandoId').value = id;
   document.getElementById('novoData').value = reg.data;
   document.getElementById('novoCarro').value = reg.carro;
-  document.getElementById('novoRota').value = reg.rota;
+
+  // Se a rota do registro antigo não estiver na lista, cria uma opção temporária
+  const selectRota = document.getElementById('novoRota');
+  const existeRota = Array.from(selectRota.options).some(o => o.value === reg.rota);
+  if (!existeRota && reg.rota) {
+    const opt = document.createElement('option');
+    opt.value = reg.rota;
+    opt.textContent = reg.rota + " (rota antiga)";
+    selectRota.appendChild(opt);
+  }
+  selectRota.value = reg.rota;
+
   document.getElementById('novoClasse').value = reg.classe;
   document.getElementById('novoHoraSaida').value = reg.horaSaida;
   document.getElementById('novoHoraOcorrencia').value = reg.horaOcorrencia;
@@ -659,7 +712,7 @@ function excluirRegistro(id) {
 
 function resetarDadosPadrao() {
   if (confirm("Tem certeza que deseja restaurar os dados originais e apagar os registros adicionados?")) {
-    localStorage.removeItem("dados_frota_atlantico_v4");
+    localStorage.removeItem("dados_frota_atlantico_v5");
     dados = dadosIniciais.map((d, i) => ({ ...d, id: d.id || ("r-" + i) }));
     salvarDados();
     render();
@@ -734,11 +787,9 @@ function gerarGraficoCustomizado() {
 
   const canvas = document.getElementById('canvasCustom');
   const ctx = canvas.getContext('2d');
-  const area = document.getElementById('chartArea');
 
-  // Ajuste de dimensões
   const tipoRetrato = (tipo === 'pizza' || tipo === 'rosca');
-  canvas.width  = tipoRetrato ? 900 : 900;
+  canvas.width  = 900;
   canvas.height = tipoRetrato ? 520 : Math.max(360, 60 + contagem.length * 38);
 
   const legenda = document.getElementById('legendaCustom');
@@ -763,7 +814,7 @@ function gerarGraficoCustomizado() {
 
 function desenharBarrasHorizontais(ctx, canvas, entries, param){
   const max = Math.max(...entries.map(e=>e[1]));
-  const left = 180, right = 60, top = 30, rowH = 34;
+  const left = 220, right = 60, top = 30, rowH = 34;
   const barW = canvas.width - left - right;
 
   ctx.font = "13px Segoe UI, sans-serif";
@@ -773,20 +824,17 @@ function desenharBarrasHorizontais(ctx, canvas, entries, param){
     const y = top + i * rowH;
     ctx.fillStyle = "#94a3b8";
     ctx.textAlign = "right";
-    let label = nome.length > 24 ? nome.substring(0,22)+"…" : nome;
+    let label = nome.length > 32 ? nome.substring(0,30)+"…" : nome;
     ctx.fillText(label, left - 12, y + rowH/2 - 6);
 
-    // Track
     ctx.fillStyle = "#243449";
     roundRect(ctx, left, y + 4, barW, rowH - 14, 5);
     ctx.fill();
 
-    // Fill
     ctx.fillStyle = corPara(nome, param, i);
     roundRect(ctx, left, y + 4, Math.max(4, (qtd/max)*barW), rowH - 14, 5);
     ctx.fill();
 
-    // Qtd
     ctx.fillStyle = "#e2e8f0";
     ctx.textAlign = "left";
     ctx.font = "bold 13px Segoe UI, sans-serif";
@@ -797,14 +845,13 @@ function desenharBarrasHorizontais(ctx, canvas, entries, param){
 
 function desenharColunasVerticais(ctx, canvas, entries, param){
   const max = Math.max(...entries.map(e=>e[1]));
-  const left = 60, right = 30, top = 30, bottom = 90;
+  const left = 60, right = 30, top = 30, bottom = 110;
   const chartW = canvas.width - left - right;
   const chartH = canvas.height - top - bottom;
   const n = entries.length;
   const slot = chartW / n;
   const barW = Math.min(70, slot * 0.65);
 
-  // Eixos
   ctx.strokeStyle = "#334155";
   ctx.lineWidth = 1;
   ctx.beginPath();
@@ -825,19 +872,17 @@ function desenharColunasVerticais(ctx, canvas, entries, param){
     roundRect(ctx, x, y, barW, h, 5);
     ctx.fill();
 
-    // Qtd acima
     ctx.fillStyle = "#e2e8f0";
     ctx.font = "bold 12px Segoe UI, sans-serif";
     ctx.fillText(qtd, x + barW/2, y - 6);
 
-    // Rótulo (rotacionado)
     ctx.save();
     ctx.translate(x + barW/2, top + chartH + 8);
     ctx.rotate(-Math.PI/4);
     ctx.textAlign = "right";
     ctx.fillStyle = "#94a3b8";
     ctx.font = "11px Segoe UI, sans-serif";
-    let label = nome.length > 18 ? nome.substring(0,16)+"…" : nome;
+    let label = nome.length > 22 ? nome.substring(0,20)+"…" : nome;
     ctx.fillText(label, 0, 0);
     ctx.restore();
   });
@@ -868,7 +913,6 @@ function desenharPizza(ctx, canvas, entries, param, legendaEl){
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Percentual na fatia (se >= 5%)
     if (frac >= 0.05) {
       const mid = ang + (angFinal - ang)/2;
       const px = cx + Math.cos(mid) * raio * 0.65;
@@ -921,7 +965,6 @@ function desenharRosca(ctx, canvas, entries, param, legendaEl){
     adicionarLegenda(legendaEl, nome, qtd, cor);
   });
 
-  // Total no centro
   ctx.fillStyle = "#e2e8f0";
   ctx.font = "bold 22px Segoe UI, sans-serif";
   ctx.fillText(total, cx, cy - 6);
@@ -1011,7 +1054,6 @@ function montarHTMLRelatorio(){
   const agora = new Date();
   const dataEmissao = agora.toLocaleDateString('pt-BR') + " às " + agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
 
-  // KPIs resumidos
   const total = filtrados.length;
   const semOcorr = filtrados.filter(d => classificarOcorrencia(d.ocorrencia) === "ok").length;
   const passagem = filtrados.filter(d => classificarOcorrencia(d.ocorrencia) === "bad").length;
