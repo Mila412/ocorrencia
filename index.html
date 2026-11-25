@@ -565,7 +565,6 @@ function carregarDados() {
     dados = dadosIniciais.slice();
   }
 
-  // Garante id em todos os registros
   dados = dados.map(function(d, i) {
     if (!d.id) d.id = "old-" + i + "-" + Date.now();
     return d;
@@ -908,6 +907,12 @@ function gerarGraficoCustomizado() {
   else if (tipo === 'rosca') desenharRosca(ctx, canvas, contagem, param, legenda);
 }
 
+/* ============================================================
+   NOVO GRAFICO: MOTORISTA X OCORRENCIA (barras empilhadas)
+   Mostra motorista, descricao da ocorrencia e quantidade.
+   Se o mesmo motorista tiver ocorrencias diferentes, cada
+   ocorrencia aparece como um segmento colorido distinto.
+   ============================================================ */
 function desenharGraficoMotoristaOcorrencia() {
   var canvas = document.getElementById('canvasCustom');
   var ctx = canvas.getContext('2d');
@@ -930,6 +935,7 @@ function desenharGraficoMotoristaOcorrencia() {
     return;
   }
 
+  // Estrutura: { motorista: { ocorrencia: qtd } }
   var estrutura = {};
   var ocorrenciasSet = {};
 
@@ -966,7 +972,8 @@ function desenharGraficoMotoristaOcorrencia() {
     if (motoristas[x].total > maxTotal) maxTotal = motoristas[x].total;
   }
 
-  var left = 200, right = 60, top = 40, rowH = 46;
+  // Dimensoes
+  var left = 220, right = 70, top = 40, rowH = 50;
   canvas.width = 900;
   canvas.height = Math.max(300, top + motoristas.length * rowH + 40);
 
@@ -980,15 +987,18 @@ function desenharGraficoMotoristaOcorrencia() {
     var mAtual = motoristas[idx];
     var y = top + idx * rowH;
 
+    // Nome do motorista
     ctx.fillStyle = "#94a3b8";
     ctx.textAlign = "right";
-    var labelMot = mAtual.nome.length > 24 ? mAtual.nome.substring(0, 22) + "..." : mAtual.nome;
+    var labelMot = mAtual.nome.length > 22 ? mAtual.nome.substring(0, 20) + "..." : mAtual.nome;
     ctx.fillText(labelMot, left - 12, y + rowH / 2);
 
+    // Track de fundo
     ctx.fillStyle = "#1a2333";
-    roundRect(ctx, left, y + 10, chartW, rowH - 20, 5);
+    roundRect(ctx, left, y + 12, chartW, rowH - 24, 5);
     ctx.fill();
 
+    // Segmentos empilhados por ocorrencia
     var acumulado = 0;
     var segmentos = [];
     for (var oc2 in mAtual.detalhe) {
@@ -1005,10 +1015,11 @@ function desenharGraficoMotoristaOcorrencia() {
       var xPos = left + acumulado;
 
       ctx.fillStyle = corOcorrencia[ocoNome];
-      roundRect(ctx, xPos, y + 10, Math.max(2, w - 1), rowH - 20, 4);
+      roundRect(ctx, xPos, y + 12, Math.max(3, w - 1), rowH - 24, 4);
       ctx.fill();
 
-      if (w > 32) {
+      // Quantidade dentro do segmento se couber
+      if (w > 30) {
         ctx.fillStyle = "#0f172a";
         ctx.textAlign = "center";
         ctx.font = "bold 12px Segoe UI, sans-serif";
@@ -1018,6 +1029,7 @@ function desenharGraficoMotoristaOcorrencia() {
       acumulado += w;
     }
 
+    // Total do motorista
     ctx.fillStyle = "#e2e8f0";
     ctx.textAlign = "left";
     ctx.font = "bold 13px Segoe UI, sans-serif";
@@ -1025,13 +1037,20 @@ function desenharGraficoMotoristaOcorrencia() {
     ctx.font = "13px Segoe UI, sans-serif";
   }
 
+  // Legenda de cores (uma por tipo de ocorrencia)
   for (var li = 0; li < listaOcorrencias.length; li++) {
-    var oco = listaOcorrencias[li];
-    adicionarLegenda(legenda, oco, null, corOcorrencia[oco]);
+    var ocoLeg = listaOcorrencias[li];
+    adicionarLegenda(legenda, ocoLeg, null, corOcorrencia[ocoLeg]);
   }
 
-  var html = '<h3>Detalhamento — Ocorrências por Motorista</h3>';
-  html += '<table><thead><tr><th>Motorista</th><th>Ocorrência</th><th>Vezes</th></tr></thead><tbody>';
+  // Tabela detalhada abaixo do grafico
+  var html = '<h3>Detalhamento — Motorista x Ocorrência x Quantidade</h3>';
+  html += '<table><thead><tr>' +
+    '<th>Motorista</th>' +
+    '<th>Descrição da Ocorrência</th>' +
+    '<th>Vezes</th>' +
+    '<th>Total do Motorista</th>' +
+    '</tr></thead><tbody>';
 
   var totalGeral = 0;
   for (var mi = 0; mi < motoristas.length; mi++) {
@@ -1045,10 +1064,12 @@ function desenharGraficoMotoristaOcorrencia() {
     for (var si = 0; si < segs.length; si++) {
       totalGeral += segs[si][1];
       var cor = corOcorrencia[segs[si][0]];
+      var isFirst = (si === 0);
       html += '<tr>' +
-        '<td>' + (si === 0 ? '<strong>' + mo.nome + '</strong>' : '') + '</td>' +
+        '<td>' + (isFirst ? '<strong>' + mo.nome + '</strong>' : '') + '</td>' +
         '<td><span class="cor-dot" style="background:' + cor + '"></span>' + segs[si][0] + '</td>' +
         '<td><span class="total-badge">' + segs[si][1] + '</span></td>' +
+        '<td>' + (isFirst ? '<strong style="color:var(--accent)">' + mo.total + '</strong>' : '') + '</td>' +
         '</tr>';
     }
   }
@@ -1493,10 +1514,9 @@ function formatarData(iso) {
    ============================================================ */
 function popularSelectRotas() {
   var select = document.getElementById('novoRota');
-  // Mantem a primeira opcao placeholder
   var placeholder = select.querySelector('option[value=""]');
   select.innerHTML = '';
-  select.appendChild(placeholder);
+  if (placeholder) select.appendChild(placeholder);
   for (var i = 0; i < ROTAS.length; i++) {
     var opt = document.createElement('option');
     opt.value = ROTAS[i];
@@ -1509,7 +1529,6 @@ function inicializar() {
   carregarDados();
   popularSelectRotas();
 
-  // Listener de filtros
   document.getElementById("mes").addEventListener("change", render);
   document.getElementById("classe").addEventListener("change", render);
   document.getElementById("busca").addEventListener("input", render);
@@ -1530,7 +1549,6 @@ function inicializar() {
   sincronizarSubtituloRelatorio();
 }
 
-// Executa quando o DOM estiver pronto
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', inicializar);
 } else {
