@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -225,14 +225,14 @@
 </head>
 <body>
 
-<h1>🚌 Dashboard Operacional — Frota Atlântico</h1>
+<h1>&#128652; Dashboard Operacional &mdash; Frota Atlântico</h1>
 <p class="sub">Gestão de Registros, Ocorrências, Agentes e Relatórios Customizados</p>
 
 <div class="tabs">
-  <button class="tab-btn active" onclick="mudarAba('dashboard')">📊 Dashboard & Relatórios</button>
-  <button class="tab-btn" onclick="mudarAba('cadastro')">➕ Inserir Novo Dado</button>
-  <button class="tab-btn" onclick="mudarAba('gerador-graficos')">📈 Módulo de Gráficos Customizados</button>
-  <button class="tab-btn" onclick="mudarAba('relatorio-pdf')">🖨️ Relatório PDF</button>
+  <button class="tab-btn active" onclick="mudarAba('dashboard')">&#128202; Dashboard &amp; Relatórios</button>
+  <button class="tab-btn" onclick="mudarAba('cadastro')">&#10133; Inserir Novo Dado</button>
+  <button class="tab-btn" onclick="mudarAba('gerador-graficos')">&#128200; Módulo de Gráficos Customizados</button>
+  <button class="tab-btn" onclick="mudarAba('relatorio-pdf')">&#128424; Relatório PDF</button>
 </div>
 
 <!-- ABA 1: DASHBOARD -->
@@ -299,7 +299,7 @@
             <th>Motorista</th>
             <th>Agente</th>
             <th>Horários</th>
-            <th>Ocorrência & Observações</th>
+            <th>Ocorrência &amp; Observações</th>
             <th>Ações</th>
           </tr>
         </thead>
@@ -316,7 +316,7 @@
     <p class="sub" style="margin-bottom: 16px;" id="subtituloFormulario">Preencha os campos abaixo com os dados operacionais, horários e observações.</p>
 
     <div id="msgSucesso" class="msg-sucesso">Registro adicionado com sucesso! O dashboard foi atualizado.</div>
-    <div id="msgEdicao" class="form-aviso-edicao">✏️ Você está editando um registro existente. Altere os campos e clique em "Salvar Alterações".</div>
+    <div id="msgEdicao" class="form-aviso-edicao">Você está editando um registro existente. Altere os campos e clique em "Salvar Alterações".</div>
 
     <form id="formCadastro" onsubmit="salvarNovoRegistro(event)">
       <input type="hidden" id="editandoId" value="">
@@ -336,22 +336,6 @@
           <label for="novoRota">Rota *</label>
           <select id="novoRota" required>
             <option value="">— Selecione a rota —</option>
-            <option value="138.MIC - Salvador X Praia do Forte">138.MIC - Salvador X Praia do Forte</option>
-            <option value="18A.MIC - Salvador X Imbassaí">18A.MIC - Salvador X Imbassaí</option>
-            <option value="138ROD - Calçada X Praia do Forte">138ROD - Calçada X Praia do Forte</option>
-            <option value="415 - Calçada X Porto de Sauipe">415 - Calçada X Porto de Sauipe</option>
-            <option value="415.MIC - Salvador X Porto de Sauipe">415.MIC - Salvador X Porto de Sauipe</option>
-            <option value="415E - Camaçari X Porto de Sauipe">415E - Camaçari X Porto de Sauipe</option>
-            <option value="625A2 - Salvador X Rio Real">625A2 - Salvador X Rio Real</option>
-            <option value="624A - Salvador X Sítio do Conde">624A - Salvador X Sítio do Conde</option>
-            <option value="626 - Salvador X Itanhi">626 - Salvador X Itanhi</option>
-            <option value="629 - Salvador X Subauma">629 - Salvador X Subauma</option>
-            <option value="802 - Salvador X S.F. do Conde">802 - Salvador X S.F. do Conde</option>
-            <option value="138 - Praia do Forte X Term. Aeroporto">138 - Praia do Forte X Term. Aeroporto</option>
-            <option value="857I - Arembepe X Term. Aeroporto">857I - Arembepe X Term. Aeroporto</option>
-            <option value="857A - Cto.dos Passaros X Term. Aeroporto">857A - Cto.dos Passaros X Term. Aeroporto</option>
-            <option value="048 - S.Sebastião X Term. Águas Claras">048 - S.Sebastião X Term. Águas Claras</option>
-            <option value="807 - Monte Gordo X Term. Aeroporto">807 - Monte Gordo X Term. Aeroporto</option>
           </select>
         </div>
 
@@ -427,10 +411,10 @@
         <option value="colunas">Colunas Verticais</option>
         <option value="pizza">Pizza</option>
         <option value="rosca">Rosca (Donut)</option>
-        <option value="motoristaOcorrencia">🚦 Ocorrências por Motorista (Detalhado)</option>
+        <option value="motoristaOcorrencia">Ocorrências por Motorista (Detalhado)</option>
       </select>
 
-      <button class="btn btn-secondary" onclick="baixarGraficoPNG()">⬇️ Baixar PNG</button>
+      <button class="btn btn-secondary" onclick="baixarGraficoPNG()">Baixar PNG</button>
     </div>
 
     <div class="panel">
@@ -447,7 +431,7 @@
 <!-- ABA 4: RELATÓRIO PDF -->
 <div id="tab-relatorio-pdf" class="tab-content">
   <div class="form-panel report-config" style="max-width: 900px;">
-    <h2>🖨️ Relatório Personalizado para Impressão / PDF</h2>
+    <h2>Relatório Personalizado para Impressão / PDF</h2>
     <p class="sub" style="margin-bottom: 16px;">Configure o relatório com base nos filtros do dashboard e escolha as colunas a serem impressas.</p>
 
     <div class="form-grid">
@@ -510,12 +494,12 @@
     </div>
 
     <div style="display:flex;gap:12px;flex-wrap:wrap;">
-      <button class="btn btn-success" style="flex:1;padding:12px;font-size:1rem;" onclick="gerarRelatorioPDF()">🖨️ Gerar Relatório (Imprimir / Salvar PDF)</button>
-      <button class="btn btn-secondary" style="padding:12px;font-size:1rem;" onclick="previsualizarRelatorio()">👁️ Pré-visualizar</button>
+      <button class="btn btn-success" style="flex:1;padding:12px;font-size:1rem;" onclick="gerarRelatorioPDF()">Gerar Relatório (Imprimir / Salvar PDF)</button>
+      <button class="btn btn-secondary" style="padding:12px;font-size:1rem;" onclick="previsualizarRelatorio()">Pré-visualizar</button>
     </div>
 
     <p class="report-preview-note">
-      💡 Dica: ao abrir a janela de impressão, escolha a opção <strong>"Salvar como PDF"</strong> no destino da impressora. O relatório será gerado em formato A4 paisagem com cabeçalho e rodapé automáticos.
+      Dica: ao abrir a janela de impressão, escolha a opção <strong>"Salvar como PDF"</strong> no destino da impressora. O relatório será gerado em formato A4 paisagem com cabeçalho e rodapé automáticos.
     </p>
 
     <div id="previewRelatorio" style="margin-top:20px;display:none;">
@@ -526,10 +510,12 @@
 </div>
 
 <script>
+"use strict";
+
 /* ============================================================
-   ROTAS PRÉ-ESTABELECIDAS
+   ROTAS PRE-ESTABELECIDAS
    ============================================================ */
-const ROTAS = [
+var ROTAS = [
   "138.MIC - Salvador X Praia do Forte",
   "18A.MIC - Salvador X Imbassaí",
   "138ROD - Calçada X Praia do Forte",
@@ -548,7 +534,7 @@ const ROTAS = [
   "807 - Monte Gordo X Term. Aeroporto"
 ];
 
-const dadosIniciais = [
+var dadosIniciais = [
   {id:"r1", data:"2026-08-03", carro:"8824140", rota:"048 - S.Sebastião X Term. Águas Claras", classe:"Urbano", horaSaida:"06:00", horaOcorrencia:"07:15", motorista:"Lazaro", agente:"Não há", ocorrencia:"Sem ocorrências", observacoes:"Viagem realizada dentro da normalidade."},
   {id:"r2", data:"2026-08-03", carro:"882318", rota:"415 - Calçada X Porto de Sauipe", classe:"Executivo", horaSaida:"08:30", horaOcorrencia:"09:10", motorista:"Lazaro", agente:"Carlos Silva", ocorrencia:"Passagem não solicitada", observacoes:"Passageiro sinalizou em cima da hora, motorista seguiu viagem regulamentar."},
   {id:"r3", data:"2026-08-07", carro:"882408", rota:"138.MIC - Salvador X Praia do Forte", classe:"Urbano", horaSaida:"", horaOcorrencia:"14:20", motorista:"Elmo", agente:"Não há", ocorrencia:"Sem maiores ocorrências", observacoes:"Horário de saída não registrado pelo agente."},
@@ -558,28 +544,68 @@ const dadosIniciais = [
   {id:"r7", data:"2026-10-09", carro:"882703", rota:"415E - Camaçari X Porto de Sauipe", classe:"Micro", horaSaida:"17:00", horaOcorrencia:"17:30", motorista:"Carlos", agente:"Não há", ocorrencia:"Passagem não solicitada", observacoes:"Passageiro reclamou do motorista."}
 ];
 
-let dados = JSON.parse(localStorage.getItem("dados_frota_atlantico_v6")) || dadosIniciais;
-dados = dados.map((d, i) => ({ ...d, id: d.id || ("old-" + i + "-" + Date.now()) }));
-salvarDados();
+var CHAVE_STORAGE = "dados_frota_atlantico_v6";
+var dados = [];
+
+function carregarDados() {
+  try {
+    var raw = localStorage.getItem(CHAVE_STORAGE);
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        dados = parsed;
+      } else {
+        dados = dadosIniciais.slice();
+      }
+    } else {
+      dados = dadosIniciais.slice();
+    }
+  } catch (e) {
+    console.error("Erro ao carregar dados do localStorage:", e);
+    dados = dadosIniciais.slice();
+  }
+
+  // Garante id em todos os registros
+  dados = dados.map(function(d, i) {
+    if (!d.id) d.id = "old-" + i + "-" + Date.now();
+    return d;
+  });
+
+  salvarDados();
+}
 
 function salvarDados() {
-  localStorage.setItem("dados_frota_atlantico_v6", JSON.stringify(dados));
+  try {
+    localStorage.setItem(CHAVE_STORAGE, JSON.stringify(dados));
+  } catch (e) {
+    console.error("Erro ao salvar dados:", e);
+  }
 }
 
 function gerarId() {
   return "reg-" + Date.now() + "-" + Math.floor(Math.random() * 10000);
 }
 
+/* ============================================================
+   NAVEGACAO ENTRE ABAS
+   ============================================================ */
 function mudarAba(abaId) {
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+  var botoes = document.querySelectorAll('.tab-btn');
+  var conteudos = document.querySelectorAll('.tab-content');
+  var i;
 
-  const map = { dashboard:0, cadastro:1, 'gerador-graficos':2, 'relatorio-pdf':3 };
-  document.querySelectorAll('.tab-btn')[map[abaId]].classList.add('active');
-  document.getElementById('tab-' + abaId).classList.add('active');
+  for (i = 0; i < botoes.length; i++) botoes[i].classList.remove('active');
+  for (i = 0; i < conteudos.length; i++) conteudos[i].classList.remove('active');
 
-  if (abaId === 'dashboard') render();
-  else if (abaId === 'cadastro') {
+  var map = { 'dashboard': 0, 'cadastro': 1, 'gerador-graficos': 2, 'relatorio-pdf': 3 };
+  if (botoes[map[abaId]]) botoes[map[abaId]].classList.add('active');
+
+  var tab = document.getElementById('tab-' + abaId);
+  if (tab) tab.classList.add('active');
+
+  if (abaId === 'dashboard') {
+    render();
+  } else if (abaId === 'cadastro') {
     if (!document.getElementById('editandoId').value) {
       document.getElementById('novoData').value = new Date().toISOString().split('T')[0];
       document.getElementById('tituloFormulario').textContent = "Cadastrar Novo Registro na Frota";
@@ -589,9 +615,9 @@ function mudarAba(abaId) {
       document.getElementById('msgEdicao').style.display = "none";
       ajustarAgentePorClasse();
     }
-  }
-  else if (abaId === 'gerador-graficos') gerarGraficoCustomizado();
-  else if (abaId === 'relatorio-pdf') {
+  } else if (abaId === 'gerador-graficos') {
+    gerarGraficoCustomizado();
+  } else if (abaId === 'relatorio-pdf') {
     document.getElementById('relMes').value = document.getElementById('mes').value;
     document.getElementById('relClasse').value = document.getElementById('classe').value;
     document.getElementById('relBusca').value = document.getElementById('busca').value;
@@ -599,9 +625,12 @@ function mudarAba(abaId) {
   }
 }
 
+/* ============================================================
+   REGRA: AGENTE AUTOMATICO PARA MICRO / URBANO
+   ============================================================ */
 function ajustarAgentePorClasse() {
-  const classe = document.getElementById('novoClasse').value;
-  const campoAgente = document.getElementById('novoAgente');
+  var classe = document.getElementById('novoClasse').value;
+  var campoAgente = document.getElementById('novoAgente');
 
   if (classe === 'Micro' || classe === 'Urbano') {
     campoAgente.value = 'Não há';
@@ -616,22 +645,25 @@ function ajustarAgentePorClasse() {
   }
 }
 
+/* ============================================================
+   SALVAR / EDITAR / EXCLUIR REGISTRO
+   ============================================================ */
 function salvarNovoRegistro(event) {
   event.preventDefault();
 
-  const editandoId = document.getElementById('editandoId').value;
-  const classeSelecionada = document.getElementById('novoClasse').value;
+  var editandoId = document.getElementById('editandoId').value;
+  var classeSelecionada = document.getElementById('novoClasse').value;
 
-  let agenteFinal = document.getElementById('novoAgente').value.trim();
+  var agenteFinal = document.getElementById('novoAgente').value.trim();
   if (classeSelecionada === 'Micro' || classeSelecionada === 'Urbano') agenteFinal = 'Não há';
   if (!agenteFinal) { alert('Informe o Agente Responsável.'); return; }
 
-  const rotaSelecionada = document.getElementById('novoRota').value;
+  var rotaSelecionada = document.getElementById('novoRota').value;
   if (!rotaSelecionada) { alert('Selecione uma rota válida.'); return; }
 
-  const horaSaidaValor = document.getElementById('novoHoraSaida').value || "";
+  var horaSaidaValor = document.getElementById('novoHoraSaida').value || "";
 
-  const item = {
+  var item = {
     id: editandoId || gerarId(),
     data: document.getElementById('novoData').value,
     carro: document.getElementById('novoCarro').value.trim(),
@@ -646,22 +678,25 @@ function salvarNovoRegistro(event) {
   };
 
   if (editandoId) {
-    const idx = dados.findIndex(d => d.id === editandoId);
+    var idx = -1;
+    for (var i = 0; i < dados.length; i++) {
+      if (dados[i].id === editandoId) { idx = i; break; }
+    }
     if (idx !== -1) dados[idx] = item;
     salvarDados();
-    const msgEd = document.getElementById('msgEdicao');
+    var msgEd = document.getElementById('msgEdicao');
     msgEd.style.display = 'block';
-    setTimeout(() => { msgEd.style.display = 'none'; }, 2500);
+    setTimeout(function() { msgEd.style.display = 'none'; }, 2500);
   } else {
     dados.unshift(item);
     salvarDados();
-    const msg = document.getElementById('msgSucesso');
+    var msg = document.getElementById('msgSucesso');
     msg.style.display = 'block';
-    setTimeout(() => { msg.style.display = 'none'; }, 3500);
+    setTimeout(function() { msg.style.display = 'none'; }, 3500);
   }
 
   limparFormulario();
-  setTimeout(() => { mudarAba('dashboard'); }, 900);
+  setTimeout(function() { mudarAba('dashboard'); }, 900);
 }
 
 function limparFormulario() {
@@ -685,17 +720,23 @@ function limparFormulario() {
 }
 
 function editarRegistro(id) {
-  const reg = dados.find(d => d.id === id);
+  var reg = null;
+  for (var i = 0; i < dados.length; i++) {
+    if (dados[i].id === id) { reg = dados[i]; break; }
+  }
   if (!reg) return;
 
   document.getElementById('editandoId').value = id;
   document.getElementById('novoData').value = reg.data;
   document.getElementById('novoCarro').value = reg.carro;
 
-  const selectRota = document.getElementById('novoRota');
-  const existeRota = Array.from(selectRota.options).some(o => o.value === reg.rota);
+  var selectRota = document.getElementById('novoRota');
+  var existeRota = false;
+  for (var j = 0; j < selectRota.options.length; j++) {
+    if (selectRota.options[j].value === reg.rota) { existeRota = true; break; }
+  }
   if (!existeRota && reg.rota) {
-    const opt = document.createElement('option');
+    var opt = document.createElement('option');
     opt.value = reg.rota;
     opt.textContent = reg.rota + " (rota antiga)";
     selectRota.appendChild(opt);
@@ -711,7 +752,7 @@ function editarRegistro(id) {
   document.getElementById('novoObservacoes').value = reg.observacoes || '';
   ajustarAgentePorClasse();
 
-  document.getElementById('tituloFormulario').textContent = "✏️ Editar Registro Existente";
+  document.getElementById('tituloFormulario').textContent = "Editar Registro Existente";
   document.getElementById('subtituloFormulario').textContent = "Altere os campos abaixo e salve para atualizar o registro selecionado.";
   document.getElementById('btnSalvar').textContent = "Salvar Alterações";
   document.getElementById('btnCancelarEdicao').style.display = "inline-block";
@@ -719,66 +760,87 @@ function editarRegistro(id) {
   mudarAba('cadastro');
 }
 
-function cancelarEdicao() { limparFormulario(); mudarAba('dashboard'); }
+function cancelarEdicao() {
+  limparFormulario();
+  mudarAba('dashboard');
+}
 
 function excluirRegistro(id) {
   if (!confirm("Tem certeza que deseja excluir este registro? Esta ação não pode ser desfeita.")) return;
-  dados = dados.filter(d => d.id !== id);
+  var novos = [];
+  for (var i = 0; i < dados.length; i++) {
+    if (dados[i].id !== id) novos.push(dados[i]);
+  }
+  dados = novos;
   salvarDados();
   render();
 }
 
 function resetarDadosPadrao() {
   if (confirm("Tem certeza que deseja restaurar os dados originais e apagar os registros adicionados?")) {
-    localStorage.removeItem("dados_frota_atlantico_v6");
-    dados = dadosIniciais.map((d, i) => ({ ...d, id: d.id || ("r-" + i) }));
+    try { localStorage.removeItem(CHAVE_STORAGE); } catch(e) {}
+    dados = dadosIniciais.slice();
     salvarDados();
     render();
     alert("Dados restaurados com sucesso!");
   }
 }
 
-function classificarOcorrencia(o){
-  if(o.includes("Sem ocorr") || o.includes("Sem maiores")) return "ok";
-  if(o.includes("Passagem não solicitada")) return "bad";
-  if(o.includes("Passou direto") || o.includes("Discussão")) return "warn";
+/* ============================================================
+   CLASSIFICACAO DE OCORRENCIAS
+   ============================================================ */
+function classificarOcorrencia(o) {
+  if (!o) return "neutral";
+  if (o.indexOf("Sem ocorr") !== -1 || o.indexOf("Sem maiores") !== -1) return "ok";
+  if (o.indexOf("Passagem não solicitada") !== -1) return "bad";
+  if (o.indexOf("Passou direto") !== -1 || o.indexOf("Discussão") !== -1) return "warn";
   return "neutral";
 }
 
-function contar(arr, campo){
-  const map = {};
-  arr.forEach(item => {
-    let k = item[campo] || "—";
-    if (campo === 'mes' && item.data) k = item.data.substring(0,7);
+function contar(arr, campo) {
+  var map = {};
+  for (var i = 0; i < arr.length; i++) {
+    var k = arr[i][campo] || "—";
+    if (campo === 'mes' && arr[i].data) k = arr[i].data.substring(0, 7);
     map[k] = (map[k] || 0) + 1;
-  });
-  return Object.entries(map).sort((a,b)=>b[1]-a[1]);
+  }
+  var entries = [];
+  for (var key in map) {
+    if (map.hasOwnProperty(key)) entries.push([key, map[key]]);
+  }
+  entries.sort(function(a, b) { return b[1] - a[1]; });
+  return entries;
 }
 
-function renderBars(containerId, entries, colorMap){
-  const el = document.getElementById(containerId);
-  if(!entries.length){ el.innerHTML = '<p class="empty">Sem dados disponíveis</p>'; return; }
-  const max = Math.max(...entries.map(e=>e[1]));
-  el.innerHTML = entries.map(([nome,qtd])=>{
-    const pct = (qtd/max)*100;
-    const cor = colorMap ? (colorMap(nome)||"#38bdf8") : "#38bdf8";
-    return `<div class="bar-row">
-      <span class="name" title="${nome}">${nome}</span>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${cor}"></div></div>
-      <span class="qty">${qtd}</span>
-    </div>`;
+function renderBars(containerId, entries, colorMap) {
+  var el = document.getElementById(containerId);
+  if (!el) return;
+  if (!entries.length) {
+    el.innerHTML = '<p class="empty">Sem dados disponíveis</p>';
+    return;
+  }
+  var max = Math.max.apply(null, entries.map(function(e) { return e[1]; }));
+  el.innerHTML = entries.map(function(e) {
+    var nome = e[0], qtd = e[1];
+    var pct = (qtd / max) * 100;
+    var cor = colorMap ? (colorMap(nome) || "#38bdf8") : "#38bdf8";
+    return '<div class="bar-row">' +
+      '<span class="name" title="' + nome + '">' + nome + '</span>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%;background:' + cor + '"></div></div>' +
+      '<span class="qty">' + qtd + '</span>' +
+      '</div>';
   }).join("");
 }
 
 /* ============================================================
-   GRÁFICOS CUSTOMIZADOS (Canvas puro)
+   GRAFICOS CUSTOMIZADOS
    ============================================================ */
-const PALETA = ["#38bdf8","#22c55e","#f59e0b","#ef4444","#a78bfa","#10b981","#f472b6","#14b8a6","#eab308","#6366f1","#f97316","#06b6d4"];
+var PALETA = ["#38bdf8", "#22c55e", "#f59e0b", "#ef4444", "#a78bfa", "#10b981", "#f472b6", "#14b8a6", "#eab308", "#6366f1", "#f97316", "#06b6d4"];
 
-function corPara(nome, param, i){
+function corPara(nome, param, i) {
   if (param === 'ocorrencia') {
-    const c = classificarOcorrencia(nome);
-    return c==="ok" ? "#22c55e" : c==="bad" ? "#ef4444" : c==="warn" ? "#f59e0b" : "#64748b";
+    var c = classificarOcorrencia(nome);
+    return c === "ok" ? "#22c55e" : c === "bad" ? "#ef4444" : c === "warn" ? "#f59e0b" : "#64748b";
   }
   if (param === 'classe') {
     if (nome === "Executivo") return "#38bdf8";
@@ -789,228 +851,257 @@ function corPara(nome, param, i){
 }
 
 function gerarGraficoCustomizado() {
-  const tipo = document.getElementById("tipoGrafico").value;
-  const paramSelect = document.getElementById("parametroGrafico");
+  var tipo = document.getElementById("tipoGrafico").value;
+  var paramSelect = document.getElementById("parametroGrafico");
 
   if (tipo === 'motoristaOcorrencia') {
     paramSelect.disabled = true;
-    document.getElementById("tituloGraficoCustomizado").textContent =
-      "Gráfico: Ocorrências por Motorista (Detalhado)";
+    document.getElementById("tituloGraficoCustomizado").textContent = "Gráfico: Ocorrências por Motorista (Detalhado)";
     desenharGraficoMotoristaOcorrencia();
     return;
   } else {
     paramSelect.disabled = false;
-    document.getElementById("detalheMotoristaOcorrencia").style.display = "none";
+    var detalhe = document.getElementById("detalheMotoristaOcorrencia");
+    if (detalhe) detalhe.style.display = "none";
   }
 
-  const param = paramSelect.value;
-  const selectEl = paramSelect;
-  const nomeParametro = selectEl.options[selectEl.selectedIndex].text;
+  var param = paramSelect.value;
+  var nomeParametro = paramSelect.options[paramSelect.selectedIndex].text;
 
   document.getElementById("tituloGraficoCustomizado").textContent =
-    `Gráfico: ${nomeParametro} — ${document.getElementById("tipoGrafico").selectedOptions[0].text}`;
+    "Gráfico: " + nomeParametro + " — " + document.getElementById("tipoGrafico").selectedOptions[0].text;
 
-  let dadosFiltrados = dados;
-  if(param === 'motorista') dadosFiltrados = dados.filter(d => d.motorista !== "—");
-  if(param === 'agente') dadosFiltrados = dados.filter(d => d.agente && d.agente !== "Não há");
+  var dadosFiltrados = dados;
+  if (param === 'motorista') {
+    dadosFiltrados = dados.filter(function(d) { return d.motorista !== "—"; });
+  }
+  if (param === 'agente') {
+    dadosFiltrados = dados.filter(function(d) { return d.agente && d.agente !== "Não há"; });
+  }
 
-  const contagem = contar(dadosFiltrados, param);
+  var contagem = contar(dadosFiltrados, param);
 
-  const canvas = document.getElementById('canvasCustom');
-  const ctx = canvas.getContext('2d');
+  var canvas = document.getElementById('canvasCustom');
+  var ctx = canvas.getContext('2d');
 
-  const tipoRetrato = (tipo === 'pizza' || tipo === 'rosca');
-  canvas.width  = 900;
+  var tipoRetrato = (tipo === 'pizza' || tipo === 'rosca');
+  canvas.width = 900;
   canvas.height = tipoRetrato ? 520 : Math.max(360, 60 + contagem.length * 38);
 
-  const legenda = document.getElementById('legendaCustom');
+  var legenda = document.getElementById('legendaCustom');
   legenda.innerHTML = "";
 
   if (!contagem.length) {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#94a3b8";
     ctx.font = "16px Segoe UI, sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("Sem dados disponíveis para o critério selecionado.", canvas.width/2, canvas.height/2);
+    ctx.fillText("Sem dados disponíveis para o critério selecionado.", canvas.width / 2, canvas.height / 2);
     return;
   }
 
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  if (tipo === 'barras')       desenharBarrasHorizontais(ctx, canvas, contagem, param);
+  if (tipo === 'barras') desenharBarrasHorizontais(ctx, canvas, contagem, param);
   else if (tipo === 'colunas') desenharColunasVerticais(ctx, canvas, contagem, param);
-  else if (tipo === 'pizza')   desenharPizza(ctx, canvas, contagem, param, legenda);
-  else if (tipo === 'rosca')   desenharRosca(ctx, canvas, contagem, param, legenda);
+  else if (tipo === 'pizza') desenharPizza(ctx, canvas, contagem, param, legenda);
+  else if (tipo === 'rosca') desenharRosca(ctx, canvas, contagem, param, legenda);
 }
 
-/* ============================================================
-   NOVO GRÁFICO: MOTORISTA × OCORRÊNCIA (barras empilhadas)
-   ============================================================ */
 function desenharGraficoMotoristaOcorrencia() {
-  const canvas = document.getElementById('canvasCustom');
-  const ctx = canvas.getContext('2d');
-  const legenda = document.getElementById('legendaCustom');
+  var canvas = document.getElementById('canvasCustom');
+  var ctx = canvas.getContext('2d');
+  var legenda = document.getElementById('legendaCustom');
   legenda.innerHTML = "";
 
-  const dadosDetalhe = document.getElementById('detalheMotoristaOcorrencia');
+  var dadosDetalhe = document.getElementById('detalheMotoristaOcorrencia');
 
-  const base = dados.filter(d => d.motorista && d.motorista !== "—");
+  var base = dados.filter(function(d) { return d.motorista && d.motorista !== "—"; });
 
   if (!base.length) {
-    canvas.width = 900; canvas.height = 300;
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+    canvas.width = 900;
+    canvas.height = 300;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#94a3b8";
     ctx.font = "16px Segoe UI, sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("Nenhum registro com motorista identificado.", canvas.width/2, canvas.height/2);
+    ctx.fillText("Nenhum registro com motorista identificado.", canvas.width / 2, canvas.height / 2);
     dadosDetalhe.style.display = "none";
     return;
   }
 
-  const estrutura = {};
-  const ocorrenciasSet = new Set();
+  var estrutura = {};
+  var ocorrenciasSet = {};
 
-  base.forEach(d => {
-    const mot = d.motorista;
-    const oco = d.ocorrencia || "—";
+  for (var i = 0; i < base.length; i++) {
+    var mot = base[i].motorista;
+    var oco = base[i].ocorrencia || "—";
     if (!estrutura[mot]) estrutura[mot] = {};
     estrutura[mot][oco] = (estrutura[mot][oco] || 0) + 1;
-    ocorrenciasSet.add(oco);
-  });
+    ocorrenciasSet[oco] = true;
+  }
 
-  const listaOcorrencias = Array.from(ocorrenciasSet).sort();
-  const corOcorrencia = {};
-  listaOcorrencias.forEach((o, i) => {
-    corOcorrencia[o] = corPara(o, 'ocorrencia', i);
-    if (corOcorrencia[o] === "#64748b") corOcorrencia[o] = PALETA[i % PALETA.length];
-  });
+  var listaOcorrencias = Object.keys(ocorrenciasSet).sort();
+  var corOcorrencia = {};
+  for (var k = 0; k < listaOcorrencias.length; k++) {
+    var o = listaOcorrencias[k];
+    corOcorrencia[o] = corPara(o, 'ocorrencia', k);
+    if (corOcorrencia[o] === "#64748b") corOcorrencia[o] = PALETA[k % PALETA.length];
+  }
 
-  const motoristas = Object.keys(estrutura).map(m => {
-    const total = Object.values(estrutura[m]).reduce((a,b)=>a+b,0);
-    return { nome: m, total, detalhe: estrutura[m] };
-  }).sort((a,b) => b.total - a.total);
+  var motoristas = [];
+  for (var m in estrutura) {
+    if (estrutura.hasOwnProperty(m)) {
+      var total = 0;
+      for (var oc in estrutura[m]) {
+        if (estrutura[m].hasOwnProperty(oc)) total += estrutura[m][oc];
+      }
+      motoristas.push({ nome: m, total: total, detalhe: estrutura[m] });
+    }
+  }
+  motoristas.sort(function(a, b) { return b.total - a.total; });
 
-  const maxTotal = Math.max(...motoristas.map(m => m.total));
+  var maxTotal = 1;
+  for (var x = 0; x < motoristas.length; x++) {
+    if (motoristas[x].total > maxTotal) maxTotal = motoristas[x].total;
+  }
 
-  const left = 200, right = 60, top = 40, rowH = 46;
-  canvas.width  = 900;
+  var left = 200, right = 60, top = 40, rowH = 46;
+  canvas.width = 900;
   canvas.height = Math.max(300, top + motoristas.length * rowH + 40);
 
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const chartW = canvas.width - left - right;
+  var chartW = canvas.width - left - right;
   ctx.font = "13px Segoe UI, sans-serif";
   ctx.textBaseline = "middle";
 
-  motoristas.forEach((m, idx) => {
-    const y = top + idx * rowH;
+  for (var idx = 0; idx < motoristas.length; idx++) {
+    var mAtual = motoristas[idx];
+    var y = top + idx * rowH;
 
     ctx.fillStyle = "#94a3b8";
     ctx.textAlign = "right";
-    let labelMot = m.nome.length > 24 ? m.nome.substring(0,22)+"…" : m.nome;
-    ctx.fillText(labelMot, left - 12, y + rowH/2);
+    var labelMot = mAtual.nome.length > 24 ? mAtual.nome.substring(0, 22) + "..." : mAtual.nome;
+    ctx.fillText(labelMot, left - 12, y + rowH / 2);
 
     ctx.fillStyle = "#1a2333";
     roundRect(ctx, left, y + 10, chartW, rowH - 20, 5);
     ctx.fill();
 
-    let acumulado = 0;
-    const segmentos = Object.entries(m.detalhe).sort((a,b)=>b[1]-a[1]);
+    var acumulado = 0;
+    var segmentos = [];
+    for (var oc2 in mAtual.detalhe) {
+      if (mAtual.detalhe.hasOwnProperty(oc2)) {
+        segmentos.push([oc2, mAtual.detalhe[oc2]]);
+      }
+    }
+    segmentos.sort(function(a, b) { return b[1] - a[1]; });
 
-    segmentos.forEach(([oco, qtd]) => {
-      const w = (qtd / maxTotal) * chartW;
-      const x = left + acumulado;
+    for (var s = 0; s < segmentos.length; s++) {
+      var ocoNome = segmentos[s][0];
+      var qtd = segmentos[s][1];
+      var w = (qtd / maxTotal) * chartW;
+      var xPos = left + acumulado;
 
-      ctx.fillStyle = corOcorrencia[oco];
-      roundRect(ctx, x, y + 10, Math.max(2, w - 1), rowH - 20, 4);
+      ctx.fillStyle = corOcorrencia[ocoNome];
+      roundRect(ctx, xPos, y + 10, Math.max(2, w - 1), rowH - 20, 4);
       ctx.fill();
 
       if (w > 32) {
         ctx.fillStyle = "#0f172a";
         ctx.textAlign = "center";
         ctx.font = "bold 12px Segoe UI, sans-serif";
-        ctx.fillText(qtd, x + w/2, y + rowH/2);
+        ctx.fillText(qtd, xPos + w / 2, y + rowH / 2);
       }
 
       acumulado += w;
-    });
+    }
 
     ctx.fillStyle = "#e2e8f0";
     ctx.textAlign = "left";
     ctx.font = "bold 13px Segoe UI, sans-serif";
-    ctx.fillText(m.total, left + acumulado + 8, y + rowH/2);
+    ctx.fillText(mAtual.total, left + acumulado + 8, y + rowH / 2);
     ctx.font = "13px Segoe UI, sans-serif";
-  });
+  }
 
-  listaOcorrencias.forEach(oco => {
-    adicionarLegenda(legenda, oco, "-", corOcorrencia[oco]);
-  });
+  for (var li = 0; li < listaOcorrencias.length; li++) {
+    var oco = listaOcorrencias[li];
+    adicionarLegenda(legenda, oco, null, corOcorrencia[oco]);
+  }
 
-  let html = '<h3>📋 Detalhamento — Ocorrências por Motorista</h3>';
+  var html = '<h3>Detalhamento — Ocorrências por Motorista</h3>';
   html += '<table><thead><tr><th>Motorista</th><th>Ocorrência</th><th>Vezes</th></tr></thead><tbody>';
 
-  let totalGeral = 0;
-  motoristas.forEach(m => {
-    const segmentos = Object.entries(m.detalhe).sort((a,b)=>b[1]-a[1]);
-    segmentos.forEach(([oco, qtd], i) => {
-      totalGeral += qtd;
-      const cor = corOcorrencia[oco];
-      html += `<tr>
-        <td>${i === 0 ? `<strong>${m.nome}</strong>` : ''}</td>
-        <td><span class="cor-dot" style="background:${cor}"></span>${oco}</td>
-        <td><span class="total-badge">${qtd}</span></td>
-      </tr>`;
-    });
-  });
+  var totalGeral = 0;
+  for (var mi = 0; mi < motoristas.length; mi++) {
+    var mo = motoristas[mi];
+    var segs = [];
+    for (var oc3 in mo.detalhe) {
+      if (mo.detalhe.hasOwnProperty(oc3)) segs.push([oc3, mo.detalhe[oc3]]);
+    }
+    segs.sort(function(a, b) { return b[1] - a[1]; });
 
-  html += `</tbody></table>
-    <p style="margin-top:10px;font-size:.8rem;color:var(--muted);text-align:right;">
-      Total geral de ocorrências com motorista identificado: <strong style="color:var(--accent)">${totalGeral}</strong>
-    </p>`;
+    for (var si = 0; si < segs.length; si++) {
+      totalGeral += segs[si][1];
+      var cor = corOcorrencia[segs[si][0]];
+      html += '<tr>' +
+        '<td>' + (si === 0 ? '<strong>' + mo.nome + '</strong>' : '') + '</td>' +
+        '<td><span class="cor-dot" style="background:' + cor + '"></span>' + segs[si][0] + '</td>' +
+        '<td><span class="total-badge">' + segs[si][1] + '</span></td>' +
+        '</tr>';
+    }
+  }
+
+  html += '</tbody></table>' +
+    '<p style="margin-top:10px;font-size:.8rem;color:var(--muted);text-align:right;">' +
+    'Total geral de ocorrências com motorista identificado: <strong style="color:var(--accent)">' + totalGeral + '</strong></p>';
 
   dadosDetalhe.innerHTML = html;
   dadosDetalhe.style.display = "block";
 }
 
-function desenharBarrasHorizontais(ctx, canvas, entries, param){
-  const max = Math.max(...entries.map(e=>e[1]));
-  const left = 220, right = 60, top = 30, rowH = 34;
-  const barW = canvas.width - left - right;
+function desenharBarrasHorizontais(ctx, canvas, entries, param) {
+  var max = Math.max.apply(null, entries.map(function(e) { return e[1]; }));
+  var left = 220, right = 60, top = 30, rowH = 34;
+  var barW = canvas.width - left - right;
 
   ctx.font = "13px Segoe UI, sans-serif";
   ctx.textBaseline = "middle";
 
-  entries.forEach(([nome, qtd], i) => {
-    const y = top + i * rowH;
+  for (var i = 0; i < entries.length; i++) {
+    var nome = entries[i][0], qtd = entries[i][1];
+    var y = top + i * rowH;
     ctx.fillStyle = "#94a3b8";
     ctx.textAlign = "right";
-    let label = nome.length > 32 ? nome.substring(0,30)+"…" : nome;
-    ctx.fillText(label, left - 12, y + rowH/2 - 6);
+    var label = nome.length > 32 ? nome.substring(0, 30) + "..." : nome;
+    ctx.fillText(label, left - 12, y + rowH / 2 - 6);
 
     ctx.fillStyle = "#243449";
     roundRect(ctx, left, y + 4, barW, rowH - 14, 5);
     ctx.fill();
 
     ctx.fillStyle = corPara(nome, param, i);
-    roundRect(ctx, left, y + 4, Math.max(4, (qtd/max)*barW), rowH - 14, 5);
+    var wFill = Math.max(4, (qtd / max) * barW);
+    roundRect(ctx, left, y + 4, wFill, rowH - 14, 5);
     ctx.fill();
 
     ctx.fillStyle = "#e2e8f0";
     ctx.textAlign = "left";
     ctx.font = "bold 13px Segoe UI, sans-serif";
-    ctx.fillText(qtd, left + Math.max(4,(qtd/max)*barW) + 8, y + rowH/2 - 6);
+    ctx.fillText(qtd, left + wFill + 8, y + rowH / 2 - 6);
     ctx.font = "13px Segoe UI, sans-serif";
-  });
+  }
 }
 
-function desenharColunasVerticais(ctx, canvas, entries, param){
-  const max = Math.max(...entries.map(e=>e[1]));
-  const left = 60, right = 30, top = 30, bottom = 110;
-  const chartW = canvas.width - left - right;
-  const chartH = canvas.height - top - bottom;
-  const n = entries.length;
-  const slot = chartW / n;
-  const barW = Math.min(70, slot * 0.65);
+function desenharColunasVerticais(ctx, canvas, entries, param) {
+  var max = Math.max.apply(null, entries.map(function(e) { return e[1]; }));
+  var left = 60, right = 30, top = 30, bottom = 110;
+  var chartW = canvas.width - left - right;
+  var chartH = canvas.height - top - bottom;
+  var n = entries.length;
+  var slot = chartW / n;
+  var barW = Math.min(70, slot * 0.65);
 
   ctx.strokeStyle = "#334155";
   ctx.lineWidth = 1;
@@ -1023,10 +1114,11 @@ function desenharColunasVerticais(ctx, canvas, entries, param){
   ctx.font = "12px Segoe UI, sans-serif";
   ctx.textAlign = "center";
 
-  entries.forEach(([nome, qtd], i) => {
-    const x = left + i * slot + (slot - barW)/2;
-    const h = (qtd/max) * (chartH - 30);
-    const y = top + chartH - h;
+  for (var i = 0; i < entries.length; i++) {
+    var nome = entries[i][0], qtd = entries[i][1];
+    var x = left + i * slot + (slot - barW) / 2;
+    var h = (qtd / max) * (chartH - 30);
+    var y = top + chartH - h;
 
     ctx.fillStyle = corPara(nome, param, i);
     roundRect(ctx, x, y, barW, h, 5);
@@ -1034,34 +1126,36 @@ function desenharColunasVerticais(ctx, canvas, entries, param){
 
     ctx.fillStyle = "#e2e8f0";
     ctx.font = "bold 12px Segoe UI, sans-serif";
-    ctx.fillText(qtd, x + barW/2, y - 6);
+    ctx.fillText(qtd, x + barW / 2, y - 6);
 
     ctx.save();
-    ctx.translate(x + barW/2, top + chartH + 8);
-    ctx.rotate(-Math.PI/4);
+    ctx.translate(x + barW / 2, top + chartH + 8);
+    ctx.rotate(-Math.PI / 4);
     ctx.textAlign = "right";
     ctx.fillStyle = "#94a3b8";
     ctx.font = "11px Segoe UI, sans-serif";
-    let label = nome.length > 22 ? nome.substring(0,20)+"…" : nome;
+    var label = nome.length > 22 ? nome.substring(0, 20) + "..." : nome;
     ctx.fillText(label, 0, 0);
     ctx.restore();
-  });
+  }
 }
 
-function desenharPizza(ctx, canvas, entries, param, legendaEl){
-  const total = entries.reduce((a,b)=>a+b[1],0);
-  const cx = canvas.width/2, cy = canvas.height/2;
-  const raio = Math.min(canvas.width, canvas.height)/2 - 40;
-  let ang = -Math.PI/2;
+function desenharPizza(ctx, canvas, entries, param, legendaEl) {
+  var total = 0;
+  for (var i = 0; i < entries.length; i++) total += entries[i][1];
+  var cx = canvas.width / 2, cy = canvas.height / 2;
+  var raio = Math.min(canvas.width, canvas.height) / 2 - 40;
+  var ang = -Math.PI / 2;
 
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.font = "13px Segoe UI, sans-serif";
 
-  entries.forEach(([nome, qtd], i) => {
-    const frac = qtd/total;
-    const angFinal = ang + frac * Math.PI * 2;
-    const cor = corPara(nome, param, i);
+  for (var j = 0; j < entries.length; j++) {
+    var nome = entries[j][0], qtd = entries[j][1];
+    var frac = qtd / total;
+    var angFinal = ang + frac * Math.PI * 2;
+    var cor = corPara(nome, param, j);
 
     ctx.beginPath();
     ctx.moveTo(cx, cy);
@@ -1074,33 +1168,35 @@ function desenharPizza(ctx, canvas, entries, param, legendaEl){
     ctx.stroke();
 
     if (frac >= 0.05) {
-      const mid = ang + (angFinal - ang)/2;
-      const px = cx + Math.cos(mid) * raio * 0.65;
-      const py = cy + Math.sin(mid) * raio * 0.65;
+      var mid = ang + (angFinal - ang) / 2;
+      var px = cx + Math.cos(mid) * raio * 0.65;
+      var py = cy + Math.sin(mid) * raio * 0.65;
       ctx.fillStyle = "#0f172a";
       ctx.font = "bold 13px Segoe UI, sans-serif";
-      ctx.fillText((frac*100).toFixed(1) + "%", px, py);
+      ctx.fillText((frac * 100).toFixed(1) + "%", px, py);
     }
 
     ang = angFinal;
     adicionarLegenda(legendaEl, nome, qtd, cor);
-  });
+  }
 }
 
-function desenharRosca(ctx, canvas, entries, param, legendaEl){
-  const total = entries.reduce((a,b)=>a+b[1],0);
-  const cx = canvas.width/2, cy = canvas.height/2;
-  const raioExt = Math.min(canvas.width, canvas.height)/2 - 40;
-  const raioInt = raioExt * 0.55;
-  let ang = -Math.PI/2;
+function desenharRosca(ctx, canvas, entries, param, legendaEl) {
+  var total = 0;
+  for (var i = 0; i < entries.length; i++) total += entries[i][1];
+  var cx = canvas.width / 2, cy = canvas.height / 2;
+  var raioExt = Math.min(canvas.width, canvas.height) / 2 - 40;
+  var raioInt = raioExt * 0.55;
+  var ang = -Math.PI / 2;
 
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
-  entries.forEach(([nome, qtd], i) => {
-    const frac = qtd/total;
-    const angFinal = ang + frac * Math.PI * 2;
-    const cor = corPara(nome, param, i);
+  for (var j = 0; j < entries.length; j++) {
+    var nome = entries[j][0], qtd = entries[j][1];
+    var frac = qtd / total;
+    var angFinal = ang + frac * Math.PI * 2;
+    var cor = corPara(nome, param, j);
 
     ctx.beginPath();
     ctx.arc(cx, cy, raioExt, ang, angFinal);
@@ -1113,17 +1209,17 @@ function desenharRosca(ctx, canvas, entries, param, legendaEl){
     ctx.stroke();
 
     if (frac >= 0.05) {
-      const mid = ang + (angFinal - ang)/2;
-      const px = cx + Math.cos(mid) * (raioExt + raioInt)/2;
-      const py = cy + Math.sin(mid) * (raioExt + raioInt)/2;
+      var mid = ang + (angFinal - ang) / 2;
+      var px = cx + Math.cos(mid) * (raioExt + raioInt) / 2;
+      var py = cy + Math.sin(mid) * (raioExt + raioInt) / 2;
       ctx.fillStyle = "#0f172a";
       ctx.font = "bold 13px Segoe UI, sans-serif";
-      ctx.fillText((frac*100).toFixed(1) + "%", px, py);
+      ctx.fillText((frac * 100).toFixed(1) + "%", px, py);
     }
 
     ang = angFinal;
     adicionarLegenda(legendaEl, nome, qtd, cor);
-  });
+  }
 
   ctx.fillStyle = "#e2e8f0";
   ctx.font = "bold 22px Segoe UI, sans-serif";
@@ -1133,336 +1229,313 @@ function desenharRosca(ctx, canvas, entries, param, legendaEl){
   ctx.fillText("total", cx, cy + 14);
 }
 
-function adicionarLegenda(el, nome, qtd, cor){
-  const item = document.createElement('span');
-  item.style.cssText = `display:inline-flex;align-items:center;gap:6px;font-size:.8rem;color:#94a3b8;background:#1e293b;padding:4px 10px;border-radius:6px;border:1px solid #334155;`;
-  item.innerHTML = `<span style="width:12px;height:12px;background:${cor};border-radius:3px;display:inline-block;"></span> ${nome}${qtd !== "-" ? ` (${qtd})` : ''}`;
+function adicionarLegenda(el, nome, qtd, cor) {
+  var item = document.createElement('span');
+  item.style.cssText = "display:inline-flex;align-items:center;gap:6px;font-size:.8rem;color:#94a3b8;background:#1e293b;padding:4px 10px;border-radius:6px;border:1px solid #334155;";
+  var extra = (qtd !== null && qtd !== undefined) ? ' (' + qtd + ')' : '';
+  item.innerHTML = '<span style="width:12px;height:12px;background:' + cor + ';border-radius:3px;display:inline-block;"></span> ' + nome + extra;
   el.appendChild(item);
 }
 
-function roundRect(ctx, x, y, w, h, r){
-  if (w < 2*r) r = w/2;
-  if (h < 2*r) r = h/2;
+function roundRect(ctx, x, y, w, h, r) {
+  if (w < 2 * r) r = w / 2;
+  if (h < 2 * r) r = h / 2;
   ctx.beginPath();
-  ctx.moveTo(x+r, y);
-  ctx.arcTo(x+w, y, x+w, y+h, r);
-  ctx.arcTo(x+w, y+h, x, y+h, r);
-  ctx.arcTo(x, y+h, x, y, r);
-  ctx.arcTo(x, y, x+w, y, r);
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
   ctx.closePath();
 }
 
-function baixarGraficoPNG(){
-  const canvas = document.getElementById('canvasCustom');
-  const link = document.createElement('a');
+function baixarGraficoPNG() {
+  var canvas = document.getElementById('canvasCustom');
+  var link = document.createElement('a');
   link.download = 'grafico-frota-' + Date.now() + '.png';
   link.href = canvas.toDataURL('image/png');
   link.click();
 }
 
 /* ============================================================
-   RELATÓRIO PDF
+   RELATORIO PDF
    ============================================================ */
-function sincronizarSubtituloRelatorio(){
-  const mes = document.getElementById('relMes').value;
-  const classe = document.getElementById('relClasse').value;
-  const partes = [];
+function sincronizarSubtituloRelatorio() {
+  var mes = document.getElementById('relMes').value;
+  var classe = document.getElementById('relClasse').value;
+  var partes = [];
   if (mes !== 'all') {
-    const mapMeses = {"2026-08":"Agosto/2026","2026-09":"Setembro/2026","2026-10":"Outubro/2026","2026-11":"Novembro/2026","2026-12":"Dezembro/2026"};
+    var mapMeses = { "2026-08": "Agosto/2026", "2026-09": "Setembro/2026", "2026-10": "Outubro/2026", "2026-11": "Novembro/2026", "2026-12": "Dezembro/2026" };
     partes.push("Período: " + (mapMeses[mes] || mes));
   }
   if (classe !== 'all') partes.push("Classe: " + classe);
   document.getElementById('subtituloRelatorio').value = partes.join(" — ");
 }
 
-function obterColunasSelecionadas(){
-  const checks = document.querySelectorAll('#colunasRelatorio input[type="checkbox"]');
-  return Array.from(checks).filter(c => c.checked).map(c => c.value);
+function obterColunasSelecionadas() {
+  var checks = document.querySelectorAll('#colunasRelatorio input[type="checkbox"]');
+  var resultado = [];
+  for (var i = 0; i < checks.length; i++) {
+    if (checks[i].checked) resultado.push(checks[i].value);
+  }
+  return resultado;
 }
 
-function filtrarDadosRelatorio(){
-  const mes = document.getElementById('relMes').value;
-  const classe = document.getElementById('relClasse').value;
-  const busca = document.getElementById('relBusca').value.trim().toLowerCase();
+function filtrarDadosRelatorio() {
+  var mes = document.getElementById('relMes').value;
+  var classe = document.getElementById('relClasse').value;
+  var busca = document.getElementById('relBusca').value.trim().toLowerCase();
 
-  return dados.filter(d => {
-    if (mes !== 'all' && !d.data.startsWith(mes)) return false;
+  return dados.filter(function(d) {
+    if (mes !== 'all' && d.data.indexOf(mes) !== 0) return false;
     if (classe !== 'all' && d.classe !== classe) return false;
     if (busca) {
-      const blob = `${d.carro} ${d.rota} ${d.motorista} ${d.agente} ${d.ocorrencia} ${d.observacoes}`.toLowerCase();
-      if (!blob.includes(busca)) return false;
+      var blob = (d.carro + " " + d.rota + " " + d.motorista + " " + d.agente + " " + d.ocorrencia + " " + d.observacoes).toLowerCase();
+      if (blob.indexOf(busca) === -1) return false;
     }
     return true;
   });
 }
 
-const LABELS_COLUNAS = {
+var LABELS_COLUNAS = {
   data: "Data", carro: "Carro", rota: "Rota", classe: "Classe",
   motorista: "Motorista", agente: "Agente", horaSaida: "Saída",
   horaOcorrencia: "Ocorrência (hora)", ocorrencia: "Ocorrência",
   observacoes: "Observações"
 };
 
-function montarHTMLRelatorio(){
-  const titulo = document.getElementById('tituloRelatorio').value || "Relatório Operacional";
-  const subtitulo = document.getElementById('subtituloRelatorio').value;
-  const responsavel = document.getElementById('responsavelRelatorio').value;
-  const obsFinais = document.getElementById('observacoesRelatorio').value;
-  const colunas = obterColunasSelecionadas();
-  const filtrados = filtrarDadosRelatorio();
+function montarHTMLRelatorio() {
+  var titulo = document.getElementById('tituloRelatorio').value || "Relatório Operacional";
+  var subtitulo = document.getElementById('subtituloRelatorio').value;
+  var responsavel = document.getElementById('responsavelRelatorio').value;
+  var obsFinais = document.getElementById('observacoesRelatorio').value;
+  var colunas = obterColunasSelecionadas();
+  var filtrados = filtrarDadosRelatorio();
 
-  const agora = new Date();
-  const dataEmissao = agora.toLocaleDateString('pt-BR') + " às " + agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+  var agora = new Date();
+  var dataEmissao = agora.toLocaleDateString('pt-BR') + " às " + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-  const total = filtrados.length;
-  const semOcorr = filtrados.filter(d => classificarOcorrencia(d.ocorrencia) === "ok").length;
-  const passagem = filtrados.filter(d => classificarOcorrencia(d.ocorrencia) === "bad").length;
-  const outras = total - semOcorr - passagem;
-  const veiculos = new Set(filtrados.map(d => d.carro)).size;
-  const agentes = new Set(filtrados.map(d => d.agente).filter(a => a && a !== "Não há")).size;
+  var total = filtrados.length;
+  var semOcorr = filtrados.filter(function(d) { return classificarOcorrencia(d.ocorrencia) === "ok"; }).length;
+  var passagem = filtrados.filter(function(d) { return classificarOcorrencia(d.ocorrencia) === "bad"; }).length;
+  var outras = total - semOcorr - passagem;
+  var veiculos = new Set(filtrados.map(function(d) { return d.carro; })).size;
+  var agentes = new Set(filtrados.map(function(d) { return d.agente; }).filter(function(a) { return a && a !== "Não há"; })).size;
 
-  let thead = "<tr>";
-  colunas.forEach(c => { thead += `<th>${LABELS_COLUNAS[c] || c}</th>`; });
+  var thead = "<tr>";
+  for (var i = 0; i < colunas.length; i++) thead += "<th>" + (LABELS_COLUNAS[colunas[i]] || colunas[i]) + "</th>";
   thead += "</tr>";
 
-  let tbody = "";
+  var tbody = "";
   if (!filtrados.length) {
-    tbody = `<tr><td colspan="${colunas.length}" style="text-align:center;padding:20px;color:#666;">Nenhum registro encontrado com os filtros selecionados.</td></tr>`;
+    tbody = '<tr><td colspan="' + colunas.length + '" style="text-align:center;padding:20px;color:#666;">Nenhum registro encontrado com os filtros selecionados.</td></tr>';
   } else {
-    filtrados.forEach(d => {
+    for (var r = 0; r < filtrados.length; r++) {
       tbody += "<tr>";
-      colunas.forEach(c => {
-        let val = (d[c] !== undefined && d[c] !== null && d[c] !== "") ? d[c] : "—";
-        if (c === 'data' && val !== "—") {
-          const [a,m,dia] = val.split("-");
-          val = `${dia}/${m}/${a}`;
+      for (var c = 0; c < colunas.length; c++) {
+        var col = colunas[c];
+        var val = (filtrados[r][col] !== undefined && filtrados[r][col] !== null && filtrados[r][col] !== "") ? filtrados[r][col] : "—";
+        if (col === 'data' && val !== "—") {
+          var partes = val.split("-");
+          val = partes[2] + "/" + partes[1] + "/" + partes[0];
         }
-        tbody += `<td>${val}</td>`;
-      });
+        tbody += "<td>" + val + "</td>";
+      }
       tbody += "</tr>";
-    });
+    }
   }
 
-  return `
-    <div style="font-family:Arial,Helvetica,sans-serif;color:#000;padding:10px;">
-      <div style="border-bottom:3px solid #0f172a;padding-bottom:10px;margin-bottom:16px;">
-        <h1 style="font-size:18px;margin:0 0 4px 0;color:#0f172a;">${titulo}</h1>
-        ${subtitulo ? `<p style="margin:0;font-size:12px;color:#444;">${subtitulo}</p>` : ''}
-        <p style="margin:4px 0 0 0;font-size:11px;color:#666;">
-          Emitido em: ${dataEmissao}${responsavel ? " — Responsável: " + responsavel : ''}
-        </p>
-      </div>
-
-      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-        <div style="flex:1;min-width:110px;border:1px solid #ccc;border-radius:6px;padding:8px;text-align:center;">
-          <div style="font-size:10px;color:#666;text-transform:uppercase;">Total</div>
-          <div style="font-size:20px;font-weight:bold;">${total}</div>
-        </div>
-        <div style="flex:1;min-width:110px;border:1px solid #ccc;border-radius:6px;padding:8px;text-align:center;">
-          <div style="font-size:10px;color:#666;text-transform:uppercase;">Sem ocorrências</div>
-          <div style="font-size:20px;font-weight:bold;color:#16a34a;">${semOcorr}</div>
-        </div>
-        <div style="flex:1;min-width:110px;border:1px solid #ccc;border-radius:6px;padding:8px;text-align:center;">
-          <div style="font-size:10px;color:#666;text-transform:uppercase;">Passagem não solicitada</div>
-          <div style="font-size:20px;font-weight:bold;color:#dc2626;">${passagem}</div>
-        </div>
-        <div style="flex:1;min-width:110px;border:1px solid #ccc;border-radius:6px;padding:8px;text-align:center;">
-          <div style="font-size:10px;color:#666;text-transform:uppercase;">Outras</div>
-          <div style="font-size:20px;font-weight:bold;color:#d97706;">${outras}</div>
-        </div>
-        <div style="flex:1;min-width:110px;border:1px solid #ccc;border-radius:6px;padding:8px;text-align:center;">
-          <div style="font-size:10px;color:#666;text-transform:uppercase;">Veículos</div>
-          <div style="font-size:20px;font-weight:bold;">${veiculos}</div>
-        </div>
-        <div style="flex:1;min-width:110px;border:1px solid #ccc;border-radius:6px;padding:8px;text-align:center;">
-          <div style="font-size:10px;color:#666;text-transform:uppercase;">Agentes</div>
-          <div style="font-size:20px;font-weight:bold;">${agentes}</div>
-        </div>
-      </div>
-
-      <table style="width:100%;border-collapse:collapse;font-size:10px;">
-        <thead>
-          <tr style="background:#0f172a;color:#fff;">
-            ${thead.replace(/<th>/g, '<th style="padding:6px 5px;text-align:left;border:1px solid #333;">')}
-          </tr>
-        </thead>
-        <tbody>
-          ${tbody.replace(/<td>/g, '<td style="padding:5px;border:1px solid #ccc;vertical-align:top;">')}
-        </tbody>
-      </table>
-
-      ${obsFinais ? `<div style="margin-top:16px;padding:10px;border:1px solid #ccc;border-radius:6px;background:#f9f9f9;">
-        <strong style="font-size:11px;">Observações:</strong>
-        <p style="margin:4px 0 0 0;font-size:11px;white-space:pre-wrap;">${obsFinais}</p>
-      </div>` : ''}
-
-      <div style="margin-top:20px;padding-top:8px;border-top:1px solid #ccc;font-size:9px;color:#666;text-align:center;">
-        Dashboard Operacional — Frota Atlântico · Relatório gerado automaticamente pelo sistema
-      </div>
-    </div>
-  `;
+  return '<div style="font-family:Arial,Helvetica,sans-serif;color:#000;padding:10px;">' +
+    '<div style="border-bottom:3px solid #0f172a;padding-bottom:10px;margin-bottom:16px;">' +
+      '<h1 style="font-size:18px;margin:0 0 4px 0;color:#0f172a;">' + titulo + '</h1>' +
+      (subtitulo ? '<p style="margin:0;font-size:12px;color:#444;">' + subtitulo + '</p>' : '') +
+      '<p style="margin:4px 0 0 0;font-size:11px;color:#666;">Emitido em: ' + dataEmissao + (responsavel ? ' — Responsável: ' + responsavel : '') + '</p>' +
+    '</div>' +
+    '<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">' +
+      '<div style="flex:1;min-width:110px;border:1px solid #ccc;border-radius:6px;padding:8px;text-align:center;"><div style="font-size:10px;color:#666;text-transform:uppercase;">Total</div><div style="font-size:20px;font-weight:bold;">' + total + '</div></div>' +
+      '<div style="flex:1;min-width:110px;border:1px solid #ccc;border-radius:6px;padding:8px;text-align:center;"><div style="font-size:10px;color:#666;text-transform:uppercase;">Sem ocorrências</div><div style="font-size:20px;font-weight:bold;color:#16a34a;">' + semOcorr + '</div></div>' +
+      '<div style="flex:1;min-width:110px;border:1px solid #ccc;border-radius:6px;padding:8px;text-align:center;"><div style="font-size:10px;color:#666;text-transform:uppercase;">Passagem não solicitada</div><div style="font-size:20px;font-weight:bold;color:#dc2626;">' + passagem + '</div></div>' +
+      '<div style="flex:1;min-width:110px;border:1px solid #ccc;border-radius:6px;padding:8px;text-align:center;"><div style="font-size:10px;color:#666;text-transform:uppercase;">Outras</div><div style="font-size:20px;font-weight:bold;color:#d97706;">' + outras + '</div></div>' +
+      '<div style="flex:1;min-width:110px;border:1px solid #ccc;border-radius:6px;padding:8px;text-align:center;"><div style="font-size:10px;color:#666;text-transform:uppercase;">Veículos</div><div style="font-size:20px;font-weight:bold;">' + veiculos + '</div></div>' +
+      '<div style="flex:1;min-width:110px;border:1px solid #ccc;border-radius:6px;padding:8px;text-align:center;"><div style="font-size:10px;color:#666;text-transform:uppercase;">Agentes</div><div style="font-size:20px;font-weight:bold;">' + agentes + '</div></div>' +
+    '</div>' +
+    '<table style="width:100%;border-collapse:collapse;font-size:10px;">' +
+      '<thead><tr style="background:#0f172a;color:#fff;">' + thead.replace(/<th>/g, '<th style="padding:6px 5px;text-align:left;border:1px solid #333;">') + '</tr></thead>' +
+      '<tbody>' + tbody.replace(/<td>/g, '<td style="padding:5px;border:1px solid #ccc;vertical-align:top;">') + '</tbody>' +
+    '</table>' +
+    (obsFinais ? '<div style="margin-top:16px;padding:10px;border:1px solid #ccc;border-radius:6px;background:#f9f9f9;"><strong style="font-size:11px;">Observações:</strong><p style="margin:4px 0 0 0;font-size:11px;white-space:pre-wrap;">' + obsFinais + '</p></div>' : '') +
+    '<div style="margin-top:20px;padding-top:8px;border-top:1px solid #ccc;font-size:9px;color:#666;text-align:center;">Dashboard Operacional — Frota Atlântico · Relatório gerado automaticamente pelo sistema</div>' +
+  '</div>';
 }
 
-function previsualizarRelatorio(){
-  const html = montarHTMLRelatorio();
+function previsualizarRelatorio() {
+  var html = montarHTMLRelatorio();
   document.getElementById('previewContent').innerHTML = html;
   document.getElementById('previewRelatorio').style.display = 'block';
-  document.getElementById('previewRelatorio').scrollIntoView({behavior:'smooth'});
+  document.getElementById('previewRelatorio').scrollIntoView({ behavior: 'smooth' });
 }
 
-function gerarRelatorioPDF(){
-  const html = montarHTMLRelatorio();
-  const janela = window.open('', '_blank', 'width=1000,height=800');
+function gerarRelatorioPDF() {
+  var html = montarHTMLRelatorio();
+  var janela = window.open('', '_blank', 'width=1000,height=800');
   if (!janela) { alert('Permita pop-ups para gerar o relatório.'); return; }
 
-  janela.document.write(`
-    <!DOCTYPE html>
-    <html lang="pt-BR">
-    <head>
-      <meta charset="UTF-8">
-      <title>Relatório — Frota Atlântico</title>
-      <style>
-        @page { size: A4 landscape; margin: 12mm; }
-        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
-        @media print {
-          .no-print { display: none !important; }
-          body { padding: 0; }
-        }
-        @media screen {
-          body { padding: 20px; background: #e5e7eb; }
-          .page { background: #fff; max-width: 1100px; margin: 0 auto; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="no-print" style="text-align:center;margin-bottom:16px;padding:12px;background:#fff;border-radius:8px;">
-        <button onclick="window.print()" style="background:#22c55e;color:#fff;border:none;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">
-          🖨️ Imprimir / Salvar como PDF
-        </button>
-        <span style="margin-left:12px;font-size:13px;color:#666;">Dica: em "Destino", selecione "Salvar como PDF".</span>
-      </div>
-      <div class="page">${html}</div>
-    </body>
-    </html>
-  `);
+  janela.document.write(
+    '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Relatório — Frota Atlântico</title>' +
+    '<style>' +
+      '@page { size: A4 landscape; margin: 12mm; }' +
+      'body { margin: 0; padding: 0; font-family: Arial, sans-serif; }' +
+      '@media print { .no-print { display: none !important; } body { padding: 0; } }' +
+      '@media screen { body { padding: 20px; background: #e5e7eb; } .page { background: #fff; max-width: 1100px; margin: 0 auto; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,.2); } }' +
+    '</style></head><body>' +
+    '<div class="no-print" style="text-align:center;margin-bottom:16px;padding:12px;background:#fff;border-radius:8px;">' +
+      '<button onclick="window.print()" style="background:#22c55e;color:#fff;border:none;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">Imprimir / Salvar como PDF</button>' +
+      '<span style="margin-left:12px;font-size:13px;color:#666;">Dica: em "Destino", selecione "Salvar como PDF".</span>' +
+    '</div>' +
+    '<div class="page">' + html + '</div>' +
+    '</body></html>'
+  );
   janela.document.close();
   janela.focus();
-  setTimeout(() => janela.print(), 800);
+  setTimeout(function() { janela.print(); }, 800);
 }
 
 /* ============================================================
-   RENDER PRINCIPAL
+   RENDER PRINCIPAL DO DASHBOARD
    ============================================================ */
-function render(){
-  const mes    = document.getElementById("mes").value;
-  const classe = document.getElementById("classe").value;
-  const busca  = document.getElementById("busca").value.trim().toLowerCase();
+function render() {
+  var mes = document.getElementById("mes").value;
+  var classe = document.getElementById("classe").value;
+  var busca = document.getElementById("busca").value.trim().toLowerCase();
 
-  let filtrados = dados.filter(d=>{
-    if(mes !== "all" && !d.data.startsWith(mes)) return false;
-    if(classe !== "all" && d.classe !== classe) return false;
-    if(busca){
-      const blob = `${d.carro} ${d.rota} ${d.motorista} ${d.agente} ${d.ocorrencia} ${d.observacoes}`.toLowerCase();
-      if(!blob.includes(busca)) return false;
+  var filtrados = dados.filter(function(d) {
+    if (mes !== "all" && d.data.indexOf(mes) !== 0) return false;
+    if (classe !== "all" && d.classe !== classe) return false;
+    if (busca) {
+      var blob = (d.carro + " " + d.rota + " " + d.motorista + " " + d.agente + " " + d.ocorrencia + " " + d.observacoes).toLowerCase();
+      if (blob.indexOf(busca) === -1) return false;
     }
     return true;
   });
 
-  const total = filtrados.length;
-  const semOcorr = filtrados.filter(d=>classificarOcorrencia(d.ocorrencia)==="ok").length;
-  const passagem = filtrados.filter(d=>classificarOcorrencia(d.ocorrencia)==="bad").length;
-  const outras   = total - semOcorr - passagem;
-  const veiculos = new Set(filtrados.map(d=>d.carro)).size;
-  const agentes  = new Set(filtrados.map(d=>d.agente).filter(a => a && a !== "Não há")).size;
+  var total = filtrados.length;
+  var semOcorr = filtrados.filter(function(d) { return classificarOcorrencia(d.ocorrencia) === "ok"; }).length;
+  var passagem = filtrados.filter(function(d) { return classificarOcorrencia(d.ocorrencia) === "bad"; }).length;
+  var outras = total - semOcorr - passagem;
+  var veiculos = new Set(filtrados.map(function(d) { return d.carro; })).size;
+  var agentes = new Set(filtrados.map(function(d) { return d.agente; }).filter(function(a) { return a && a !== "Não há"; })).size;
 
-  document.getElementById("kpis").innerHTML = `
-    <div class="kpi"><div class="label">Total de registros</div><div class="value accent">${total}</div></div>
-    <div class="kpi"><div class="label">Sem ocorrências</div><div class="value green">${semOcorr}</div></div>
-    <div class="kpi"><div class="label">Passagem não solicitada</div><div class="value red">${passagem}</div></div>
-    <div class="kpi"><div class="label">Outras ocorrências</div><div class="value yellow">${outras}</div></div>
-    <div class="kpi"><div class="label">Veículos distintos</div><div class="value">${veiculos}</div></div>
-    <div class="kpi"><div class="label">Agentes ativos</div><div class="value">${agentes}</div></div>
-  `;
+  document.getElementById("kpis").innerHTML =
+    '<div class="kpi"><div class="label">Total de registros</div><div class="value accent">' + total + '</div></div>' +
+    '<div class="kpi"><div class="label">Sem ocorrências</div><div class="value green">' + semOcorr + '</div></div>' +
+    '<div class="kpi"><div class="label">Passagem não solicitada</div><div class="value red">' + passagem + '</div></div>' +
+    '<div class="kpi"><div class="label">Outras ocorrências</div><div class="value yellow">' + outras + '</div></div>' +
+    '<div class="kpi"><div class="label">Veículos distintos</div><div class="value">' + veiculos + '</div></div>' +
+    '<div class="kpi"><div class="label">Agentes ativos</div><div class="value">' + agentes + '</div></div>';
 
-  renderBars("chartOcorrencias", contar(filtrados, "ocorrencia"), (nome)=>{
-    const c = classificarOcorrencia(nome);
-    return c==="ok" ? "#22c55e" : c==="bad" ? "#ef4444" : c==="warn" ? "#f59e0b" : "#64748b";
+  renderBars("chartOcorrencias", contar(filtrados, "ocorrencia"), function(nome) {
+    var c = classificarOcorrencia(nome);
+    return c === "ok" ? "#22c55e" : c === "bad" ? "#ef4444" : c === "warn" ? "#f59e0b" : "#64748b";
   });
 
-  renderBars("chartClasse", contar(filtrados, "classe"), (nome)=> {
+  renderBars("chartClasse", contar(filtrados, "classe"), function(nome) {
     if (nome === "Executivo") return "#38bdf8";
     if (nome === "Urbano") return "#a78bfa";
     if (nome === "Micro") return "#f59e0b";
     return "#64748b";
   });
 
-  renderBars("chartMotoristas", contar(filtrados.filter(d=>d.motorista!=="—"), "motorista").slice(0,10));
-  renderBars("chartAgentes", contar(filtrados.filter(d=>d.agente !== "Não há"), "agente").slice(0,10), ()=> "#10b981");
+  renderBars("chartMotoristas", contar(filtrados.filter(function(d) { return d.motorista !== "—"; }), "motorista").slice(0, 10));
+  renderBars("chartAgentes", contar(filtrados.filter(function(d) { return d.agente !== "Não há"; }), "agente").slice(0, 10), function() { return "#10b981"; });
 
-  document.getElementById("count").textContent = `${total} registro(s)`;
-  const tbody = document.getElementById("tbody");
+  document.getElementById("count").textContent = total + " registro(s)";
+  var tbody = document.getElementById("tbody");
 
-  if(!filtrados.length){
-    tbody.innerHTML = `<tr><td colspan="8" class="empty">Nenhum registro encontrado com os filtros atuais.</td></tr>`;
+  if (!filtrados.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty">Nenhum registro encontrado com os filtros atuais.</td></tr>';
     return;
   }
 
-  tbody.innerHTML = filtrados.map(d => {
-    const cls = classificarOcorrencia(d.ocorrencia);
-    const tagClass = cls === "ok" ? "ok" : cls === "bad" ? "bad" : cls === "warn" ? "warn" : "neutral";
-    const tagLabel = cls === "ok" ? "OK" : cls === "bad" ? "Crítico" : cls === "warn" ? "Atenção" : "Neutro";
+  tbody.innerHTML = filtrados.map(function(d) {
+    var cls = classificarOcorrencia(d.ocorrencia);
+    var tagClass = cls === "ok" ? "ok" : cls === "bad" ? "bad" : cls === "warn" ? "warn" : "neutral";
+    var tagLabel = cls === "ok" ? "OK" : cls === "bad" ? "Crítico" : cls === "warn" ? "Atenção" : "Neutro";
 
-    const horaSaidaExibir = d.horaSaida && d.horaSaida.trim() !== "" ? d.horaSaida : "—";
-    const horaOcorrenciaExibir = d.horaOcorrencia && d.horaOcorrencia.trim() !== "" ? d.horaOcorrencia : "—";
+    var horaSaidaExibir = (d.horaSaida && d.horaSaida.trim() !== "") ? d.horaSaida : "—";
+    var horaOcorrenciaExibir = (d.horaOcorrencia && d.horaOcorrencia.trim() !== "") ? d.horaOcorrencia : "—";
 
-    return `<tr>
-      <td>${formatarData(d.data)}</td>
-      <td><strong>${d.carro}</strong><div class="meta-sub">${d.rota}</div></td>
-      <td><span class="tag neutral">${d.classe}</span></td>
-      <td>${d.motorista}</td>
-      <td>${d.agente}</td>
-      <td>
-        <div class="meta-sub">Saída: ${horaSaidaExibir}</div>
-        <div class="meta-sub">Ocorr.: ${horaOcorrenciaExibir}</div>
-      </td>
-      <td>
-        <span class="tag ${tagClass}">${tagLabel}</span>
-        <div>${d.ocorrencia}</div>
-        ${d.observacoes ? `<div class="obs-text">${d.observacoes}</div>` : ''}
-      </td>
-      <td>
-        <div class="actions">
-          <button class="btn btn-edit" onclick="editarRegistro('${d.id}')">✏️ Editar</button>
-          <button class="btn btn-delete" onclick="excluirRegistro('${d.id}')">🗑️ Excluir</button>
-        </div>
-      </td>
-    </tr>`;
+    return '<tr>' +
+      '<td>' + formatarData(d.data) + '</td>' +
+      '<td><strong>' + d.carro + '</strong><div class="meta-sub">' + d.rota + '</div></td>' +
+      '<td><span class="tag neutral">' + d.classe + '</span></td>' +
+      '<td>' + d.motorista + '</td>' +
+      '<td>' + d.agente + '</td>' +
+      '<td><div class="meta-sub">Saída: ' + horaSaidaExibir + '</div><div class="meta-sub">Ocorr.: ' + horaOcorrenciaExibir + '</div></td>' +
+      '<td><span class="tag ' + tagClass + '">' + tagLabel + '</span><div>' + d.ocorrencia + '</div>' +
+        (d.observacoes ? '<div class="obs-text">' + d.observacoes + '</div>' : '') + '</td>' +
+      '<td><div class="actions">' +
+        '<button class="btn btn-edit" onclick="editarRegistro(\'' + d.id + '\')">Editar</button>' +
+        '<button class="btn btn-delete" onclick="excluirRegistro(\'' + d.id + '\')">Excluir</button>' +
+      '</div></td>' +
+    '</tr>';
   }).join("");
 }
 
 function formatarData(iso) {
   if (!iso) return "—";
-  const [ano, mes, dia] = iso.split("-");
-  return `${dia}/${mes}/${ano}`;
+  var partes = iso.split("-");
+  if (partes.length !== 3) return iso;
+  return partes[2] + "/" + partes[1] + "/" + partes[0];
 }
 
-document.getElementById("mes").addEventListener("change", render);
-document.getElementById("classe").addEventListener("change", render);
-document.getElementById("busca").addEventListener("input", render);
-document.getElementById("limpar").addEventListener("click", () => {
-  document.getElementById("mes").value = "all";
-  document.getElementById("classe").value = "all";
-  document.getElementById("busca").value = "";
+/* ============================================================
+   INICIALIZACAO
+   ============================================================ */
+function popularSelectRotas() {
+  var select = document.getElementById('novoRota');
+  // Mantem a primeira opcao placeholder
+  var placeholder = select.querySelector('option[value=""]');
+  select.innerHTML = '';
+  select.appendChild(placeholder);
+  for (var i = 0; i < ROTAS.length; i++) {
+    var opt = document.createElement('option');
+    opt.value = ROTAS[i];
+    opt.textContent = ROTAS[i];
+    select.appendChild(opt);
+  }
+}
+
+function inicializar() {
+  carregarDados();
+  popularSelectRotas();
+
+  // Listener de filtros
+  document.getElementById("mes").addEventListener("change", render);
+  document.getElementById("classe").addEventListener("change", render);
+  document.getElementById("busca").addEventListener("input", render);
+  document.getElementById("limpar").addEventListener("click", function() {
+    document.getElementById("mes").value = "all";
+    document.getElementById("classe").value = "all";
+    document.getElementById("busca").value = "";
+    render();
+  });
+
+  var relMes = document.getElementById('relMes');
+  var relClasse = document.getElementById('relClasse');
+  if (relMes) relMes.addEventListener('change', sincronizarSubtituloRelatorio);
+  if (relClasse) relClasse.addEventListener('change', sincronizarSubtituloRelatorio);
+
+  ajustarAgentePorClasse();
   render();
-});
+  sincronizarSubtituloRelatorio();
+}
 
-['relMes','relClasse'].forEach(id => {
-  document.getElementById(id).addEventListener('change', sincronizarSubtituloRelatorio);
-});
-
-ajustarAgentePorClasse();
-render();
-sincronizarSubtituloRelatorio();
+// Executa quando o DOM estiver pronto
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', inicializar);
+} else {
+  inicializar();
+}
 </script>
 </body>
 </html>
