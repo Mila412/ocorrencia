@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Operacional — Frota Atlântico</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#0f172a; --card:#1e293b; --card2:#243449; --txt:#e2e8f0;
+    --muted:#94a3b8; --accent:#38bdf8; --green:#22c55e; --red:#ef4444;
+    --yellow:#f59e0b; --purple:#a78bfa; --border:#334155;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt);padding:24px;line-height:1.5;}
+  h1{font-size:1.6rem;margin-bottom:4px}
+  .sub{color:var(--muted);font-size:.9rem;margin-bottom:20px}
+
+  .tabs{display:flex;gap:8px;margin-bottom:24px;border-bottom:1px solid var(--border);padding-bottom:12px;overflow-x:auto;}
+  .tab-btn{background:var(--card);color:var(--muted);border:1px solid var(--border);padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;font-size:.95rem;transition:all 0.2s;white-space:nowrap;}
+  .tab-btn.active{background:var(--accent);color:#0f172a;border-color:var(--accent);}
+  .tab-content{display:none}
+  .tab-content.active{display:block}
+
+  .filters{display:flex;flex-wrap:wrap;gap:12px;background:var(--card);padding:16px;border-radius:12px;border:1px solid var(--border);margin-bottom:24px;align-items:center;}
+  .filters label{font-size:.85rem;color:var(--muted);margin-right:4px}
+  .filters select,.filters input{background:var(--card2);color:var(--txt);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:.9rem;outline:none;}
+  .filters select:focus,.filters input:focus{border-color:var(--accent)}
+  .filters input{flex:1;min-width:180px}
+  .btn{background:var(--accent);color:#0f172a;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;font-size:.9rem;transition:opacity .15s;}
+  .btn:hover{opacity:.85}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn-danger{background:var(--red);color:#fff;margin-left:auto}
+  .btn-secondary{background:var(--card2);color:var(--txt);border:1px solid var(--border)}
+  .btn-success{background:var(--green);color:#0f172a}
+  .btn-small{padding:5px 10px;font-size:.78rem;border-radius:6px}
+
+  .form-panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;max-width:700px;margin:0 auto;}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+  .form-group{display:flex;flex-direction:column;gap:6px}
+  .form-group.full{grid-column:span 2}
+  .form-group label{font-size:.85rem;color:var(--muted);font-weight:600}
+  .form-group .opcional{font-weight:400;color:#64748b;font-size:.78rem}
+  .form-group input,.form-group select,.form-group textarea{background:var(--card2);color:var(--txt);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:.95rem;outline:none;font-family:inherit;}
+  .form-group textarea{resize:vertical;min-height:90px;}
+  .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent)}
+  .form-group input:disabled{opacity:.6;cursor:not-allowed}
+  .form-group select{width:100%}
+  .msg-sucesso{background:rgba(34,197,94,.15);color:var(--green);padding:10px;border-radius:8px;margin-bottom:16px;font-size:.9rem;text-align:center;display:none;}
+  .form-aviso-edicao{background:rgba(245,158,11,.15);color:var(--yellow);padding:10px;border-radius:8px;margin-bottom:16px;font-size:.9rem;text-align:center;display:none;}
+
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px;}
+  .kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;}
+  .kpi .label{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .kpi .value{font-size:1.8rem;font-weight:700;margin-top:6px}
+  .kpi .value.green{color:var(--green)}
+  .kpi .value.red{color:var(--red)}
+  .kpi .value.yellow{color:var(--yellow)}
+  .kpi .value.accent{color:var(--accent)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;margin-bottom:24px;}
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;}
+  .panel h2{font-size:1rem;margin-bottom:14px;color:var(--accent)}
+
+  .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:.85rem}
+  .bar-row .name{width:130px;flex-shrink:0;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .bar-track{flex:1;background:var(--card2);border-radius:6px;height:18px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:6px;transition:width .4s}
+  .bar-row .qty{width:36px;text-align:right;font-weight:600}
+
+  .table-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .table-head{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--border);}
+  .table-head h2{font-size:1rem;color:var(--accent)}
+  .table-head .count{font-size:.8rem;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:.85rem}
+  thead{background:var(--card2)}
+  th{text-align:left;padding:10px 14px;color:var(--muted);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;position:sticky;top:0;}
+  td{padding:10px 14px;border-top:1px solid var(--border);vertical-align:top}
+  tbody tr:hover{background:var(--card2)}
+  .tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.75rem;font-weight:600;margin-bottom:4px;}
+  .tag.ok{background:rgba(34,197,94,.15);color:var(--green)}
+  .tag.bad{background:rgba(239,68,68,.15);color:var(--red)}
+  .tag.warn{background:rgba(245,158,11,.15);color:var(--yellow)}
+  .tag.neutral{background:rgba(148,163,184,.15);color:var(--muted)}
+  .meta-sub{font-size:.78rem;color:var(--muted);margin-top:2px;}
+  .obs-text{font-size:.8rem;color:var(--muted);margin-top:4px;white-space:pre-wrap;}
+  .empty{padding:30px;text-align:center;color:var(--muted)}
+  .scroll{max-height:520px;overflow:auto}
+  .actions{display:flex;gap:6px;flex-wrap:wrap}
+  .actions .btn{padding:5px 10px;font-size:.78rem}
+  .btn-edit{background:var(--yellow);color:#0f172a;}
+  .btn-delete{background:var(--red);color:#fff;}
+
+  .chart-area{background:var(--card2);border-radius:12px;padding:16px;display:flex;justify-content:center;align-items:center;min-height:360px;overflow:auto;}
+  .chart-area canvas{max-width:100%;height:auto}
+  .chart-config{display:flex;flex-wrap:wrap;gap:12px;align-items:center;background:var(--card2);padding:14px;border-radius:10px;margin-bottom:16px;}
+  .chart-config label{font-size:.85rem;color:var(--muted)}
+  .chart-config select{background:var(--card);color:var(--txt);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:.9rem;outline:none;}
+  .chart-config select:disabled{opacity:.45;cursor:not-allowed}
+
+  .detalhe-table{margin-top:16px;background:var(--card2);border-radius:10px;padding:14px;font-size:.85rem;}
+  .detalhe-table h3{font-size:.9rem;color:var(--accent);margin-bottom:10px;font-weight:600}
+  .detalhe-table table{width:100%;border-collapse:collapse;font-size:.8rem}
+  .detalhe-table th{background:var(--card);padding:8px;text-align:left;font-size:.72rem;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)}
+  .detalhe-table td{padding:6px 8px;border-bottom:1px solid var(--border)}
+  .detalhe-table tr:last-child td{border-bottom:none}
+  .detalhe-table .cor-dot{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle}
+  .detalhe-table .total-badge{background:var(--accent);color:#0f172a;padding:1px 8px;border-radius:10px;font-weight:700;font-size:.75rem}
+
+  .report-config .form-grid{grid-template-columns:1fr 1fr}
+  .checkbox-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-top:6px;}
+  .checkbox-grid label{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--txt);font-weight:400;background:var(--card2);padding:8px 10px;border-radius:8px;border:1px solid var(--border);cursor:pointer;}
+  .checkbox-grid input{accent-color:var(--accent)}
+  .report-preview-note{font-size:.8rem;color:var(--muted);margin-top:8px;line-height:1.4;}
+
+  #loader{display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:9998;align-items:center;justify-content:center;color:#38bdf8;font-size:1.2rem;font-weight:600;}
+
+  @media(max-width:600px){
+    body{padding:12px}
+    .form-grid{grid-template-columns:1fr}
+    .form-group.full{grid-column:span 1}
+    .bar-row .name{width:90px}
+    th,td{padding:8px}
+    .report-config .form-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<h1>&#128652; Dashboard Operacional &mdash; Frota Atlântico</h1>
+<p class="sub">Gestão de Registros, Ocorrências, Agentes e Relatórios Customizados</p>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="mudarAba('dashboard')">&#128202; Dashboard &amp; Relatórios</button>
+  <button class="tab-btn" onclick="mudarAba('cadastro')">&#10133; Inserir Novo Dado</button>
+  <button class="tab-btn" onclick="mudarAba('gerador-graficos')">&#128200; Módulo de Gráficos Customizados</button>
+  <button class="tab-btn" onclick="mudarAba('relatorio-pdf')">&#128424; Relatório PDF</button>
+</div>
+
+<!-- ABA 1: DASHBOARD -->
+<div id="tab-dashboard" class="tab-content active">
+  <div class="filters">
+    <label for="mes">Mês:</label>
+    <select id="mes">
+      <option value="all">Todos</option>
+      <option value="2026-08">Agosto/2026</option>
+      <option value="2026-09">Setembro/2026</option>
+      <option value="2026-10">Outubro/2026</option>
+      <option value="2026-11">Novembro/2026</option>
+      <option value="2026-12">Dezembro/2026</option>
+    </select>
+    <label for="classe">Classe:</label>
+    <select id="classe">
+      <option value="all">Todas</option>
+      <option value="Executivo">Executivo</option>
+      <option value="Urbano">Urbano</option>
+      <option value="Micro">Micro</option>
+    </select>
+    <label for="busca">Buscar:</label>
+    <input id="busca" type="text" placeholder="Carro, rota, motorista, agente ou ocorrência...">
+    <button class="btn" id="limpar">Limpar filtros</button>
+    <button class="btn btn-secondary" onclick="recarregarDoBanco()" title="Sincronizar com o banco">&#128260; Atualizar</button>
+    <button class="btn btn-danger" onclick="resetarDadosPadrao()" title="Restaurar dados iniciais">Restaurar Padrão</button>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="grid">
+    <div class="panel"><h2>Ocorrências</h2><div id="chartOcorrencias"></div></div>
+    <div class="panel"><h2>Distribuição por Classe</h2><div id="chartClasse"></div></div>
+    <div class="panel"><h2>Motoristas</h2><div id="chartMotoristas"></div></div>
+    <div class="panel"><h2>Agente Cobrador</h2><div id="chartAgentes"></div></div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-head">
+      <h2>Registros detalhados</h2>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th><th>Carro / Rota</th><th>Classe</th><th>Motorista</th>
+            <th>Agente</th><th>Horários</th><th>Ocorrência &amp; Observações</th><th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ABA 2: INSERÇÃO / EDIÇÃO -->
+<div id="tab-cadastro" class="tab-content">
+  <div class="form-panel">
+    <h2 id="tituloFormulario">Cadastrar Novo Registro na Frota</h2>
+    <p class="sub" style="margin-bottom:16px;" id="subtituloFormulario">Preencha os campos abaixo com os dados operacionais, horários e observações.</p>
+    <div id="msgSucesso" class="msg-sucesso">Registro adicionado com sucesso! O dashboard foi atualizado.</div>
+    <div id="msgEdicao" class="form-aviso-edicao">Você está editando um registro existente. Altere os campos e clique em "Salvar Alterações".</div>
+
+    <form id="formCadastro" onsubmit="salvarNovoRegistro(event)">
+      <input type="hidden" id="editandoId" value="">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="novoData">Data da Ocorrência *</label>
+          <input type="date" id="novoData" required>
+        </div>
+        <div class="form-group">
+          <label for="novoCarro">Número do Carro *</label>
+          <input type="text" id="novoCarro" placeholder="Ex: 882318" required>
+        </div>
+        <div class="form-group">
+          <label for="novoRota">Rota *</label>
+          <select id="novoRota" required><option value="">— Selecione a rota —</option></select>
+        </div>
+        <div class="form-group">
+          <label for="novoClasse">Classe do Veículo *</label>
+          <select id="novoClasse" required onchange="ajustarAgentePorClasse()">
+            <option value="Executivo">Executivo</option>
+            <option value="Urbano">Urbano</option>
+            <option value="Micro">Micro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="novoHoraSaida">Horário de Saída <span class="opcional">(opcional)</span></label>
+          <input type="time" id="novoHoraSaida">
+        </div>
+        <div class="form-group">
+          <label for="novoMotorista">Motorista</label>
+          <input type="text" id="novoMotorista" placeholder="Ex: Lazaro (ou deixe —)">
+        </div>
+        <div class="form-group">
+          <label for="novoAgente">Agente Responsável *</label>
+          <input type="text" id="novoAgente" placeholder="Ex: Carlos Silva" required>
+        </div>
+        <div class="form-group">
+          <label for="novoOcorrencia">Tipo de Ocorrência Principal *</label>
+          <input type="text" id="novoOcorrencia" placeholder="Ex: Passagem não solicitada" required>
+        </div>
+        <div class="form-group">
+          <label for="novoHoraOcorrencia">Horário da Ocorrência *</label>
+          <input type="time" id="novoHoraOcorrencia" required>
+        </div>
+        <div class="form-group full">
+          <label for="novoObservacoes">Observações Detalhadas</label>
+          <textarea id="novoObservacoes" placeholder="Descreva aqui todas as observações, detalhes adicionais ou notas operacionais..."></textarea>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;">
+        <button type="submit" class="btn" style="flex:1;padding:12px;font-size:1rem;" id="btnSalvar">Salvar e Enviar para o Dashboard</button>
+        <button type="button" class="btn btn-secondary" style="padding:12px;font-size:1rem;display:none;" id="btnCancelarEdicao" onclick="cancelarEdicao()">Cancelar Edição</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ABA 3: GRÁFICOS CUSTOMIZADOS -->
+<div id="tab-gerador-graficos" class="tab-content">
+  <div class="form-panel" style="max-width:980px;">
+    <h2>Módulo de Geração de Gráficos</h2>
+    <p class="sub" style="margin-bottom:16px;">Selecione o critério e o tipo de gráfico desejado para gerar visualizações dinâmicas.</p>
+    <div class="chart-config">
+      <label for="parametroGrafico">Agrupar por:</label>
+      <select id="parametroGrafico" onchange="gerarGraficoCustomizado()">
+        <option value="ocorrencia">Tipos de Ocorrências</option>
+        <option value="rota">Rotas</option>
+        <option value="classe">Classes de Veículos</option>
+        <option value="motorista">Motoristas</option>
+        <option value="agente">Agentes Responsáveis</option>
+        <option value="carro">Veículos (Carros)</option>
+        <option value="mes">Mês</option>
+      </select>
+      <label for="tipoGrafico">Tipo de gráfico:</label>
+      <select id="tipoGrafico" onchange="gerarGraficoCustomizado()">
+        <option value="barras">Barras Horizontais</option>
+        <option value="colunas">Colunas Verticais</option>
+        <option value="pizza">Pizza</option>
+        <option value="rosca">Rosca (Donut)</option>
+        <option value="motoristaOcorrencia">Ocorrências por Motorista (Detalhado)</option>
+      </select>
+      <button class="btn btn-secondary" onclick="baixarGraficoPNG()">Baixar PNG</button>
+    </div>
+    <div class="panel">
+      <h2 id="tituloGraficoCustomizado">Gráfico: Tipos de Ocorrências</h2>
+      <div class="chart-area" id="chartArea"><canvas id="canvasCustom" width="900" height="440"></canvas></div>
+      <div id="legendaCustom" style="margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;"></div>
+      <div id="detalheMotoristaOcorrencia" class="detalhe-table" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ABA 4: RELATÓRIO PDF -->
+<div id="tab-relatorio-pdf" class="tab-content">
+  <div class="form-panel report-config" style="max-width:900px;">
+    <h2>Relatório Personalizado para Impressão / PDF</h2>
+    <p class="sub" style="margin-bottom:16px;">Configure o relatório com base nos filtros e escolha as colunas a serem impressas.</p>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label for="tituloRelatorio">Título do Relatório</label>
+        <input type="text" id="tituloRelatorio" value="Relatório Operacional — Frota Atlântico">
+      </div>
+      <div class="form-group">
+        <label for="subtituloRelatorio">Subtítulo / Período</label>
+        <input type="text" id="subtituloRelatorio" placeholder="Ex: Período: Agosto/2026 — Classe: Urbano">
+      </div>
+      <div class="form-group">
+        <label for="responsavelRelatorio">Responsável / Emitido por</label>
+        <input type="text" id="responsavelRelatorio" placeholder="Ex: Nome do gestor">
+      </div>
+    </div>
+    <div class="form-group full" style="margin-bottom:16px;">
+      <label>Colunas a incluir no relatório</label>
+      <div class="checkbox-grid" id="colunasRelatorio">
+        <label><input type="checkbox" value="data" checked> Data</label>
+        <label><input type="checkbox" value="carro" checked> Carro</label>
+        <label><input type="checkbox" value="rota" checked> Rota</label>
+        <label><input type="checkbox" value="classe" checked> Classe</label>
+        <label><input type="checkbox" value="motorista" checked> Motorista</label>
+        <label><input type="checkbox" value="agente" checked> Agente</label>
+        <label><input type="checkbox" value="horaSaida" checked> Hora Saída</label>
+        <label><input type="checkbox" value="horaOcorrencia" checked> Hora Ocorrência</label>
+        <label><input type="checkbox" value="ocorrencia" checked> Ocorrência</label>
+        <label><input type="checkbox" value="observacoes" checked> Observações</label>
+      </div>
+    </div>
+    <div class="form-group full" style="margin-bottom:16px;">
+      <label for="observacoesRelatorio">Observações Finais do Relatório</label>
+      <textarea id="observacoesRelatorio" placeholder="Texto que aparecerá no rodapé do relatório..."></textarea>
+    </div>
+    <div class="filters" style="margin-bottom:16px;">
+      <label for="relMes">Mês:</label>
+      <select id="relMes">
+        <option value="all">Todos</option>
+        <option value="2026-08">Agosto/2026</option>
+        <option value="2026-09">Setembro/2026</option>
+        <option value="2026-10">Outubro/2026</option>
+        <option value="2026-11">Novembro/2026</option>
+        <option value="2026-12">Dezembro/2026</option>
+      </select>
+      <label for="relClasse">Classe:</label>
+      <select id="relClasse">
+        <option value="all">Todas</option>
+        <option value="Executivo">Executivo</option>
+        <option value="Urbano">Urbano</option>
+        <option value="Micro">Micro</option>
+      </select>
+      <label for="relBusca">Busca:</label>
+      <input id="relBusca" type="text" placeholder="Filtrar registros...">
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <button class="btn btn-success" style="flex:1;padding:12px;font-size:1rem;" onclick="gerarRelatorioPDF()">Gerar Relatório (Imprimir / Salvar PDF)</button>
+      <button class="btn btn-secondary" style="padding:12px;font-size:1rem;" onclick="previsualizarRelatorio()">Pré-visualizar</button>
+    </div>
+    <p class="report-preview-note">Dica: ao abrir a janela de impressão, escolha <strong>"Salvar como PDF"</strong>. Formato A4 paisagem.</p>
+    <div id="previewRelatorio" style="margin-top:20px;display:none;">
+      <h3 style="color:var(--accent);margin-bottom:10px;">Pré-visualização</h3>
+      <div id="previewContent" style="background:#fff;color:#000;padding:20px;border-radius:8px;font-family:Arial,sans-serif;font-size:12px;overflow:auto;"></div>
+    </div>
+  </div>
+</div>
+
+<div id="loader">Carregando...</div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   1) CONFIGURAÇÃO SUPABASE — SUBSTITUA AQUI
+   ============================================================ */
+var SUPABASE_URL = "https://SEU-PROJETO.supabase.co";
+var SUPABASE_ANON_KEY = "SUA_ANON_KEY_AQUI";
+
+var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* ============================================================
+   2) ROTAS E DADOS INICIAIS
+   ============================================================ */
+var ROTAS = [
+  "138.MIC - Salvador X Praia do Forte",
+  "18A.MIC - Salvador X Imbassaí",
+  "138ROD - Calçada X Praia do Forte",
+  "415 - Calçada X Porto de Sauipe",
+  "415.MIC - Salvador X Porto de Sauipe",
+  "415E - Camaçari X Porto de Sauipe",
+  "625A2 - Salvador X Rio Real",
+  "624A - Salvador X Sítio do Conde",
+  "626 - Salvador X Itanhi",
+  "629 - Salvador X Subauma",
+  "802 - Salvador X S.F. do Conde",
+  "138 - Praia do Forte X Term. Aeroporto",
+  "857I - Arembepe X Term. Aeroporto",
+  "857A - Cto.dos Passaros X Term. Aeroporto",
+  "048 - S.Sebastião X Term. Águas Claras",
+  "807 - Monte Gordo X Term. Aeroporto"
+];
+
+var dadosIniciais = [
+  {data:"2026-08-03", carro:"8824140", rota:"048 - S.Sebastião X Term. Águas Claras", classe:"Urbano", horaSaida:"06:00", horaOcorrencia:"07:15", motorista:"Lazaro", agente:"Não há", ocorrencia:"Sem ocorrências", observacoes:"Viagem realizada dentro da normalidade."},
+  {data:"2026-08-03", carro:"882318", rota:"415 - Calçada X Porto de Sauipe", classe:"Executivo", horaSaida:"08:30", horaOcorrencia:"09:10", motorista:"Lazaro", agente:"Carlos Silva", ocorrencia:"Passagem não solicitada", observacoes:"Passageiro sinalizou em cima da hora, motorista seguiu viagem regulamentar."},
+  {data:"2026-08-07", carro:"882408", rota:"138.MIC - Salvador X Praia do Forte", classe:"Urbano", horaSaida:"", horaOcorrencia:"14:20", motorista:"Elmo", agente:"Não há", ocorrencia:"Sem maiores ocorrências", observacoes:"Horário de saída não registrado pelo agente."},
+  {data:"2026-09-10", carro:"882570", rota:"807 - Monte Gordo X Term. Aeroporto", classe:"Urbano", horaSaida:"10:15", horaOcorrencia:"11:05", motorista:"Elmo", agente:"Não há", ocorrencia:"Passou direto do ponto", observacoes:"Relato de passageiro de que o ônibus não parou no abrigo sinalizado."},
+  {data:"2026-09-11", carro:"882570", rota:"857I - Arembepe X Term. Aeroporto", classe:"Urbano", horaSaida:"14:00", horaOcorrencia:"15:30", motorista:"Elmo", agente:"Não há", ocorrencia:"Discussão com passageiro", observacoes:"Desentendimento verbal contornado com o auxílio do fiscal de linha."},
+  {data:"2026-10-07", carro:"882703", rota:"415E - Camaçari X Porto de Sauipe", classe:"Micro", horaSaida:"16:00", horaOcorrencia:"16:45", motorista:"Carlos", agente:"Não há", ocorrencia:"Passou direto do ponto", observacoes:"Nenhum detalhe adicional reportado pelo agente em campo."},
+  {data:"2026-10-09", carro:"882703", rota:"415E - Camaçari X Porto de Sauipe", classe:"Micro", horaSaida:"17:00", horaOcorrencia:"17:30", motorista:"Carlos", agente:"Não há", ocorrencia:"Passagem não solicitada", observacoes:"Passageiro reclamou do motorista."}
+];
+
+/* ============================================================
+   3) HELPERS DE MAPEAMENTO
+   ============================================================ */
+function dbParaApp(r) {
+  return {
+    id: r.id,
+    data: r.data,
+    carro: r.carro,
+    rota: r.rota,
+    classe: r.classe,
+    horaSaida: r.hora_saida || "",
+    horaOcorrencia: r.hora_ocorrencia || "",
+    motorista: r.motorista || "—",
+    agente: r.agente,
+    ocorrencia: r.ocorrencia,
+    observacoes: r.observacoes || ""
+  };
+}
+function appParaDb(d) {
+  return {
+    data: d.data,
+    carro: d.carro,
+    rota: d.rota,
+    classe: d.classe,
+    hora_saida: d.horaSaida || null,
+    hora_ocorrencia: d.horaOcorrencia,
+    motorista: d.motorista === "—" ? null : d.motorista,
+    agente: d.agente,
+    ocorrencia: d.ocorrencia,
+    observacoes: d.observacoes || null
+  };
+}
+
+var dados = [];
+
+function mostrarLoader(show) {
+  document.getElementById('loader').style.display = show ? 'flex' : 'none';
+}
+
+async function carregarDados() {
+  mostrarLoader(true);
+  const { data, error } = await supabase
+    .from('registros')
+    .select('*')
+    .order('data', { ascending: false })
+    .order('criado_em', { ascending: false });
+  mostrarLoader(false);
+  if (error) {
+    console.error("Erro carregarDados:", error);
+    alert("Erro ao carregar dados: " + error.message);
+    dados = [];
+    return;
+  }
+  dados = (data || []).map(dbParaApp);
+}
+
+async function recarregarDoBanco() {
+  await carregarDados();
+  render();
+}
+
+/* ============================================================
+   4) NAVEGAÇÃO DE ABAS
+   ============================================================ */
+function mudarAba(abaId) {
+  var botoes = document.querySelectorAll('.tab-btn');
+  var conteudos = document.querySelectorAll('.tab-content');
+  var i;
+  for (i = 0; i < botoes.length; i++) botoes[i].classList.remove('active');
+  for (i = 0; i < conteudos.length; i++) conteudos[i].classList.remove('active');
+
+  var map = { 'dashboard': 0, 'cadastro': 1, 'gerador-graficos': 2, 'relatorio-pdf': 3 };
+  if (botoes[map[abaId]]) botoes[map[abaId]].classList.add('active');
+  var tab = document.getElementById('tab-' + abaId);
+  if (tab) tab.classList.add('active');
+
+  if (abaId === 'dashboard') render();
+  else if (abaId === 'cadastro') {
+    if (!document.getElementById('editandoId').value) {
+      document.getElementById('novoData').value = new Date().toISOString().split('T')[0];
+      document.getElementById('tituloFormulario').textContent = "Cadastrar Novo Registro na Frota";
+      document.getElementById('subtituloFormulario').textContent = "Preencha os campos abaixo com os dados operacionais, horários e observações.";
+      document.getElementById('btnSalvar').textContent = "Salvar e Enviar para o Dashboard";
+      document.getElementById('btnCancelarEdicao').style.display = "none";
+      document.getElementById('msgEdicao').style.display = "none";
+      ajustarAgentePorClasse();
+    }
+  } else if (abaId === 'gerador-graficos') gerarGraficoCustomizado();
+  else if (abaId === 'relatorio-pdf') {
+    document.getElementById('relMes').value = document.getElementById('mes').value;
+    document.getElementById('relClasse').value = document.getElementById('classe').value;
+    document.getElementById('relBusca').value = document.getElementById('busca').value;
+    sincronizarSubtituloRelatorio();
+  }
+}
+
+/* ============================================================
+   5) AGENTE AUTOMÁTICO
+   ============================================================ */
+function ajustarAgentePorClasse() {
+  var classe = document.getElementById('novoClasse').value;
+  var campoAgente = document.getElementById('novoAgente');
+  if (classe === 'Micro' || classe === 'Urbano') {
+    campoAgente.value = 'Não há';
+    campoAgente.disabled = true;
+    campoAgente.required = false;
+    campoAgente.placeholder = 'Preenchido automaticamente para ' + classe;
+  } else {
+    campoAgente.disabled = false;
+    campoAgente.required = true;
+    campoAgente.placeholder = 'Ex: Carlos Silva';
+    if (campoAgente.value === 'Não há') campoAgente.value = '';
+  }
+}
+
+/* ============================================================
+   6) SALVAR / EDITAR / EXCLUIR
+   ============================================================ */
+async function salvarNovoRegistro(event) {
+  event.preventDefault();
+  var editandoId = document.getElementById('editandoId').value;
+  var classeSelecionada = document.getElementById('novoClasse').value;
+
+  var agenteFinal = document.getElementById('novoAgente').value.trim();
+  if (classeSelecionada === 'Micro' || classeSelecionada === 'Urbano') agenteFinal = 'Não há';
+  if (!agenteFinal) { alert('Informe o Agente Responsável.'); return; }
+
+  var rotaSelecionada = document.getElementById('novoRota').value;
+  if (!rotaSelecionada) { alert('Selecione uma rota válida.'); return; }
+
+  var item = {
+    data: document.getElementById('novoData').value,
+    carro: document.getElementById('novoCarro').value.trim(),
+    rota: rotaSelecionada,
+    classe: classeSelecionada,
+    horaSaida: document.getElementById('novoHoraSaida').value || "",
+    horaOcorrencia: document.getElementById('novoHoraOcorrencia').value,
+    motorista: document.getElementById('novoMotorista').value.trim() || "—",
+    agente: agenteFinal,
+    ocorrencia: document.getElementById('novoOcorrencia').value.trim(),
+    observacoes: document.getElementById('novoObservacoes').value.trim()
+  };
+
+  var btnSalvar = document.getElementById('btnSalvar');
+  btnSalvar.disabled = true;
+  btnSalvar.textContent = "Salvando...";
+  mostrarLoader(true);
+
+  try {
+    if (editandoId) {
+      const { error } = await supabase.from('registros').update(appParaDb(item)).eq('id', editandoId);
+      if (error) throw error;
+      document.getElementById('msgEdicao').style.display = 'block';
+      setTimeout(function() { document.getElementById('msgEdicao').style.display = 'none'; }, 2500);
+    } else {
+      const { error } = await supabase.from('registros').insert([appParaDb(item)]);
+      if (error) throw error;
+      document.getElementById('msgSucesso').style.display = 'block';
+      setTimeout(function() { document.getElementById('msgSucesso').style.display = 'none'; }, 3500);
+    }
+    await carregarDados();
+    limparFormulario();
+    setTimeout(function() { mudarAba('dashboard'); }, 900);
+  } catch (err) {
+    console.error(err);
+    alert("Erro ao salvar: " + (err.message || err));
+  } finally {
+    mostrarLoader(false);
+    btnSalvar.disabled = false;
+    btnSalvar.textContent = editandoId ? "Salvar Alterações" : "Salvar e Enviar para o Dashboard";
+  }
+}
+
+function limparFormulario() {
+  document.getElementById('editandoId').value = '';
+  document.getElementById('novoCarro').value = '';
+  document.getElementById('novoRota').value = '';
+  document.getElementById('novoHoraSaida').value = '';
+  document.getElementById('novoHoraOcorrencia').value = '';
+  document.getElementById('novoMotorista').value = '';
+  document.getElementById('novoAgente').value = '';
+  document.getElementById('novoOcorrencia').value = '';
+  document.getElementById('novoObservacoes').value = '';
+  document.getElementById('novoData').value = new Date().toISOString().split('T')[0];
+  document.getElementById('novoClasse').value = 'Executivo';
+  ajustarAgentePorClasse();
+  document.getElementById('tituloFormulario').textContent = "Cadastrar Novo Registro na Frota";
+  document.getElementById('subtituloFormulario').textContent = "Preencha os campos abaixo com os dados operacionais, horários e observações.";
+  document.getElementById('btnSalvar').textContent = "Salvar e Enviar para o Dashboard";
+  document.getElementById('btnCancelarEdicao').style.display = "none";
+  document.getElementById('msgEdicao').style.display = "none";
+}
+
+function editarRegistro(id) {
+  var reg = null;
+  for (var i = 0; i < dados.length; i++) {
+    if (dados[i].id === id) { reg = dados[i]; break; }
+  }
+  if (!reg) { alert("Registro não encontrado. Recarregue a página."); return; }
+
+  document.getElementById('editandoId').value = id;
+  document.getElementById('novoData').value = reg.data;
+  document.getElementById('novoCarro').value = reg.carro;
+
+  var selectRota = document.getElementById('novoRota');
+  var existeRota = false;
+  for (var j = 0; j < selectRota.options.length; j++) {
+    if (selectRota.options[j].value === reg.rota) { existeRota = true; break; }
+  }
+  if (!existeRota && reg.rota) {
+    var opt = document.createElement('option');
+    opt.value = reg.rota;
+    opt.textContent = reg.rota + " (rota antiga)";
+    selectRota.appendChild(opt);
+  }
+  selectRota.value = reg.rota;
+
+  document.getElementById('novoClasse').value = reg.classe;
+  document.getElementById('novoHoraSaida').value = reg.horaSaida || '';
+  document.getElementById('novoHoraOcorrencia').value = reg.horaOcorrencia || '';
+  document.getElementById('novoMotorista').value = reg.motorista === "—" ? "" : reg.motorista;
+  document.getElementById('novoAgente').value = reg.agente;
+  document.getElementById('novoOcorrencia').value = reg.ocorrencia;
+  document.getElementById('novoObservacoes').value = reg.observacoes || '';
+  ajustarAgentePorClasse();
+
+  document.getElementById('tituloFormulario').textContent = "Editar Registro Existente";
+  document.getElementById('subtituloFormulario').textContent = "Altere os campos abaixo e salve para atualizar o registro selecionado.";
+  document.getElementById('btnSalvar').textContent = "Salvar Alterações";
+  document.getElementById('btnCancelarEdicao').style.display = "inline-block";
+  document.getElementById('msgEdicao').style.display = "block";
+  mudarAba('cadastro');
+}
+
+function cancelarEdicao() { limparFormulario(); mudarAba('dashboard'); }
+
+async function excluirRegistro(id) {
+  if (!confirm("Tem certeza que deseja excluir este registro? Esta ação não pode ser desfeita.")) return;
+  mostrarLoader(true);
+  const { error } = await supabase.from('registros').delete().eq('id', id);
+  mostrarLoader(false);
+  if (error) { alert("Erro ao excluir: " + error.message); return; }
+  await carregarDados();
+  render();
+}
+
+async function resetarDadosPadrao() {
+  if (!confirm("Isso apagará TODOS os registros do banco e reinserirá os dados iniciais. Confirma?")) return;
+  mostrarLoader(true);
+  try {
+    const { error: delErr } = await supabase.from('registros').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    if (delErr) throw delErr;
+
+    if (dadosIniciais.length) {
+      const { error: insErr } = await supabase.from('registros').insert(dadosIniciais.map(appParaDb));
+      if (insErr) throw insErr;
+    }
+    await carregarDados();
+    render();
+    alert("Dados restaurados com sucesso!");
+  } catch (err) {
+    console.error(err);
+    alert("Erro: " + (err.message || err));
+  } finally {
+    mostrarLoader(false);
+  }
+}
+
+/* ============================================================
+   7) CLASSIFICAÇÃO E CONTAGEM
+   ============================================================ */
+function classificarOcorrencia(o) {
+  if (!o) return "neutral";
+  if (o.indexOf("Sem ocorr") !== -1 || o.indexOf("Sem maiores") !== -1) return "ok";
+  if (o.indexOf("Passagem não solicitada") !== -1) return "bad";
+  if (o.indexOf("Passou direto") !== -1 || o.indexOf("Discussão") !== -1) return "warn";
+  return "neutral";
+}
+function contar(arr, campo) {
+  var map = {};
+  for (var i = 0; i < arr.length; i++) {
+    var k = arr[i][campo] || "—";
+    if (campo === 'mes' && arr[i].data) k = arr[i].data.substring(0, 7);
+    map[k] = (map[k] || 0) + 1;
+  }
+  var entries = [];
+  for (var key in map) if (map.hasOwnProperty(key)) entries.push([key, map[key]]);
+  entries.sort(function(a, b) { return b[1] - a[1]; });
+  return entries;
+}
+function renderBars(containerId, entries, colorMap) {
+  var el = document.getElementById(containerId);
+  if (!el) return;
+  if (!entries.length) { el.innerHTML = '<p class="empty">Sem dados disponíveis</p>'; return; }
+  var max = Math.max.apply(null, entries.map(function(e) { return e[1]; }));
+  el.innerHTML = entries.map(function(e) {
+    var nome = e[0], qtd = e[1];
+    var pct = (qtd / max) * 100;
+    var cor = colorMap ? (colorMap(nome) || "#38bdf8") : "#38bdf8";
+    return '<div class="bar-row"><span class="name" title="' + nome + '">' + nome + '</span>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%;background:' + cor + '"></div></div>' +
+      '<span class="qty">' + qtd + '</span></div>';
+  }).join("");
+}
+
+/* ============================================================
+   8) GRÁFICOS CUSTOMIZADOS
+   ============================================================ */
+var PALETA = ["#38bdf8", "#22c55e", "#f59e0b", "#ef4444", "#a78bfa", "#10b981", "#f472b6", "#14b8a6", "#eab308", "#6366f1", "#f97316", "#06b6d4"];
+
+function corPara(nome, param, i) {
+  if (param === 'ocorrencia') {
+    var c = classificarOcorrencia(nome);
+    return c === "ok" ? "#22c55e" : c === "bad" ? "#ef4444" : c === "warn" ? "#f59e0b" : "#64748b";
+  }
+  if (param === 'classe') {
+    if (nome === "Executivo") return "#38bdf8";
+    if (nome === "Urbano") return "#a78bfa";
+    if (nome === "Micro") return "#f59e0b";
+  }
+  return PALETA[i % PALETA.length];
+}
+
+function gerarGraficoCustomizado() {
+  var tipo = document.getElementById("tipoGrafico").value;
+  var paramSelect = document.getElementById("parametroGrafico");
+
+  if (tipo === 'motoristaOcorrencia') {
+    paramSelect.disabled = true;
+    document.getElementById("tituloGraficoCustomizado").textContent = "Gráfico: Ocorrências por Motorista (Detalhado)";
+    desenharGraficoMotoristaOcorrencia();
+    return;
+  } else {
+    paramSelect.disabled = false;
+    var detalhe = document.getElementById("detalheMotoristaOcorrencia");
+    if (detalhe) detalhe.style.display = "none";
+  }
+
+  var param = paramSelect.value;
+  var nomeParametro = paramSelect.options[paramSelect.selectedIndex].text;
+  document.getElementById("tituloGraficoCustomizado").textContent =
+    "Gráfico: " + nomeParametro + " — " + document.getElementById("tipoGrafico").selectedOptions[0].text;
+
+  var dadosFiltrados = dados;
+  if (param === 'motorista') dadosFiltrados = dados.filter(function(d) { return d.motorista !== "—"; });
+  if (param === 'agente') dadosFiltrados = dados.filter(function(d) { return d.agente && d.agente !== "Não há"; });
+
+  var contagem = contar(dadosFiltrados, param);
+  var canvas = document.getElementById('canvasCustom');
+  var ctx = canvas.getContext('2d');
+  var tipoRetrato = (tipo === 'pizza' || tipo === 'rosca');
+  canvas.width = 900;
+  canvas.height = tipoRetrato ? 520 : Math.max(360, 60 + contagem.length * 38);
+
+  var legenda = document.getElementById('legendaCustom');
+  legenda.innerHTML = "";
+
+  if (!contagem.length) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "16px Segoe UI, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Sem dados disponíveis para o critério selecionado.", canvas.width / 2, canvas.height / 2);
+    return;
+  }
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (tipo === 'barras') desenharBarrasHorizontais(ctx, canvas, contagem, param);
+  else if (tipo === 'colunas') desenharColunasVerticais(ctx, canvas, contagem, param);
+  else if (tipo === 'pizza') desenharPizza(ctx, canvas, contagem, param, legenda);
+  else if (tipo === 'rosca') desenharRosca(ctx, canvas, contagem, param, legenda);
+}
+
+function desenharGraficoMotoristaOcorrencia() {
+  var canvas = document.getElementById('canvasCustom');
+  var ctx = canvas.getContext('2d');
+  var legenda = document.getElementById('legendaCustom');
+  legenda.innerHTML = "";
+  var dadosDetalhe = document.getElementById('detalheMotoristaOcorrencia');
+  var base = dados.filter(function(d) { return d.motorista && d.motorista !== "—"; });
+
+  if (!base.length) {
+    canvas.width = 900; canvas.height = 300;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#94a3b8"; ctx.font = "16px Segoe UI, sans-serif"; ctx.textAlign = "center";
+    ctx.fillText("Nenhum registro com motorista identificado.", canvas.width / 2, canvas.height / 2);
+    dadosDetalhe.style.display = "none";
+    return;
+  }
+
+  var estrutura = {}, ocorrenciasSet = {};
+  for (var i = 0; i < base.length; i++) {
+    var mot = base[i].motorista, oco = base[i].ocorrencia || "—";
+    if (!estrutura[mot]) estrutura[mot] = {};
+    estrutura[mot][oco] = (estrutura[mot][oco] || 0) + 1;
+    ocorrenciasSet[oco] = true;
+  }
+  var listaOcorrencias = Object.keys(ocorrenciasSet).sort();
+  var corOcorrencia = {};
+  for (var k = 0; k < listaOcorrencias.length; k++) {
+    var o = listaOcorrencias[k];
+    corOcorrencia[o] = corPara(o, 'ocorrencia', k);
+    if (corOcorrencia[o] === "#64748b") corOcorrencia[o] = PALETA[k % PALETA.length];
+  }
+
+  var motoristas = [];
+  for (var m in estrutura) if (estrutura.hasOwnProperty(m)) {
+    var total = 0;
+    for (var oc in estrutura[m]) if (estrutura[m].hasOwnProperty(oc)) total += estrutura[m][oc];
+    motoristas.push({ nome: m, total: total, detalhe: estrutura[m] });
+  }
+  motoristas.sort(function(a, b) { return b.total - a.total; });
+
+  var maxTotal = 1;
+  for (var x = 0; x < motoristas.length; x++) if (motoristas[x].total > maxTotal) maxTotal = motoristas[x].total;
+
+  var left = 220, right = 70, top = 40, rowH = 50;
+  canvas.width = 900;
+  canvas.height = Math.max(300, top + motoristas.length * rowH + 40);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  var chartW = canvas.width - left - right;
+  ctx.font = "13px Segoe UI, sans-serif"; ctx.textBaseline = "middle";
+
+  for (var idx = 0; idx < motoristas.length; idx++) {
+    var mAtual = motoristas[idx], y = top + idx * rowH;
+    ctx.fillStyle = "#94a3b8"; ctx.textAlign = "right";
+    var labelMot = mAtual.nome.length > 22 ? mAtual.nome.substring(0, 20) + "..." : mAtual.nome;
+    ctx.fillText(labelMot, left - 12, y + rowH / 2);
+
+    ctx.fillStyle = "#1a2333";
+    roundRect(ctx, left, y + 12, chartW, rowH - 24, 5); ctx.fill();
+
+    var acumulado = 0, segmentos = [];
+    for (var oc2 in mAtual.detalhe) if (mAtual.detalhe.hasOwnProperty(oc2)) segmentos.push([oc2, mAtual.detalhe[oc2]]);
+    segmentos.sort(function(a, b) { return b[1] - a[1]; });
+
+    for (var s = 0; s < segmentos.length; s++) {
+      var ocoNome = segmentos[s][0], qtd = segmentos[s][1];
+      var w = (qtd / maxTotal) * chartW, xPos = left + acumulado;
+      ctx.fillStyle = corOcorrencia[ocoNome];
+      roundRect(ctx, xPos, y + 12, Math.max(3, w - 1), rowH - 24, 4); ctx.fill();
+      if (w > 30) {
+        ctx.fillStyle = "#0f172a"; ctx.textAlign = "center"; ctx.font = "bold 12px Segoe UI, sans-serif";
+        ctx.fillText(qtd, xPos + w / 2, y + rowH / 2);
+      }
+      acumulado += w;
+    }
+    ctx.fillStyle = "#e2e8f0"; ctx.textAlign = "left"; ctx.font = "bold 13px Segoe UI, sans-serif";
+    ctx.fillText(mAtual.total, left + acumulado + 8, y + rowH / 2);
+    ctx.font = "13px Segoe UI, sans-serif";
+  }
+
+  for (var li = 0; li < listaOcorrencias.length; li++)
+    adicionarLegenda(legenda, listaOcorrencias[li], null, corOcorrencia[listaOcorrencias[li]]);
+
+  var html = '<h3>Detalhamento — Motorista x Ocorrência x Quantidade</h3>';
+  html += '<table><thead><tr><th>Motorista</th><th>Descrição da Ocorrência</th><th>Vezes</th><th>Total do Motorista</th></tr></thead><tbody>';
+  var totalGeral = 0;
+  for (var mi = 0; mi < motoristas.length; mi++) {
+    var mo = motoristas[mi], segs = [];
+    for (var oc3 in mo.detalhe) if (mo.detalhe.hasOwnProperty(oc3)) segs.push([oc3, mo.detalhe[oc3]]);
+    segs.sort(function(a, b) { return b[1] - a[1]; });
+    for (var si = 0; si < segs.length; si++) {
+      totalGeral += segs[si][1];
+      var cor = corOcorrencia[segs[si][0]], isFirst = (si === 0);
+      html += '<tr>' +
+        '<td>' + (isFirst ? '<strong>' + mo.nome + '</strong>' : '') + '</td>' +
+        '<td><span class="cor-dot" style="background:' + cor + '"></span>' + segs[si][0] + '</td>' +
+        '<td><span class="total-badge">' + segs[si][1] + '</span></td>' +
+        '<td>' + (isFirst ? '<strong style="color:var(--accent)">' + mo.total + '</strong>' : '') + '</td>' +
+        '</tr>';
+    }
+  }
+  html += '</tbody></table><p style="margin-top:10px;font-size:.8rem;color:var(--muted);text-align:right;">Total geral: <strong style="color:var(--accent)">' + totalGeral + '</strong></p>';
+  dadosDetalhe.innerHTML = html;
+  dadosDetalhe.style.display = "block";
+}
+
+function desenharBarrasHorizontais(ctx, canvas, entries, param) {
+  var max = Math.max.apply(null, entries.map(function(e) { return e[1]; }));
+  var left = 220, right = 60, top = 30, rowH = 34;
+  var barW = canvas.width - left - right;
+  ctx.font = "13px Segoe UI, sans-serif"; ctx.textBaseline = "middle";
+  for (var i = 0; i < entries.length; i++) {
+    var nome = entries[i][0], qtd = entries[i][1], y = top + i * rowH;
+    ctx.fillStyle = "#94a3b8"; ctx.textAlign = "right";
+    var label = nome.length > 32 ? nome.substring(0, 30) + "..." : nome;
+    ctx.fillText(label, left - 12, y + rowH / 2 - 6);
+    ctx.fillStyle = "#243449";
+    roundRect(ctx, left, y + 4, barW, rowH - 14, 5); ctx.fill();
+    ctx.fillStyle = corPara(nome, param, i);
+    var wFill = Math.max(4, (qtd / max) * barW);
+    roundRect(ctx, left, y + 4, wFill, rowH - 14, 5); ctx.fill();
+    ctx.fillStyle = "#e2e8f0"; ctx.textAlign = "left"; ctx.font = "bold 13px Segoe UI, sans-serif";
+    ctx.fillText(qtd, left + wFill + 8, y + rowH / 2 - 6);
+    ctx.font = "13px Segoe UI, sans-serif";
+  }
+}
+
+function desenharColunasVerticais(ctx, canvas, entries, param) {
+  var max = Math.max.apply(null, entries.map(function(e) { return e[1]; }));
+  var left = 60, right = 30, top = 30, bottom = 110;
+  var chartW = canvas.width - left - right, chartH = canvas.height - top - bottom;
+  var n = entries.length, slot = chartW / n, barW = Math.min(70, slot * 0.65);
+
+  ctx.strokeStyle = "#334155"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(left, top); ctx.lineTo(left, top + chartH); ctx.lineTo(left + chartW, top + chartH); ctx.stroke();
+  ctx.font = "12px Segoe UI, sans-serif"; ctx.textAlign = "center";
+
+  for (var i = 0; i < entries.length; i++) {
+    var nome = entries[i][0], qtd = entries[i][1];
+    var x = left + i * slot + (slot - barW) / 2;
+    var h = (qtd / max) * (chartH - 30), y = top + chartH - h;
+    ctx.fillStyle = corPara(nome, param, i);
+    roundRect(ctx, x, y, barW, h, 5); ctx.fill();
+    ctx.fillStyle = "#e2e8f0"; ctx.font = "bold 12px Segoe UI, sans-serif";
+    ctx.fillText(qtd, x + barW / 2, y - 6);
+    ctx.save(); ctx.translate(x + barW / 2, top + chartH + 8); ctx.rotate(-Math.PI / 4);
+    ctx.textAlign = "right"; ctx.fillStyle = "#94a3b8"; ctx.font = "11px Segoe UI, sans-serif";
+    var label = nome.length > 22 ? nome.substring(0, 20) + "..." : nome;
+    ctx.fillText(label, 0, 0);
+    ctx.restore();
+  }
+}
+
+function desenharPizza(ctx, canvas, entries, param, legendaEl) {
+  var total = 0;
+  for (var i = 0; i < entries.length; i++) total += entries[i][1];
+  var cx = canvas.width / 2, cy = canvas.height / 2;
+  var raio = Math.min(canvas.width, canvas.height) / 2 - 40, ang = -Math.PI / 2;
+  ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "13px Segoe UI, sans-serif";
+  for (var j = 0; j < entries.length; j++) {
+    var nome = entries[j][0], qtd = entries[j][1], frac = qtd / total;
+    var angFinal = ang + frac * Math.PI * 2, cor = corPara(nome, param, j);
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, raio, ang, angFinal); ctx.closePath();
+    ctx.fillStyle = cor; ctx.fill(); ctx.strokeStyle = "#1e293b"; ctx.lineWidth = 2; ctx.stroke();
+    if (frac >= 0.05) {
+      var mid = ang + (angFinal - ang) / 2;
+      var px = cx + Math.cos(mid) * raio * 0.65, py = cy + Math.sin(mid) * raio * 0.65;
+      ctx.fillStyle = "#0f172a"; ctx.font = "bold 13px Segoe UI, sans-serif";
+      ctx.fillText((frac * 100).toFixed(1) + "%", px, py);
+    }
+    ang = angFinal;
+    adicionarLegenda(legendaEl, nome, qtd, cor);
+  }
+}
+
+function desenharRosca(ctx, canvas, entries, param, legendaEl) {
+  var total = 0;
+  for (var i = 0; i < entries.length; i++) total += entries[i][1];
+  var cx = canvas.width / 2, cy = canvas.height / 2;
+  var raioExt = Math.min(canvas.width, canvas.height) / 2 - 40, raioInt = raioExt * 0.55;
+  var ang = -Math.PI / 2;
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  for (var j = 0; j < entries.length; j++) {
+    var nome = entries[j][0], qtd = entries[j][1], frac = qtd / total;
+    var angFinal = ang + frac * Math.PI * 2, cor = corPara(nome, param, j);
+    ctx.beginPath(); ctx.arc(cx, cy, raioExt, ang, angFinal); ctx.arc(cx, cy, raioInt, angFinal, ang, true); ctx.closePath();
+    ctx.fillStyle = cor; ctx.fill(); ctx.strokeStyle = "#1e293b"; ctx.lineWidth = 2; ctx.stroke();
+    if (frac >= 0.05) {
+      var mid = ang + (angFinal - ang) / 2;
+      var px = cx + Math.cos(mid) * (raioExt + raioInt) / 2, py = cy + Math.sin(mid) * (raioExt + raioInt) / 2;
+      ctx.fillStyle = "#0f172a"; ctx.font = "bold 13px Segoe UI, sans-serif";
+      ctx.fillText((frac * 100).toFixed(1) + "%", px, py);
+    }
+    ang = angFinal;
+    adicionarLegenda(legendaEl, nome, qtd, cor);
+  }
+  ctx.fillStyle = "#e2e8f0"; ctx.font = "bold 22px Segoe UI, sans-serif";
+  ctx.fillText(total, cx, cy - 6);
+  ctx.fillStyle = "#94a3b8"; ctx.font = "12px Segoe UI, sans-serif";
+  ctx.fillText("total", cx, cy + 14);
+}
+
+function adicionarLegenda(el, nome, qtd, cor) {
+  var item = document.createElement('span');
+  item.style.cssText = "display:inline-flex;align-items:center;gap:6px;font-size:.8rem;color:#94a3b8;background:#1e293b;padding:4px 10px;border-radius:6px;border:1px solid #334155;";
+  var extra = (qtd !== null && qtd !== undefined) ? ' (' + qtd + ')' : '';
+  item.innerHTML = '<span style="width:12px;height:12px;background:' + cor + ';border-radius:3px;display:inline-block;"></span> ' + nome + extra;
+  el.appendChild(item);
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  if (w < 2 * r) r = w / 2;
+  if (h < 2 * r) r = h / 2;
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function baixarGraficoPNG() {
+  var canvas = document.getElementById('canvasCustom');
+  var link = document.createElement('a');
+  link.download = 'grafico-frota-' + Date.now() + '.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
+/* ============================================================
+   9) RELATÓRIO PDF
+   ============================================================ */
+function sincronizarSubtituloRelatorio() {
+  var mes = document.getElementById('relMes').value;
+  var classe = document.getElementById('relClasse').value;
+  var partes = [];
+  if (mes !== 'all') {
+    var mapMeses = { "2026-08": "Agosto/2026", "2026-09": "Setembro/2026", "2026-10": "Outubro/2026", "2026-11": "Novembro/2026", "2026-12": "Dezembro/2026" };
+    partes.push("Período: " + (mapMeses[mes] || mes));
+  }
+  if (classe !== 'all') partes.push("Classe: " + classe);
+  document.getElementById('subtituloRelatorio').value = partes.join(" — ");
+}
+function obterColunasSelecionadas() {
+  var checks = document.querySelectorAll('#colunasRelatorio input[type="checkbox"]');
+  var resultado = [];
+  for (var i = 0; i < checks.length; i++) if (checks[i].checked) resultado.push(checks[i].value);
+  return resultado;
+}
+function filtrarDadosRelatorio() {
+  var mes = document.getElementById('relMes').value;
+  var classe = document.getElementById('relClasse').value;
+  var busca = document.getElementById('relBusca').value.trim().toLowerCase();
+  return dados.filter(function(d) {
+    if (mes !== 'all' && d.data.indexOf(mes) !== 0) return false;
+    if (classe !== 'all' && d.classe !== classe) return false;
+    if (busca) {
+      var blob = (d.carro + " " + d.rota + " " + d.motorista + " " + d.agente + " " + d.ocorrencia + " " + d.observacoes).toLowerCase();
+      if (blob.indexOf(busca) === -1) return false;
+    }
+    return true;
+  });
+}
+var LABELS_COLUNAS = {
+  data: "Data", carro: "Carro", rota: "Rota", classe: "Classe",
+  motorista: "Motorista", agente: "Agente", horaSaida: "Saída",
+  horaOcorrencia: "Ocorrência (hora)", ocorrencia: "Ocorrência", observacoes: "Observações"
+};
+function montarHTMLRelatorio() {
+  var titulo = document.getElementById('tituloRelatorio').value || "Relatório Operacional";
+  var subtitulo = document.getElementById('subtituloRelatorio').value;
+  var responsavel = document.getElementById('responsavelRelatorio').value;
+  var obsFinais = document.getElementById('observacoesRelatorio').value;
+  var colunas = obterColunasSelecionadas();
+  var filtrados = filtrarDadosRelatorio();
+  var agora = new Date();
+  var dataEmissao = agora.toLocaleDateString('pt-BR') + " às " + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+  var total = filtrados.length;
+  var semOcorr = filtrados.filter(function(d) { return classificarOcorrencia(d.ocorrencia) === "ok"; }).length;
+  var passagem = filtrados.filter(function(d) { return classificarOcorrencia(d.ocorrencia) === "bad"; }).length;
+  var outras = total - semOcorr - passagem;
+  var veiculos = new Set(filtrados.map(function(d) { return d.carro; })).size;
+  var agentes = new Set(filtrados.map(function(d) { return d.agente; }).filter(function(a) { return a && a !== "Não há"; })).size;
+
+  var thead = "<tr>";
+  for (var i = 0; i < colunas.length; i++) thead += "<th>" + (LABELS_COLUNAS[colunas[i]] || colunas[i]) + "</th>";
+  thead += "</tr>";
+
+  var tbody = "";
+  if (!filtrados.length) {
+    tbody = '<tr><td colspan="' + colunas.length + '" style="text-align:center;padding:20px;color:#666;">Nenhum registro encontrado.</td></tr>';
+  } else {
+    for (var r = 0; r < filtrados.length; r++) {
+      tbody += "<tr>";
+      for (var c = 0; c < colunas.length; c++) {
+        var col = colunas[c];
+        var val = (filtrados[r][col] !== undefined && filtrados[r][col] !== null && filtrados[r][col] !== "") ? filtrados[r][col] : "—";
+        if (col === 'data' && val !== "—") { var p = val.split("-"); val = p[2] + "/" + p[1] + "/" + p[0]; }
+        tbody += "<td>" + val + "</td>";
+      }
+      tbody += "</tr>";
+    }
+  }
+
+  return '<div style="font-family:Arial,Helvetica,sans-serif;color:#000;padding:10px;">' +
+    '<div style="border-bottom:3px solid #0f172a;padding-bottom:10px;margin-bottom:16px;">' +
+      '<h1 style="font-size:18px;margin:0 0 4px 0;color:#0f172a;">' + titulo + '</h1>' +
+      (subtitulo ? '<p style="margin:0;font-size:12px;color:#444;">' + subtitulo + '</p>' : '') +
+      '<p style="margin:4px 0 0 0;font-size:11px;color:#666;">Emitido em: ' + dataEmissao + (responsavel ? ' — Responsável: ' + responsavel : '') + '</p>' +
+    '</div>' +
+    '<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">' +
+      '<div style="flex:1;min-width:110px;border:1px solid #ccc;border-radius:6px;padding:8px;text-align:center;"><div style="font-size:10px;color:#666;text-transform:uppercase;">Total</div><div style="font-size:20px;font-weight:bold;">' + total + '</div></div>' +
+      '<div style="flex:1;min-width:110px;border:1px solid #ccc;border-radius:6px;padding:8px;text-align:center;"><div style="font-size:10px;color:#666;text-transform:uppercase;">Sem ocorrências</div><div style="font-size:20px;font-weight:bold;color:#16a34a;">' + semOcorr + '</div></div>' +
+      '<div style="flex:1;min-width:110px;border:1px solid #ccc;border-radius:6px;padding:8px;text-align:center;"><div style="font-size:10px;color:#666;text-transform:uppercase;">Passagem não solicitada</div><div style="font-size:20px;font-weight:bold;color:#dc2626;">' + passagem + '</div></div>' +
+      '<div style="flex:1;min-width:110px;border:1px solid #ccc;border-radius:6px;padding:8px;text-align:center;"><div style="font-size:10px;color:#666;text-transform:uppercase;">Outras</div><div style="font-size:20px;font-weight:bold;color:#d97706;">' + outras + '</div></div>' +
+      '<div style="flex:1;min-width:110px;border:1px solid #ccc;border-radius:6px;padding:8px;text-align:center;"><div style="font-size:10px;color:#666;text-transform:uppercase;">Veículos</div><div style="font-size:20px;font-weight:bold;">' + veiculos + '</div></div>' +
+      '<div style="flex:1;min-width:110px;border:1px solid #ccc;border-radius:6px;padding:8px;text-align:center;"><div style="font-size:10px;color:#666;text-transform:uppercase;">Agentes</div><div style="font-size:20px;font-weight:bold;">' + agentes + '</div></div>' +
+    '</div>' +
+    '<table style="width:100%;border-collapse:collapse;font-size:10px;">' +
+      '<thead><tr style="background:#0f172a;color:#fff;">' + thead.replace(/<th>/g, '<th style="padding:6px 5px;text-align:left;border:1px solid #333;">') + '</tr></thead>' +
+      '<tbody>' + tbody.replace(/<td>/g, '<td style="padding:5px;border:1px solid #ccc;vertical-align:top;">') + '</tbody>' +
+    '</table>' +
+    (obsFinais ? '<div style="margin-top:16px;padding:10px;border:1px solid #ccc;border-radius:6px;background:#f9f9f9;"><strong style="font-size:11px;">Observações:</strong><p style="margin:4px 0 0 0;font-size:11px;white-space:pre-wrap;">' + obsFinais + '</p></div>' : '') +
+    '<div style="margin-top:20px;padding-top:8px;border-top:1px solid #ccc;font-size:9px;color:#666;text-align:center;">Dashboard Operacional — Frota Atlântico</div>' +
+  '</div>';
+}
+function previsualizarRelatorio() {
+  document.getElementById('previewContent').innerHTML = montarHTMLRelatorio();
+  document.getElementById('previewRelatorio').style.display = 'block';
+  document.getElementById('previewRelatorio').scrollIntoView({ behavior: 'smooth' });
+}
+function gerarRelatorioPDF() {
+  var html = montarHTMLRelatorio();
+  var janela = window.open('', '_blank', 'width=1000,height=800');
+  if (!janela) { alert('Permita pop-ups para gerar o relatório.'); return; }
+  janela.document.write(
+    '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Relatório — Frota Atlântico</title>' +
+    '<style>@page{size:A4 landscape;margin:12mm;}body{margin:0;padding:0;font-family:Arial,sans-serif;}@media print{.no-print{display:none!important;}body{padding:0;}}@media screen{body{padding:20px;background:#e5e7eb;}.page{background:#fff;max-width:1100px;margin:0 auto;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.2);}}</style></head><body>' +
+    '<div class="no-print" style="text-align:center;margin-bottom:16px;padding:12px;background:#fff;border-radius:8px;">' +
+      '<button onclick="window.print()" style="background:#22c55e;color:#fff;border:none;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">Imprimir / Salvar como PDF</button>' +
+      '<span style="margin-left:12px;font-size:13px;color:#666;">Dica: escolha "Salvar como PDF" no destino.</span>' +
+    '</div>' +
+    '<div class="page">' + html + '</div></body></html>'
+  );
+  janela.document.close(); janela.focus();
+  setTimeout(function() { janela.print(); }, 800);
+}
+
+/* ============================================================
+   10) RENDER DASHBOARD
+   ============================================================ */
+function render() {
+  var mes = document.getElementById("mes").value;
+  var classe = document.getElementById("classe").value;
+  var busca = document.getElementById("busca").value.trim().toLowerCase();
+
+  var filtrados = dados.filter(function(d) {
+    if (mes !== "all" && d.data.indexOf(mes) !== 0) return false;
+    if (classe !== "all" && d.classe !== classe) return false;
+    if (busca) {
+      var blob = (d.carro + " " + d.rota + " " + d.motorista + " " + d.agente + " " + d.ocorrencia + " " + d.observacoes).toLowerCase();
+      if (blob.indexOf(busca) === -1) return false;
+    }
+    return true;
+  });
+
+  var total = filtrados.length;
+  var semOcorr = filtrados.filter(function(d) { return classificarOcorrencia(d.ocorrencia) === "ok"; }).length;
+  var passagem = filtrados.filter(function(d) { return classificarOcorrencia(d.ocorrencia) === "bad"; }).length;
+  var outras = total - semOcorr - passagem;
+  var veiculos = new Set(filtrados.map(function(d) { return d.carro; })).size;
+  var agentes = new Set(filtrados.map(function(d) { return d.agente; }).filter(function(a) { return a && a !== "Não há"; })).size;
+
+  document.getElementById("kpis").innerHTML =
+    '<div class="kpi"><div class="label">Total de registros</div><div class="value accent">' + total + '</div></div>' +
+    '<div class="kpi"><div class="label">Sem ocorrências</div><div class="value green">' + semOcorr + '</div></div>' +
+    '<div class="kpi"><div class="label">Passagem não solicitada</div><div class="value red">' + passagem + '</div></div>' +
+    '<div class="kpi"><div class="label">Outras ocorrências</div><div class="value yellow">' + outras + '</div></div>' +
+    '<div class="kpi"><div class="label">Veículos distintos</div><div class="value">' + veiculos + '</div></div>' +
+    '<div class="kpi"><div class="label">Agentes ativos</div><div class="value">' + agentes + '</div></div>';
+
+  renderBars("chartOcorrencias", contar(filtrados, "ocorrencia"), function(nome) {
+    var c = classificarOcorrencia(nome);
+    return c === "ok" ? "#22c55e" : c === "bad" ? "#ef4444" : c === "warn" ? "#f59e0b" : "#64748b";
+  });
+  renderBars("chartClasse", contar(filtrados, "classe"), function(nome) {
+    if (nome === "Executivo") return "#38bdf8";
+    if (nome === "Urbano") return "#a78bfa";
+    if (nome === "Micro") return "#f59e0b";
+    return "#64748b";
+  });
+  renderBars("chartMotoristas", contar(filtrados.filter(function(d) { return d.motorista !== "—"; }), "motorista").slice(0, 10));
+  renderBars("chartAgentes", contar(filtrados.filter(function(d) { return d.agente !== "Não há"; }), "agente").slice(0, 10), function() { return "#10b981"; });
+
+  document.getElementById("count").textContent = total + " registro(s)";
+  var tbody = document.getElementById("tbody");
+  if (!filtrados.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty">Nenhum registro encontrado com os filtros atuais.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = filtrados.map(function(d) {
+    var cls = classificarOcorrencia(d.ocorrencia);
+    var tagClass = cls === "ok" ? "ok" : cls === "bad" ? "bad" : cls === "warn" ? "warn" : "neutral";
+    var tagLabel = cls === "ok" ? "OK" : cls === "bad" ? "Crítico" : cls === "warn" ? "Atenção" : "Neutro";
+    var horaSaidaExibir = (d.horaSaida && d.horaSaida.trim() !== "") ? d.horaSaida : "—";
+    var horaOcorrenciaExibir = (d.horaOcorrencia && d.horaOcorrencia.trim() !== "") ? d.horaOcorrencia : "—";
+    return '<tr>' +
+      '<td>' + formatarData(d.data) + '</td>' +
+      '<td><strong>' + d.carro + '</strong><div class="meta-sub">' + d.rota + '</div></td>' +
+      '<td><span class="tag neutral">' + d.classe + '</span></td>' +
+      '<td>' + d.motorista + '</td>' +
+      '<td>' + d.agente + '</td>' +
+      '<td><div class="meta-sub">Saída: ' + horaSaidaExibir + '</div><div class="meta-sub">Ocorr.: ' + horaOcorrenciaExibir + '</div></td>' +
+      '<td><span class="tag ' + tagClass + '">' + tagLabel + '</span><div>' + d.ocorrencia + '</div>' +
+        (d.observacoes ? '<div class="obs-text">' + d.observacoes + '</div>' : '') + '</td>' +
+      '<td><div class="actions">' +
+        '<button class="btn btn-edit" onclick="editarRegistro(\'' + d.id + '\')">Editar</button>' +
+        '<button class="btn btn-delete" onclick="excluirRegistro(\'' + d.id + '\')">Excluir</button>' +
+      '</div></td></tr>';
+  }).join("");
+}
+function formatarData(iso) {
+  if (!iso) return "—";
+  var p = iso.split("-");
+  if (p.length !== 3) return iso;
+  return p[2] + "/" + p[1] + "/" + p[0];
+}
+
+/* ============================================================
+   11) INICIALIZAÇÃO
+   ============================================================ */
+function popularSelectRotas() {
+  var select = document.getElementById('novoRota');
+  var placeholder = select.querySelector('option[value=""]');
+  select.innerHTML = '';
+  if (placeholder) select.appendChild(placeholder);
+  for (var i = 0; i < ROTAS.length; i++) {
+    var opt = document.createElement('option');
+    opt.value = ROTAS[i];
+    opt.textContent = ROTAS[i];
+    select.appendChild(opt);
+  }
+}
+
+async function iniciarApp() {
+  await carregarDados();
+  popularSelectRotas();
+  ajustarAgentePorClasse();
+  render();
+  sincronizarSubtituloRelatorio();
+}
+
+function inicializar() {
+  document.getElementById("mes").addEventListener("change", render);
+  document.getElementById("classe").addEventListener("change", render);
+  document.getElementById("busca").addEventListener("input", render);
+  document.getElementById("limpar").addEventListener("click", function() {
+    document.getElementById("mes").value = "all";
+    document.getElementById("classe").value = "all";
+    document.getElementById("busca").value = "";
+    render();
+  });
+  var relMes = document.getElementById('relMes');
+  var relClasse = document.getElementById('relClasse');
+  if (relMes) relMes.addEventListener('change', sincronizarSubtituloRelatorio);
+  if (relClasse) relClasse.addEventListener('change', sincronizarSubtituloRelatorio);
+
+  iniciarApp();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', inicializar);
+} else {
+  inicializar();
+}
+</script>
+</body>
+</html>
