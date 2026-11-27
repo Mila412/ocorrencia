@@ -1,0 +1,69 @@
+* { box-sizing: border-box; }
+:root { font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #172536; background: #f3f6fa; }
+body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
+.topbar { min-height: 72px; background: #16324f; color: white; display: flex; align-items: center; justify-content: space-between; padding: 12px max(20px, calc((100% - 1050px)/2)); }
+.brand { display: flex; gap: 12px; align-items: center; }
+.brand-mark { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: #2e789e; font-weight: 800; font-size: 21px; }
+.brand strong, .brand small { display: block; }
+.brand small { color: #c7d6e3; font-size: 12px; margin-top: 2px; }
+.container { width: min(100% - 32px, 900px); margin: 34px auto 56px; flex: 1; }
+h1 { font-size: clamp(26px, 4vw, 34px); margin: 0 0 8px; letter-spacing: -.7px; }
+h2 { font-size: 20px; margin: 0 0 20px; }
+h3 { font-size: 17px; margin: 0; }
+p { line-height: 1.55; }
+.muted { color: #65758a; margin-top: 0; }
+.panel { background: white; border: 1px solid #e1e8f0; border-radius: 16px; padding: 26px; box-shadow: 0 8px 24px rgba(22,50,79,.05); }
+.auth-panel { max-width: 440px; margin: 7vh auto; }
+label { display: block; font-weight: 650; font-size: 14px; margin: 16px 0 7px; }
+input, textarea, select { width: 100%; border: 1px solid #cbd5e1; border-radius: 9px; padding: 12px 13px; background: white; color: #172536; font: inherit; min-height: 44px; }
+textarea { resize: vertical; }
+input:focus, textarea:focus, select:focus { outline: 3px solid #d6eaf5; border-color: #2e789e; }
+.button { border: 0; border-radius: 9px; padding: 11px 17px; font: inherit; font-weight: 650; cursor: pointer; min-height: 42px; }
+.button:disabled { opacity: .55; cursor: wait; }
+.button-primary { background: #176b87; color: white; }
+.button-primary:hover { background: #12566d; }
+.button-ghost { color: white; background: transparent; border: 1px solid #668096; }
+.button-outline { color: #176b87; background: white; border: 1px solid #a8c6d3; }
+.button-danger { background: #fff0f0; color: #a52b2b; }
+.button-small { min-height: 36px; padding: 7px 12px; font-size: 13px; }
+.full { width: 100%; margin-top: 22px; }
+.text-button { border: 0; background: none; color: #176b87; padding: 16px 0 0; cursor: pointer; font: inherit; }
+.message { font-size: 13px; min-height: 18px; }
+.error { color: #b42318; }
+.success { color: #167044; }
+.hidden { display: none !important; }
+.welcome { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 24px; }
+.eyebrow { color: #176b87; font-weight: 750; font-size: 11px; letter-spacing: 1.4px; margin: 0 0 7px; }
+.cloud-label { color: #167044; background: #e9f7ef; padding: 8px 12px; border-radius: 30px; font-size: 12px; white-space: nowrap; }
+.dot { display: inline-block; width: 7px; height: 7px; background: #20a464; border-radius: 50%; margin-right: 5px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+.field-wide { grid-column: 1 / -1; }
+.field label { margin-top: 0; }
+.field { margin-bottom: 14px; }
+.actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 4px 0 0; }
+.actions .message { margin: 0; }
+.records-section { margin-top: 34px; }
+.section-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
+.section-heading h2 { margin-bottom: 4px; }
+.section-heading p { margin: 0; }
+.records { display: grid; gap: 12px; }
+.record-card { background: white; border: 1px solid #e1e8f0; border-radius: 13px; padding: 18px 20px; }
+.record-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.status { background: #eaf3f8; color: #176b87; border-radius: 20px; padding: 5px 10px; font-size: 12px; white-space: nowrap; }
+.record-meta, .record-date { color: #65758a; font-size: 13px; }
+.record-description { white-space: pre-wrap; overflow-wrap: anywhere; }
+.record-controls { display: flex; gap: 10px; align-items: center; margin-top: 14px; }
+.record-controls select { max-width: 210px; min-height: 36px; padding: 6px 9px; font-size: 13px; }
+.empty-state { background: white; padding: 25px; border-radius: 12px; text-align: center; color: #65758a; border: 1px dashed #cbd5e1; }
+footer { text-align: center; padding: 20px; color: #8290a0; font-size: 12px; }
+@media (max-width: 600px) {
+  .container { margin-top: 22px; width: min(100% - 22px, 900px); }
+  .panel { padding: 19px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .field-wide { grid-column: auto; }
+  .welcome { align-items: flex-start; flex-direction: column; }
+  .section-heading { align-items: flex-start; }
+  .record-top { flex-direction: column; }
+  .record-controls { align-items: stretch; flex-direction: column; }
+  .record-controls select { max-width: none; }
+}
