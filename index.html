@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -113,6 +113,12 @@
   .checkbox-grid input{accent-color:var(--accent)}
   .report-preview-note{font-size:.8rem;color:var(--muted);margin-top:8px;line-height:1.4;}
 
+  /* LOGIN */
+  #loginOverlay{position:fixed;inset:0;background:rgba(15,23,42,.97);display:flex;align-items:center;justify-content:center;z-index:9999;}
+  #loginOverlay .login-box{background:#1e293b;padding:32px;border-radius:12px;border:1px solid #334155;max-width:400px;width:90%;}
+  #loginOverlay input{width:100%;padding:10px;background:#243449;border:1px solid #334155;border-radius:8px;color:#e2e8f0;}
+  #loginErro{display:none;background:rgba(239,68,68,.15);color:#ef4444;padding:10px;border-radius:8px;margin-bottom:12px;font-size:.85rem;}
+  #btnSair{display:none;position:fixed;top:16px;right:16px;background:#ef4444;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;z-index:100;}
   #loader{display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:9998;align-items:center;justify-content:center;color:#38bdf8;font-size:1.2rem;font-weight:600;}
 
   @media(max-width:600px){
@@ -360,6 +366,27 @@
   </div>
 </div>
 
+<!-- OVERLAY DE LOGIN -->
+<div id="loginOverlay">
+  <div class="login-box">
+    <h2 style="color:#38bdf8;margin-bottom:8px;">&#128652; Frota Atlântico</h2>
+    <p style="color:#94a3b8;font-size:.85rem;margin-bottom:20px;">Faça login para acessar o dashboard</p>
+    <div id="loginErro"></div>
+    <form onsubmit="fazerLogin(event)">
+      <div style="margin-bottom:12px;">
+        <input type="email" id="loginEmail" placeholder="Email" required autocomplete="username">
+      </div>
+      <div style="margin-bottom:16px;">
+        <input type="password" id="loginSenha" placeholder="Senha" required autocomplete="current-password">
+      </div>
+      <button type="submit" style="width:100%;padding:12px;background:#38bdf8;color:#0f172a;border:none;border-radius:8px;font-weight:700;cursor:pointer;">
+        Entrar
+      </button>
+    </form>
+  </div>
+</div>
+
+<button id="btnSair" onclick="fazerLogout()">Sair</button>
 <div id="loader">Carregando...</div>
 
 <script>
@@ -368,8 +395,8 @@
 /* ============================================================
    1) CONFIGURAÇÃO SUPABASE — SUBSTITUA AQUI
    ============================================================ */
-var SUPABASE_URL = "https://hnezekphzwrbdkxpvwkw.supabase.co";
-var SUPABASE_ANON_KEY = "sb_publishable_hYhWX0PKcJ-SY0aUOv9vtw_Vvz0dTed";
+var SUPABASE_URL = "https://SEU-PROJETO.supabase.co";
+var SUPABASE_ANON_KEY = "SUA_ANON_KEY_AQUI";
 
 var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -467,7 +494,49 @@ async function recarregarDoBanco() {
 }
 
 /* ============================================================
-   4) NAVEGAÇÃO DE ABAS
+   4) LOGIN
+   ============================================================ */
+function fazerLogin(event) {
+  event.preventDefault();
+  const email = document.getElementById('loginEmail').value.trim();
+  const senha = document.getElementById('loginSenha').value;
+  const erroEl = document.getElementById('loginErro');
+  erroEl.style.display = 'none';
+  mostrarLoader(true);
+
+  supabase.auth.signInWithPassword({ email: email, password: senha })
+    .then(function(res) {
+      mostrarLoader(false);
+      if (res.error) {
+        erroEl.textContent = "Login falhou: " + res.error.message;
+        erroEl.style.display = 'block';
+      } else {
+        iniciarApp();
+      }
+    })
+    .catch(function(err) {
+      mostrarLoader(false);
+      erroEl.textContent = "Erro: " + err.message;
+      erroEl.style.display = 'block';
+    });
+}
+
+function fazerLogout() {
+  supabase.auth.signOut().then(function() { location.reload(); });
+}
+
+async function iniciarApp() {
+  document.getElementById('loginOverlay').style.display = 'none';
+  document.getElementById('btnSair').style.display = 'block';
+  await carregarDados();
+  popularSelectRotas();
+  ajustarAgentePorClasse();
+  render();
+  sincronizarSubtituloRelatorio();
+}
+
+/* ============================================================
+   5) NAVEGAÇÃO DE ABAS
    ============================================================ */
 function mudarAba(abaId) {
   var botoes = document.querySelectorAll('.tab-btn');
@@ -502,7 +571,7 @@ function mudarAba(abaId) {
 }
 
 /* ============================================================
-   5) AGENTE AUTOMÁTICO
+   6) AGENTE AUTOMÁTICO
    ============================================================ */
 function ajustarAgentePorClasse() {
   var classe = document.getElementById('novoClasse').value;
@@ -521,7 +590,7 @@ function ajustarAgentePorClasse() {
 }
 
 /* ============================================================
-   6) SALVAR / EDITAR / EXCLUIR
+   7) SALVAR / EDITAR / EXCLUIR
    ============================================================ */
 async function salvarNovoRegistro(event) {
   event.preventDefault();
@@ -674,7 +743,7 @@ async function resetarDadosPadrao() {
 }
 
 /* ============================================================
-   7) CLASSIFICAÇÃO E CONTAGEM
+   8) CLASSIFICAÇÃO E CONTAGEM
    ============================================================ */
 function classificarOcorrencia(o) {
   if (!o) return "neutral";
@@ -711,7 +780,7 @@ function renderBars(containerId, entries, colorMap) {
 }
 
 /* ============================================================
-   8) GRÁFICOS CUSTOMIZADOS
+   9) GRÁFICOS CUSTOMIZADOS
    ============================================================ */
 var PALETA = ["#38bdf8", "#22c55e", "#f59e0b", "#ef4444", "#a78bfa", "#10b981", "#f472b6", "#14b8a6", "#eab308", "#6366f1", "#f97316", "#06b6d4"];
 
@@ -1008,7 +1077,7 @@ function baixarGraficoPNG() {
 }
 
 /* ============================================================
-   9) RELATÓRIO PDF
+   10) RELATÓRIO PDF
    ============================================================ */
 function sincronizarSubtituloRelatorio() {
   var mes = document.getElementById('relMes').value;
@@ -1128,7 +1197,7 @@ function gerarRelatorioPDF() {
 }
 
 /* ============================================================
-   10) RENDER DASHBOARD
+   11) RENDER DASHBOARD
    ============================================================ */
 function render() {
   var mes = document.getElementById("mes").value;
@@ -1208,7 +1277,7 @@ function formatarData(iso) {
 }
 
 /* ============================================================
-   11) INICIALIZAÇÃO
+   12) INICIALIZAÇÃO
    ============================================================ */
 function popularSelectRotas() {
   var select = document.getElementById('novoRota');
@@ -1221,14 +1290,6 @@ function popularSelectRotas() {
     opt.textContent = ROTAS[i];
     select.appendChild(opt);
   }
-}
-
-async function iniciarApp() {
-  await carregarDados();
-  popularSelectRotas();
-  ajustarAgentePorClasse();
-  render();
-  sincronizarSubtituloRelatorio();
 }
 
 function inicializar() {
@@ -1246,7 +1307,13 @@ function inicializar() {
   if (relMes) relMes.addEventListener('change', sincronizarSubtituloRelatorio);
   if (relClasse) relClasse.addEventListener('change', sincronizarSubtituloRelatorio);
 
-  iniciarApp();
+  supabase.auth.getSession().then(function(res) {
+    if (res.data && res.data.session) {
+      iniciarApp();
+    } else {
+      document.getElementById('loginOverlay').style.display = 'flex';
+    }
+  });
 }
 
 if (document.readyState === 'loading') {
