@@ -1,4 +1,4 @@
-<!DOCTYPE html>  
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -119,6 +119,8 @@
   #loginOverlay input{width:100%;padding:10px;background:#243449;border:1px solid #334155;border-radius:8px;color:#e2e8f0;}
   #loginErro{display:none;background:rgba(239,68,68,.15);color:#ef4444;padding:10px;border-radius:8px;margin-bottom:12px;font-size:.85rem;}
   #btnSair{display:none;position:fixed;top:16px;right:16px;background:#ef4444;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;z-index:100;}
+  #userBadge{display:none;position:fixed;top:16px;right:110px;background:#243449;color:#38bdf8;border:1px solid #334155;padding:8px 14px;border-radius:8px;font-weight:600;font-size:.85rem;z-index:100;}
+
   #loader{display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:9998;align-items:center;justify-content:center;color:#38bdf8;font-size:1.2rem;font-weight:600;}
 
   @media(max-width:600px){
@@ -128,6 +130,7 @@
     .bar-row .name{width:90px}
     th,td{padding:8px}
     .report-config .form-grid{grid-template-columns:1fr}
+    #userBadge{right:80px;font-size:.72rem;padding:6px 10px;}
   }
 </style>
 </head>
@@ -138,7 +141,7 @@
 
 <div class="tabs">
   <button class="tab-btn active" onclick="mudarAba('dashboard')">&#128202; Dashboard &amp; Relatórios</button>
-  <button class="tab-btn" onclick="mudarAba('cadastro')">&#10133; Inserir Novo Dado</button>
+  <button class="tab-btn" onclick="mudarAba('cadastro')" id="tabBtnCadastro">&#10133; Inserir Novo Dado</button>
   <button class="tab-btn" onclick="mudarAba('gerador-graficos')">&#128200; Módulo de Gráficos Customizados</button>
   <button class="tab-btn" onclick="mudarAba('relatorio-pdf')">&#128424; Relatório PDF</button>
 </div>
@@ -166,7 +169,7 @@
     <input id="busca" type="text" placeholder="Carro, rota, motorista, agente ou ocorrência...">
     <button class="btn" id="limpar">Limpar filtros</button>
     <button class="btn btn-secondary" onclick="recarregarDoBanco()" title="Sincronizar com o banco">&#128260; Atualizar</button>
-    <button class="btn btn-danger" onclick="resetarDadosPadrao()" title="Restaurar dados iniciais">Restaurar Padrão</button>
+    <button class="btn btn-danger" id="btnResetarPadrao" onclick="resetarDadosPadrao()" title="Restaurar dados iniciais">Restaurar Padrão</button>
   </div>
 
   <div class="kpis" id="kpis"></div>
@@ -383,9 +386,14 @@
         Entrar
       </button>
     </form>
+    <p style="color:#64748b;font-size:.75rem;margin-top:16px;text-align:center;line-height:1.4;">
+      👤 Comum: visualiza e exporta relatórios<br>
+      🛡️ Admin: acesso total (cadastrar/editar/excluir)
+    </p>
   </div>
 </div>
 
+<div id="userBadge"></div>
 <button id="btnSair" onclick="fazerLogout()">Sair</button>
 <div id="loader">Carregando...</div>
 
@@ -393,9 +401,9 @@
 "use strict";
 
 /* ============================================================
-   1) CONFIGURAÇÃO SUPABASE — SUBSTITUA AQUI
+   1) CONFIGURAÇÃO SUPABASE
    ============================================================ */
-var SUPABASE_URL = ""https://kgejdurrckstrceejgty.supabase.co";
+var SUPABASE_URL = "https://kgejdurrckstrceejgty.supabase.co";
 var SUPABASE_ANON_KEY = "sb_publishable_uvvWv1WRMc6Va5_K-zRlQA_dLRRgMVT";
 
 var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -466,11 +474,79 @@ function appParaDb(d) {
 }
 
 var dados = [];
+var perfilUsuario = null; // { id, email, role }
+
+function isAdmin() {
+  return perfilUsuario && perfilUsuario.role === 'admin';
+}
 
 function mostrarLoader(show) {
   document.getElementById('loader').style.display = show ? 'flex' : 'none';
 }
 
+/* ============================================================
+   4) AUTH — LOGIN / LOGOUT / PERFIL
+   ============================================================ */
+async function fazerLogin(event) {
+  event.preventDefault();
+  const email = document.getElementById('loginEmail').value.trim();
+  const senha = document.getElementById('loginSenha').value;
+  const erroEl = document.getElementById('loginErro');
+  erroEl.style.display = 'none';
+  mostrarLoader(true);
+
+  try {
+    const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+    if (error) throw error;
+    await iniciarApp();
+  } catch (err) {
+    erroEl.textContent = "Login falhou: " + (err.message || err);
+    erroEl.style.display = 'block';
+  } finally {
+    mostrarLoader(false);
+  }
+}
+
+async function fazerLogout() {
+  await supabase.auth.signOut();
+  location.reload();
+}
+
+async function carregarPerfil(userId) {
+  const { data, error } = await supabase
+    .from('perfis')
+    .select('id,email,role')
+    .eq('id', userId)
+    .single();
+  if (error) {
+    console.error('Erro ao carregar perfil:', error);
+    // fallback: assume comum para não vazar privilégios
+    perfilUsuario = { id: userId, email: '', role: 'comum' };
+  } else {
+    perfilUsuario = data;
+  }
+  aplicarPermissoesUI();
+}
+
+function aplicarPermissoesUI() {
+  const admin = isAdmin();
+
+  const badge = document.getElementById('userBadge');
+  badge.style.display = 'block';
+  badge.textContent = (admin ? '🛡️ Admin' : '👤 Comum') + ' — ' + (perfilUsuario.email || '');
+
+  // Botão "Restaurar Padrão" (dashboard)
+  const btnReset = document.getElementById('btnResetarPadrao');
+  if (btnReset) btnReset.style.display = admin ? '' : 'none';
+
+  // Aba "Inserir Novo Dado"
+  const tabCadastro = document.getElementById('tabBtnCadastro');
+  if (tabCadastro) tabCadastro.style.display = admin ? '' : 'none';
+}
+
+/* ============================================================
+   5) DADOS
+   ============================================================ */
 async function carregarDados() {
   mostrarLoader(true);
   const { data, error } = await supabase
@@ -494,51 +570,14 @@ async function recarregarDoBanco() {
 }
 
 /* ============================================================
-   4) LOGIN
-   ============================================================ */
-function fazerLogin(event) {
-  event.preventDefault();
-  const email = document.getElementById('loginEmail').value.trim();
-  const senha = document.getElementById('loginSenha').value;
-  const erroEl = document.getElementById('loginErro');
-  erroEl.style.display = 'none';
-  mostrarLoader(true);
-
-  supabase.auth.signInWithPassword({ email: email, password: senha })
-    .then(function(res) {
-      mostrarLoader(false);
-      if (res.error) {
-        erroEl.textContent = "Login falhou: " + res.error.message;
-        erroEl.style.display = 'block';
-      } else {
-        iniciarApp();
-      }
-    })
-    .catch(function(err) {
-      mostrarLoader(false);
-      erroEl.textContent = "Erro: " + err.message;
-      erroEl.style.display = 'block';
-    });
-}
-
-function fazerLogout() {
-  supabase.auth.signOut().then(function() { location.reload(); });
-}
-
-async function iniciarApp() {
-  document.getElementById('loginOverlay').style.display = 'none';
-  document.getElementById('btnSair').style.display = 'block';
-  await carregarDados();
-  popularSelectRotas();
-  ajustarAgentePorClasse();
-  render();
-  sincronizarSubtituloRelatorio();
-}
-
-/* ============================================================
-   5) NAVEGAÇÃO DE ABAS
+   6) NAVEGAÇÃO DE ABAS
    ============================================================ */
 function mudarAba(abaId) {
+  if (abaId === 'cadastro' && !isAdmin()) {
+    alert("Acesso restrito a administradores.");
+    return;
+  }
+
   var botoes = document.querySelectorAll('.tab-btn');
   var conteudos = document.querySelectorAll('.tab-content');
   var i;
@@ -571,7 +610,7 @@ function mudarAba(abaId) {
 }
 
 /* ============================================================
-   6) AGENTE AUTOMÁTICO
+   7) AGENTE AUTOMÁTICO
    ============================================================ */
 function ajustarAgentePorClasse() {
   var classe = document.getElementById('novoClasse').value;
@@ -590,10 +629,12 @@ function ajustarAgentePorClasse() {
 }
 
 /* ============================================================
-   7) SALVAR / EDITAR / EXCLUIR
+   8) SALVAR / EDITAR / EXCLUIR (somente admin)
    ============================================================ */
 async function salvarNovoRegistro(event) {
   event.preventDefault();
+  if (!isAdmin()) { alert("Apenas administradores podem cadastrar/editar registros."); return; }
+
   var editandoId = document.getElementById('editandoId').value;
   var classeSelecionada = document.getElementById('novoClasse').value;
 
@@ -668,6 +709,8 @@ function limparFormulario() {
 }
 
 function editarRegistro(id) {
+  if (!isAdmin()) { alert("Apenas administradores podem editar registros."); return; }
+
   var reg = null;
   for (var i = 0; i < dados.length; i++) {
     if (dados[i].id === id) { reg = dados[i]; break; }
@@ -711,6 +754,7 @@ function editarRegistro(id) {
 function cancelarEdicao() { limparFormulario(); mudarAba('dashboard'); }
 
 async function excluirRegistro(id) {
+  if (!isAdmin()) { alert("Apenas administradores podem excluir registros."); return; }
   if (!confirm("Tem certeza que deseja excluir este registro? Esta ação não pode ser desfeita.")) return;
   mostrarLoader(true);
   const { error } = await supabase.from('registros').delete().eq('id', id);
@@ -721,6 +765,7 @@ async function excluirRegistro(id) {
 }
 
 async function resetarDadosPadrao() {
+  if (!isAdmin()) { alert("Apenas administradores podem restaurar os dados padrão."); return; }
   if (!confirm("Isso apagará TODOS os registros do banco e reinserirá os dados iniciais. Confirma?")) return;
   mostrarLoader(true);
   try {
@@ -743,7 +788,7 @@ async function resetarDadosPadrao() {
 }
 
 /* ============================================================
-   8) CLASSIFICAÇÃO E CONTAGEM
+   9) CLASSIFICAÇÃO E CONTAGEM
    ============================================================ */
 function classificarOcorrencia(o) {
   if (!o) return "neutral";
@@ -780,7 +825,7 @@ function renderBars(containerId, entries, colorMap) {
 }
 
 /* ============================================================
-   9) GRÁFICOS CUSTOMIZADOS
+   10) GRÁFICOS CUSTOMIZADOS
    ============================================================ */
 var PALETA = ["#38bdf8", "#22c55e", "#f59e0b", "#ef4444", "#a78bfa", "#10b981", "#f472b6", "#14b8a6", "#eab308", "#6366f1", "#f97316", "#06b6d4"];
 
@@ -1077,7 +1122,7 @@ function baixarGraficoPNG() {
 }
 
 /* ============================================================
-   10) RELATÓRIO PDF
+   11) RELATÓRIO PDF
    ============================================================ */
 function sincronizarSubtituloRelatorio() {
   var mes = document.getElementById('relMes').value;
@@ -1197,7 +1242,7 @@ function gerarRelatorioPDF() {
 }
 
 /* ============================================================
-   11) RENDER DASHBOARD
+   12) RENDER DASHBOARD
    ============================================================ */
 function render() {
   var mes = document.getElementById("mes").value;
@@ -1254,6 +1299,15 @@ function render() {
     var tagLabel = cls === "ok" ? "OK" : cls === "bad" ? "Crítico" : cls === "warn" ? "Atenção" : "Neutro";
     var horaSaidaExibir = (d.horaSaida && d.horaSaida.trim() !== "") ? d.horaSaida : "—";
     var horaOcorrenciaExibir = (d.horaOcorrencia && d.horaOcorrencia.trim() !== "") ? d.horaOcorrencia : "—";
+
+    var acoesHtml;
+    if (isAdmin()) {
+      acoesHtml = '<button class="btn btn-edit" onclick="editarRegistro(\'' + d.id + '\')">Editar</button>' +
+                  '<button class="btn btn-delete" onclick="excluirRegistro(\'' + d.id + '\')">Excluir</button>';
+    } else {
+      acoesHtml = '<span class="meta-sub">—</span>';
+    }
+
     return '<tr>' +
       '<td>' + formatarData(d.data) + '</td>' +
       '<td><strong>' + d.carro + '</strong><div class="meta-sub">' + d.rota + '</div></td>' +
@@ -1263,10 +1317,7 @@ function render() {
       '<td><div class="meta-sub">Saída: ' + horaSaidaExibir + '</div><div class="meta-sub">Ocorr.: ' + horaOcorrenciaExibir + '</div></td>' +
       '<td><span class="tag ' + tagClass + '">' + tagLabel + '</span><div>' + d.ocorrencia + '</div>' +
         (d.observacoes ? '<div class="obs-text">' + d.observacoes + '</div>' : '') + '</td>' +
-      '<td><div class="actions">' +
-        '<button class="btn btn-edit" onclick="editarRegistro(\'' + d.id + '\')">Editar</button>' +
-        '<button class="btn btn-delete" onclick="excluirRegistro(\'' + d.id + '\')">Excluir</button>' +
-      '</div></td></tr>';
+      '<td><div class="actions">' + acoesHtml + '</div></td></tr>';
   }).join("");
 }
 function formatarData(iso) {
@@ -1277,7 +1328,7 @@ function formatarData(iso) {
 }
 
 /* ============================================================
-   12) INICIALIZAÇÃO
+   13) INICIALIZAÇÃO
    ============================================================ */
 function popularSelectRotas() {
   var select = document.getElementById('novoRota');
@@ -1290,6 +1341,24 @@ function popularSelectRotas() {
     opt.textContent = ROTAS[i];
     select.appendChild(opt);
   }
+}
+
+async function iniciarApp() {
+  document.getElementById('loginOverlay').style.display = 'none';
+  document.getElementById('btnSair').style.display = 'block';
+
+  const { data: sess } = await supabase.auth.getUser();
+  if (!sess || !sess.user) {
+    document.getElementById('loginOverlay').style.display = 'flex';
+    return;
+  }
+  await carregarPerfil(sess.user.id);
+
+  await carregarDados();
+  popularSelectRotas();
+  ajustarAgentePorClasse();
+  render();
+  sincronizarSubtituloRelatorio();
 }
 
 function inicializar() {
@@ -1307,6 +1376,7 @@ function inicializar() {
   if (relMes) relMes.addEventListener('change', sincronizarSubtituloRelatorio);
   if (relClasse) relClasse.addEventListener('change', sincronizarSubtituloRelatorio);
 
+  // Verifica se já existe sessão ativa
   supabase.auth.getSession().then(function(res) {
     if (res.data && res.data.session) {
       iniciarApp();
