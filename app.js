@@ -2,7 +2,7 @@
   const $ = (id) => document.getElementById(id);
   const cfg = window.APP_CONFIG || {};
   const configured = cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY &&
-    !cfg.SUPABASE_URL.includes("COLE_AQUI") && !cfg.SUPABASE_ANON_KEY.includes("COLE_AQUI");
+    !cfg.SUPABASE_URL.includes("https://kgejdurrckstrceejgty.supabase.co") && !cfg.SUPABASE_ANON_KEY.includes("sb_publishable_uvvWv1WRMc6Va5_K-zRlQA_dLRRgMVT");
 
   const authPanel = $("authPanel");
   const appPanel = $("appPanel");
